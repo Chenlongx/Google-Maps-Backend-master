@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>用户管理系统 - 添加用户</title>
+<style>
+    /* ===== 全局样式 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', 'Microsoft Yahei', sans-serif;
+        background: linear-gradient(135deg, #dfe9f3 0%, #ffffff 100%);
+        color: #333;
+        padding: 40px;
+    }
+
+    /* ===== 容器 ===== */
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 30px 40px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        backdrop-filter: blur(6px);
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* ===== 标题 ===== */
+    h1 {
+        text-align: center;
+        font-weight: 600;
+        font-size: 28px;
+        color: #444;
+        margin-bottom: 24px;
+        letter-spacing: 1px;
+    }
+
+    /* ===== 表单 ===== */
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    label {
+        font-weight: 500;
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 4px;
+    }
+
+    input, select {
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+        transition: all 0.2s;
+        background: #fafafa;
+    }
+
+    input:focus, select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 6px rgba(13,110,253,0.25);
+        outline: none;
+        background: #fff;
+    }
+
+    /* ===== 按钮样式 ===== */
+    .btn-row {
+        display: flex;
+        gap: 12px;
+    }
+    button {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #6a5acd, #7b68ee);
+        color: #fff;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a4acb, #6b58de);
+    }
+    .btn-secondary {
+        background: #eee;
+        color: #555;
+    }
+    .btn-secondary:hover {
+        background: #ddd;
+    }
+
+    /* ===== 行布局 ===== */
+    .row {
+        display: flex;
+        gap: 10px;
+    }
+    .row > * {
+        flex: 1;
+    }
+
+    /* ===== 自定义提示 ===== */
+    #customAlert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #4caf50;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        display: none;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        animation: slideDown 0.4s ease;
+    }
+
+    /* ===== 动画 ===== */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translate(-50%, -20px); }
+        to { opacity: 1; transform: translate(-50%, 0); }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>✨ 添加新用户 ✨</h1>
+
+    <form id="createUserForm" autocomplete="off">
+        <div>
+            <label for="account">账号</label>
+            <input id="account" type="text" pattern="^[a-zA-Z0-9]+$" placeholder="请输入账号" required>
+        </div>
+
+        <div>
+            <label for="password">密码</label>
+            <input id="password" type="password" pattern="^[a-zA-Z0-9]+$" placeholder="请输入密码" required>
+        </div>
+
+        <div>
+            <label for="userType">用户类型</label>
+            <select id="userType">
+                <option value="trial">试用用户</option>
+                <option value="regular">正式用户</option>
+                <option value="permanent">永久用户</option>
+            </select>
+        </div>
+
+        <div id="timeLimitContainer" style="display:none;">
+            <label for="timeLimit">时间限制（自动计算）</label>
+            <select id="timeLimit">
+                <option value="">（不使用）</option>
+                <option value="1day">1 天</option>
+                <option value="1week">7 天</option>
+                <option value="1month">1 个月</option>
+                <option value="1year">1 年</option>
+            </select>
+        </div>
+
+        <div id="dateRangeContainer" style="display:none;">
+            <label>自定义开始 / 到期时间</label>
+            <div class="row">
+                <input id="startDate" type="datetime-local">
+                <input id="expiryDate" type="datetime-local">
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn-primary">创建用户</button>
+            <button type="button" class="btn-secondary" onclick="location.href='index.html'">返回</button>
+        </div>
+    </form>
+</div>
+
+<div id="customAlert"></div>
+
+<script>
+function showTimedAlert(msg, ms = 3000){
+    const a = document.getElementById('customAlert');
+    a.textContent = msg;
+    a.style.display = 'block';
+    setTimeout(()=>a.style.display='none', ms);
+}
+
+function checkAuthToken(){
+    const token = localStorage.getItem('authToken');
+    if(!token){
+        showTimedAlert('请先登录',3000);
+        setTimeout(()=>location.href='login.html',800);
+        return false;
+    }
+    return true;
+}
+
+window.onload = function(){
+    if(!checkAuthToken()) return;
+
+    const form = document.getElementById('createUserForm');
+    const userTypeSel = document.getElementById('userType');
+    const timeLimitContainer = document.getElementById('timeLimitContainer');
+    const dateRangeContainer = document.getElementById('dateRangeContainer');
+
+    function updateVisibility(){
+        if(userTypeSel.value === 'trial'){
+            timeLimitContainer.style.display = 'block';
+            dateRangeContainer.style.display = 'none';
+        } else {
+            timeLimitContainer.style.display = 'block';
+            dateRangeContainer.style.display = 'block';
+        }
+    }
+    userTypeSel.addEventListener('change', updateVisibility);
+    updateVisibility();
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const account = document.getElementById('account').value.trim();
+        const password = document.getElementById('password').value;
+        const userType = userTypeSel.value;
+        const timeLimit = document.getElementById('timeLimit').value || null;
+        const startDateRaw = document.getElementById('startDate').value;
+        const expiryDateRaw = document.getElementById('expiryDate').value;
+
+        if(!account || !password || !userType){
+            showTimedAlert('账号/密码/用户类型为必填项', 3000);
+            return;
+        }
+
+        const startDate = startDateRaw ? new Date(startDateRaw).toISOString() : null;
+        const expiryDate = expiryDateRaw ? new Date(expiryDateRaw).toISOString() : null;
+
+        const payload = { account, password, userType, timeLimit, startDate, expiryDate };
+
+        try {
+            const token = localStorage.getItem('authToken') || '';
+            const resp = await fetch('/.netlify/functions/createUser', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${token}`},
+                body: JSON.stringify(payload)
+            });
+
+            const resJson = await resp.json();
+
+            if(resp.ok && resJson.success){
+                showTimedAlert('用户添加成功', 2000);
+                setTimeout(()=> location.reload(), 800);
+            } else {
+                const msg = resJson.message || resJson.error || '添加失败';
+                showTimedAlert('添加失败：' + msg, 4000);
+            }
+        } catch (err) {
+            console.error(err);
+            showTimedAlert('网络错误或服务器错误', 4000);
+        }
+    });
+};
+</script>
+</body>
+</html>

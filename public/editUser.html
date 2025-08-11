@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>编辑用户 - 用户管理系统</title>
+    <style>
+        /* 样式部分保持不变，此处省略... */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; margin: 0; padding: 0; color: #333; font-size: 14px; box-sizing: border-box; }
+        .loading-container { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgba(0, 0, 0, 0.1); position: absolute; width: 100%; top: 0; left: 0; }
+        .loading-message { font-size: 24px; color: #4A90E2; font-weight: bold; }
+        .container { max-width: 800px; margin: 40px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); padding: 30px 40px; }
+        .title { text-align: center; font-size: 24px; color: #4A90E2; margin-bottom: 30px; font-weight: 600; }
+        .form-container { display: flex; flex-direction: column; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 8px; font-weight: 500; color: #555; }
+        .form-group input, .form-group select { padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 14px; transition: border-color 0.3s; }
+        .form-group input:focus, .form-group select:focus { border-color: #4A90E2; outline: none; box-shadow: 0 0 5px rgba(74, 144, 226, 0.5); }
+        .button-group { display: flex; justify-content: flex-end; gap: 15px; margin-top: 20px; }
+        .button-group button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 500; transition: background-color 0.3s, transform 0.2s; }
+        .button-group .save-btn { background-color: #4A90E2; color: #ffffff; }
+        .button-group .save-btn:hover { background-color: #357ABD; transform: translateY(-2px); }
+        .button-group .cancel-btn { background-color: #e0e0e0; color: #333333; }
+        .button-group .cancel-btn:hover { background-color: #c5c5c5; transform: translateY(-2px); }
+        .footer { text-align: center; margin-top: 60px; font-size: 14px; color: #aaa; }
+        @media (max-width: 600px) { .container { padding: 20px; margin: 20px; } .title { font-size: 20px; } .button-group { flex-direction: column; align-items: stretch; } .button-group button { width: 100%; } }
+    </style>
+</head>
+<body>
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-message">加载中，请稍候...</div>
+    </div>
+
+    <div class="container" id="contentContainer" style="display:none;">
+        <h2 class="title">编辑用户</h2>
+        <div class="form-container">
+            <div class="form-group">
+                <label for="userId">用户ID</label>
+                <input type="text" id="userId" name="userId" readonly />
+            </div>
+            <div class="form-group">
+                <label for="account">账号</label>
+                <input type="text" id="account" name="account" placeholder="请输入账号" />
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="留空则不修改密码" />
+            </div>
+            <div class="form-group">
+                <label for="deviceCode">绑定设备码</label>
+                <input type="text" id="deviceCode" name="deviceCode" placeholder="此为用户设备唯一标识码" />
+            </div>
+            <div class="form-group">
+                <label for="userType">类型</label>
+                <select id="userType" name="userType">
+                    <option value="regular">正式用户</option>
+                    <option value="trial">试用用户</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="createdAt">创建时间</label>
+                 <input type="datetime-local" id="createdAt" name="createdAt" />
+            </div>
+            <div class="form-group">
+                <label for="expiresAt">到期时间</label>
+                <input type="datetime-local" id="expiresAt" name="expiresAt" />
+            </div>
+            <div class="button-group">
+                <button class="save-btn" onclick="saveUser()">保存</button>
+                <button class="cancel-btn" onclick="cancelEdit()">取消</button>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 用户管理系统 | 版权所有</p>
+        </div>
+        <div id="customAlert" style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50; /* 绿色背景 */
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none; /* 默认隐藏 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-size: 16px;
+            text-align: center;
+        ">
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 显示一个会自动消失的自定义弹窗
+         * @param {string} message - 要显示的消息
+         * @param {number} duration - 消息显示的时长（毫秒）
+         * @param {function} [callback] - 消息消失后执行的回调函数
+        */
+        function showTimedAlert(message, duration, callback = null) {
+            const alertBox = document.getElementById('customAlert');
+            if (!alertBox) {
+                // 如果找不到元素，退回使用原生 alert
+                alert(message);
+                if (callback) callback();
+                return;
+            }
+
+            alertBox.textContent = message;
+            alertBox.style.display = 'block'; // 显示弹窗
+
+            setTimeout(() => {
+                alertBox.style.display = 'none'; // 隐藏弹窗
+                if (callback) {
+                    callback(); // 执行回调函数
+                }
+            }, duration);
+        }
+
+
+        // 获取 URL 参数的函数保持不变
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // 格式化日期时间为 datetime-local 输入格式的函数保持不变
+        function formatDateTimeLocal(dateTimeStr) {
+            if (!dateTimeStr) return '';
+            const date = new Date(dateTimeStr);
+            if (isNaN(date.getTime())) return '';
+            const offset = date.getTimezoneOffset();
+            const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
+            return adjustedDate.toISOString().slice(0, 16);
+        }
+
+        // 反格式化 datetime-local 输入值为 ISO 字符串的函数保持不变
+        function toISOStringFromLocal(dateTimeLocal) {
+            if (!dateTimeLocal) return null;
+            const date = new Date(dateTimeLocal);
+            if (isNaN(date.getTime())) return null;
+            return date.toISOString();
+        }
+
+        // 单独请求指定用户信息
+        async function fetchUserById(userId) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                // alert('请先登录');
+                showTimedAlert('请先登录', 3000);
+                window.location.href = 'login.html';
+                return null;
+            }
+            try {
+                // 请求的 URL 是正确的
+                const response = await fetch(`/.netlify/functions/getUserById?id=${encodeURIComponent(userId)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    throw new Error(`获取用户失败: ${response.status}`);
+                }
+                // 重要: Supabase 返回的数据在 `data.user` 中
+                const data = await response.json();
+                return data.user; 
+            } catch (error) {
+                console.error('获取用户信息时出错:', error);
+                // alert('加载用户信息失败，请重试。');
+                showTimedAlert('加载用户信息失败，请重试', 3000);
+                return null;
+            }
+        }
+
+        // 填充表单
+        function fillUserForm(user) {
+            console.log(user)
+            // 修复: 将 user._id 改为 user.id, 与数据库主键 'id' 对应
+            document.getElementById('userId').value = user.id || '';
+            document.getElementById('account').value = user.account || '';
+            document.getElementById('password').value = user.password || ''; // 密码字段默认留空
+            document.getElementById('userType').value = user.user_type || 'trial';
+            document.getElementById('createdAt').value = formatDateTimeLocal(user.created_at);
+            // 修复: 将 user.expiration_date 改为 user.expiry_at, 与数据库字段 'expiry_at' 对应
+            document.getElementById('expiresAt').value = formatDateTimeLocal(user.expiry_at);
+            document.getElementById('deviceCode').value = user.device_id || '未绑定'; 
+            
+            // 移除: status 字段已被删除
+            // document.getElementById('status').value = user.status || 'inactive';
+
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('contentContainer').style.display = 'block';
+        }
+
+        // 页面初始化，加载指定用户数据
+        async function init() {
+            const userId = getQueryParam('userId');
+            if (!userId) {
+                // alert('未指定用户ID');
+                showTimedAlert('未指定用户ID', 3000);
+                window.location.href = 'index.html';
+                return;
+            }
+            const user = await fetchUserById(userId);
+            if (!user) {
+                // 如果获取不到用户，也跳转回主页
+                // alert('无法找到该用户的信息。');
+                showTimedAlert('无法找到该用户的信息', 3000);
+                window.location.href = 'index.html';
+                return;
+            }
+            fillUserForm(user);
+        }
+
+        // 保存用户信息
+        async function saveUser() {
+            const userId = document.getElementById('userId').value;
+            const account = document.getElementById('account').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const userType = document.getElementById('userType').value;
+            const createdAt = document.getElementById('createdAt').value;
+            const expiresAt = document.getElementById('expiresAt').value;
+            const deviceCodeValue = document.getElementById('deviceCode').value.trim();
+            if (!account) {
+                // alert('账号不能为空');
+                showTimedAlert('账号不能为空', 3000);
+                return;
+            }
+
+            const updatedUser = {
+                // 修复: 将 'id' 作为主键发送给后端
+                id: userId,
+                username: account,
+                user_type: userType,
+                created_at: toISOStringFromLocal(createdAt),
+                // 修复: 使用 'expiry_at' 字段名发送给后端
+                expiry_at: toISOStringFromLocal(expiresAt),
+                device_id: deviceCodeValue
+            };
+
+            // 只有当用户输入了新密码时，才将 password 字段添加到对象中
+            if (password !== '') {
+                updatedUser.password = password;
+            }
+
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    // alert('请先登录');
+                    showTimedAlert('请先登录', 3000);
+                    window.location.href = 'login.html';
+                    return;
+                }
+                // 调用新建的 updateUser 函数
+                const response = await fetch('/.netlify/functions/updateUser', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatedUser)
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    // alert('用户信息已成功保存！');
+                    showTimedAlert('用户信息已成功保存', 3000);
+                    window.location.href = 'index.html';
+                } else {
+                    // alert('保存失败: ' + (result.message || '未知错误'));
+                    showTimedAlert('保存失败: ' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存用户时出错:', error);
+                // alert('保存用户信息时发生网络错误或服务器异常。');
+                showTimedAlert('保存用户信息时发生网络错误或服务器异常', 3000);
+            }
+        }
+
+        // 取消编辑
+        function cancelEdit() {
+            window.location.href = 'index.html';
+        }
+
+        // 页面加载后执行初始化
+        window.onload = init;
+    </script>
+</body>
+</html>

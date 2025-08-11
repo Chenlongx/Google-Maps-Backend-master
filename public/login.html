@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        /* 背景样式：为 loading container 设置背景 */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);  /* 半透明背景 */
+            z-index: 9999;  /* 确保它位于页面最上层 */
+            flex-direction: column;  /* 垂直方向排列 */
+            color: white;
+        }
+
+        /* 加载中的文字样式 */
+        .loading-message {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* 旋转动画的样式 */
+        .spinner {
+            border: 8px solid #f3f3f3; /* 轻灰色背景 */
+            border-top: 8px solid #3498db; /* 深蓝色的上边框 */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite; /* 旋转动画 */
+        }
+
+        /* 旋转动画关键帧 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .login-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 26px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .login-container p {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-button:hover {
+            background-color: #45a049;
+        }
+
+        /* 密码显示/隐藏按钮样式 */
+        .input-container {
+            position: relative;
+        }
+        .toggle-btn {
+            position: absolute;
+            right: 10px; /* 距离容器右边10px */
+            top: 50%; /* 垂直居中 */
+            transform: translateY(-50%); /* 使按钮完全居中 */
+            cursor: pointer;
+            font-size: 18px;
+            color: #777;
+            transition: color 0.3s;
+        }
+        .toggle-btn:hover {
+            color: #333;
+        }
+        .forgot-password {
+            color: #4CAF50;
+            font-size: 14px;
+            text-decoration: none;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>用户登录</h1>
+        <p>请输入您的用户名和密码进行登录</p>
+
+        <!-- 登录表单 -->
+        <form id="loginForm">
+            <input type="text" id="username" class="input-field" placeholder="用户名" required>
+            <!-- 密码输入框和显示/隐藏按钮 -->
+            <div class="input-container">
+                <input type="password" id="password" class="input-field" placeholder="密码" required>
+                <span id="togglePassword" class="toggle-btn">👁️</span>
+            </div>
+            <button type="submit" class="login-button">登录</button>
+        </form>
+
+        <!-- 忘记密码链接 -->
+        <a href="#" class="forgot-password" >忘记密码?</a>
+    </div>
+    <!-- 加载容器 -->
+    <div class="loading-container" id="loadingContainer" style="display: none">
+        <div class="loading-message">加载中，请稍候...</div>
+    </div>
+    <script>
+        // 获取表单元素
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loadingContainer = document.getElementById('loadingContainer');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // 切换密码显示/隐藏
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+
+            // 切换图标
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        // 监听表单提交
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault(); // 防止表单默认提交行为
+
+            const username = usernameInput.value;
+            const password = passwordInput.value;
+
+            // 检查用户名和密码是否为空
+            if (!username || !password) {
+                alert("请输入用户名和密码");
+                return;
+            }
+            console.log(username, password);
+            try {
+                // 显示加载器
+                document.getElementById('loadingContainer').style.display = 'flex';
+
+                // 发起登录请求
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 隐藏加载器
+                    document.getElementById('loadingContainer').style.display = 'none';
+
+                    // 登录成功
+                    // alert("登录成功！");
+
+                    // *** 核心修改：将 'data.token' 改为 'data.access_token' ***
+                    localStorage.setItem('authToken', data.access_token);
+                    console.log('authToken', data.access_token); // 也相应修改这里
+
+                    // 根据返回的用户信息，可以进行进一步操作，比如跳转到管理页面
+                    console.log("用户信息:", data.user);
+                    // 跳转页面
+                    window.location.href = 'index.html';
+                } else {
+                    // 登录失败
+                    alert(data.message || "登录失败，请重试");
+                    document.getElementById('loadingContainer').style.display = 'none';
+                }
+
+            } catch (error) {
+                // 网络错误或其他异常
+                console.error("请求失败:", error);
+                alert("请求失败，请稍后再试");
+            }
+        });
+
+
+        // 监听 "忘记密码" 链接的点击事件
+        document.querySelector('.forgot-password').addEventListener('click', function(event) {
+            event.preventDefault();  // 防止链接的默认跳转行为
+
+            // 弹出联系管理员的信息
+            alert('请联系管理员进行密码重置 \n邮箱: aa2231401652@gmail.com');
+        });
+    </script>
+</body>
+</html>

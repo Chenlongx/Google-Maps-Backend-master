@@ -1,0 +1,19 @@
+{
+	"geolocation": {
+		"data": {
+			"city": "Foshan",
+			"country": {
+				"code": "CN",
+				"name": "China"
+			},
+			"subdivision": {
+				"code": "GD",
+				"name": "Guangdong"
+			},
+			"timezone": "Asia/Shanghai",
+			"latitude": 23.0261,
+			"longitude": 113.1371
+		},
+		"timestamp": 1734999321257
+	}
+}

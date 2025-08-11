@@ -1,0 +1,35 @@
+[build]
+  base = "."
+  publish = "public"                # 根据你的项目结构，确保 'public' 是正确的发布目录
+  functions = "netlify/functions"   # 指定函数目录为 `netlify/functions`
+
+[[redirects]]
+  from = "/"
+  to = "/login.html"
+  status = 200
+  force = true  # 强制重定向
+
+[[redirects]]
+  from = "/api/login"
+  to = "/.netlify/functions/login"
+  status = 200
+
+[[redirects]]
+  from = "/api/getUsers"
+  to = "/.netlify/functions/getUsers"
+  status = 200
+
+[[redirects]]
+  from = "/deleteUser"
+  to = "/.netlify/functions/deleteUser"
+  status = 200
+
+[[redirects]]
+  from = "/api/receivingClient"  # 将前端的请求路由到此函数
+  to = "/.netlify/functions/receivingClient"
+  status = 200
+
+[[redirects]]
+  from = "/api/register"
+  to = "/.netlify/functions/register"
+  status = 200

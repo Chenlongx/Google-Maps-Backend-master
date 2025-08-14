@@ -33,7 +33,19 @@ exports.handler = async (event) => {
         // 从 Supabase 的 'user_accounts' 表中查询指定 ID 的用户
         const { data, error } = await supabase
             .from('user_accounts')
-            .select('*') // 选择所有列
+            // .select('*')
+            .select(`
+                id, 
+                account, 
+                password, 
+                device_id, 
+                user_type, 
+                created_at, 
+                expiry_at, 
+                status, 
+                is_ai_authorized, 
+                ai_tokens_remaining
+            `)
             // 修复: 查询条件从 '.eq('_id', userId)' 改为 '.eq('id', userId)'
             // Supabase 默认主键是 'id'，而不是 MongoDB 的 '_id'
             .eq('id', userId) 

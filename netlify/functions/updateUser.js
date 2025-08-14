@@ -21,13 +21,28 @@ exports.handler = async (event) => {
         }
 
         // 只保留数据库存在的字段
-        const allowedFields = ['account', 'password', 'device_id', 'user_type', 'created_at', 'expiry_at', 'status'];
+        // const allowedFields = ['account', 'password', 'device_id', 'user_type', 'created_at', 'expiry_at', 'status'];
+        const allowedFields = [
+            'account', 
+            'password', 
+            'device_id', 
+            'user_type', 
+            'created_at',
+            'expiry_at', 
+            'status',
+            'is_ai_authorized',       // <-- 新增
+            'ai_tokens_remaining'     // <-- 新增
+        ];
         const updateData = {};
 
         for (const key of allowedFields) {
             if (body[key] !== undefined) {
                 updateData[key] = body[key];
             }
+        }
+
+        if (Object.keys(updateData).length === 0) {
+            return { statusCode: 200, body: JSON.stringify({ success: true, message: 'No fields to update.' }) };
         }
 
         const { data, error } = await supabase

@@ -65,6 +65,17 @@
                 <label for="expiresAt">到期时间</label>
                 <input type="datetime-local" id="expiresAt" name="expiresAt" />
             </div>
+            <div class="form-group">
+                <label for="aiAuthorized">AI深度获客权限</label>
+                <select id="aiAuthorized" name="aiAuthorized">
+                    <option value="false">关闭</option>
+                    <option value="true">开启</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="aiTokens">AI Tokens 数量 (点数)</label>
+                <input type="number" id="aiTokens" name="aiTokens" placeholder="请输入用户剩余的点数" min="0" />
+            </div>
             <div class="button-group">
                 <button class="save-btn" onclick="saveUser()">保存</button>
                 <button class="cancel-btn" onclick="cancelEdit()">取消</button>
@@ -184,8 +195,10 @@
             document.getElementById('expiresAt').value = formatDateTimeLocal(user.expiry_at);
             document.getElementById('deviceCode').value = user.device_id || '未绑定'; 
             
-            // 移除: status 字段已被删除
-            // document.getElementById('status').value = user.status || 'inactive';
+            // AI相关字段
+            document.getElementById('aiAuthorized').value = user.is_ai_authorized ? 'true' : 'false';
+            document.getElementById('aiTokens').value = user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining : 0;
+
 
             document.getElementById('loadingContainer').style.display = 'none';
             document.getElementById('contentContainer').style.display = 'block';
@@ -220,6 +233,9 @@
             const createdAt = document.getElementById('createdAt').value;
             const expiresAt = document.getElementById('expiresAt').value;
             const deviceCodeValue = document.getElementById('deviceCode').value.trim();
+            const aiAuthorized = document.getElementById('aiAuthorized').value === 'true'; // 将字符串 'true' 转为布尔值
+            const aiTokens = parseInt(document.getElementById('aiTokens').value, 10) || 0; // 将字符串转为整数
+
             if (!account) {
                 // alert('账号不能为空');
                 showTimedAlert('账号不能为空', 3000);
@@ -234,7 +250,9 @@
                 created_at: toISOStringFromLocal(createdAt),
                 // 修复: 使用 'expiry_at' 字段名发送给后端
                 expiry_at: toISOStringFromLocal(expiresAt),
-                device_id: deviceCodeValue
+                device_id: deviceCodeValue,
+                is_ai_authorized: aiAuthorized,
+                ai_tokens_remaining: aiTokens
             };
 
             // 只有当用户输入了新密码时，才将 password 字段添加到对象中

@@ -361,6 +361,14 @@
         <div class="main-card">
             <div class="card-header">
                 <h1 class="card-title">谷歌地图获客用户管理后台</h1>
+                <div id="master-balance-container" style="margin-top: 10px; font-size: 16px; display: flex; align-items: center; gap: 10px;">
+                    <strong>Gemini 总可用 Tokens:</strong> 
+                    <span id="master-balance-display" style="color: var(--primary-color); font-weight: 600;">加载中...</span>
+                    <button id="edit-master-balance-btn" title="编辑总额度" style="background:none; border:none; cursor:pointer;">✏️</button>
+
+                    <span id="estimated-usage-display" style="border-left: 2px solid #ccc; margin-left: 10px; padding-left: 15px; color: #555;"></span>
+                </div>
+
                 <div class="search-container">
                     <input class="search-input" type="text" placeholder="按账号搜索用户...">
                     <svg id="clickSearch" class="search-icon" viewBox="0 0 1024 1024" version="1.1"
@@ -418,6 +426,8 @@
                             <th>创建时间</th>
                             <th>到期时间</th>
                             <th>状态</th>
+                            <th>AI权限</th>
+                            <th>AI Tokens</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -453,6 +463,9 @@
     </div>
 
     <script>
+        // 定义预估单次使用koken
+        const TOKENS_PER_AI_REQUEST = 3000;
+        
         // 全局变量
         let allUsers = []; // 存储从服务器获取的所有用户
 
@@ -542,13 +555,99 @@
             }
         }
 
+        // 获取并显示总Token余额的函数
+        async function fetchMasterBalance() {
+            const displayElement = document.getElementById('master-balance-display');
+            // 【新增】获取预估次数的显示元素
+            const usageElement = document.getElementById('estimated-usage-display');
+
+            try {
+                const token = localStorage.getItem('authToken'); 
+                const response = await fetch('/.netlify/functions/getMasterBalance', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                console.log("获取到的token数量", data);
+
+                if (data.success) {
+                    const totalTokens = data.balance;
+                    
+                    // 1. 更新总Token数量的显示
+                    displayElement.textContent = totalTokens.toLocaleString('en-US');
+
+                    // 2. 【新增】计算并更新预估可用次数
+                    if (TOKENS_PER_AI_REQUEST > 0) {
+                        // 使用Math.floor确保是整数次
+                        const estimatedUses = Math.floor(totalTokens / TOKENS_PER_AI_REQUEST);
+                        // 使用innerHTML可以方便地加入HTML标签，比如<strong>来加粗数字
+                        usageElement.innerHTML = `预估可用次数: <strong style="color: var(--success-color);">${estimatedUses.toLocaleString('en-US')}</strong> 次`;
+                    } else {
+                        usageElement.textContent = '预估次数: N/A';
+                    }
+
+                } else {
+                    // 如果获取失败，两个都显示失败状态
+                    displayElement.textContent = '获取失败';
+                    usageElement.textContent = '预估次数: N/A';
+                }
+            } catch (error) {
+                console.error('获取总Token余额失败:', error);
+                // 如果发生异常，也显示失败状态
+                displayElement.textContent = '获取失败';
+                usageElement.textContent = '预估次数: N/A';
+            }
+        }
+
+
+        // 更新总Token余额的函数
+        async function updateMasterBalance() {
+            const currentBalanceText = document.getElementById('master-balance-display').textContent.replace(/,/g, '');
+            const currentBalance = parseInt(currentBalanceText, 10) || 0;
+
+            const newBalanceStr = prompt("请输入您从Google Cloud后台看到的新的总Token数量:", currentBalance);
+            
+            if (newBalanceStr === null) return; // 用户点击了取消
+
+            const cleanedBalanceStr = newBalanceStr.replace(/,/g, '');
+            const newBalance = parseInt(cleanedBalanceStr, 10); 
+
+            if (isNaN(newBalance) || newBalance < 0) {
+                showTimedAlert('请输入一个有效的非负整数。', 3000);
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/.netlify/functions/updateMasterBalance', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ newBalance: newBalance })
+                });
+
+                const data = await response.json();
+                console.log(data)
+                if (data.success) {
+                    showTimedAlert('总Token数已更新！', 2000);
+                    fetchMasterBalance(); // 更新成功后重新获取并显示
+                } else {
+                    throw new Error(data.message || '更新失败');
+                }
+            } catch (error) {
+                showTimedAlert(`更新失败: ${error.message}`, 3000);
+            }
+        }
+
+
 
         function displayUsers(usersToDisplay) {
             const tableBody = document.querySelector("#userTable tbody");
             tableBody.innerHTML = ''; // 清空现有内容
 
             if (usersToDisplay.length === 0) {
-                const noDataRow = `<tr><td colspan="9" style="text-align: center; padding: 40px; color: #888;">暂无用户数据</td></tr>`;
+                const noDataRow = `<tr><td colspan="15" style="text-align: center; padding: 40px; color: #888;">暂无用户数据</td></tr>`;
                 tableBody.innerHTML = noDataRow;
                 return;
             }
@@ -569,6 +668,12 @@
                         statusBadge = '<span class="status-badge status-valid">有效</span>';
                     }
                 }
+                // 【新增】AI权限的徽章逻辑
+                const aiStatusBadge = `
+                    <span class="status-badge ${user.is_ai_authorized ? 'status-valid' : 'status-pending'}">
+                        ${user.is_ai_authorized ? '已开通' : '未开通'}
+                    </span>
+                `;
                 console.log(user.id)
                 row.innerHTML = `
                 <td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td>
@@ -583,6 +688,8 @@
                 <td>${formatDate(user.created_at)}</td>
                 <td>${formatDate(user.expiry_at)}</td>
                 <td>${statusBadge}</td>
+                <td>${aiStatusBadge}</td>
+                <td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td>
                 <td>
                     <button class="edit-button" data-user-id="${user.id}">编辑</button>
                 </td>
@@ -650,6 +757,8 @@
             // 页面加载完成后立即获取用户
             fetchUsers();
 
+            fetchMasterBalance();
+
             const searchInput = document.querySelector('.search-input');
             const searchButton = document.querySelector('#clickSearch');
             const deleteButton = document.getElementById('deleteButton');
@@ -680,6 +789,10 @@
                     checkbox.checked = this.checked;
                 });
             });
+
+            // 为编辑总Token按钮绑定事件
+            document.getElementById('edit-master-balance-btn').addEventListener('click', updateMasterBalance);
+            
         });
 
     </script>

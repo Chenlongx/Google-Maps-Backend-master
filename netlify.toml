@@ -34,3 +34,5 @@
   to = "/.netlify/functions/register"
   status = 200
 
+[functions]
+  timeout = 30

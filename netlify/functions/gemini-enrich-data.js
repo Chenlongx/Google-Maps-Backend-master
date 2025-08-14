@@ -4,8 +4,9 @@ const { createClient } = require('@supabase/supabase-js');
 // 初始化数据库和Gemini客户端
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 
 exports.handler = async function(event, context) {
     if (event.httpMethod !== 'POST') {

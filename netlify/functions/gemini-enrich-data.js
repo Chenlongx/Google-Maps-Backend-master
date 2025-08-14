@@ -4,8 +4,13 @@ const { createClient } = require('@supabase/supabase-js');
 // 初始化数据库和Gemini客户端
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const supabase = createClient(supabaseUrl, supabaseKey);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// 【新增】定义一个 tool，用于开启联网搜索功能
+const googleSearchTool = {
+  "Google Search": {},
+};
 
 
 exports.handler = async function(event, context) {
@@ -20,9 +25,9 @@ exports.handler = async function(event, context) {
             return { statusCode: 400, body: JSON.stringify({ success: false, message: '请求参数不正确' }) };
         }
         
-        // --- 1. 权限和Token余额验证 (服务器端再次验证，确保安全) ---
+        // --- 1. 权限和Token余额验证 ---
         let { data: user, error: userError } = await supabase
-            .from('user_accounts') // 注意：这里应该用您存储终端用户的表名，比如 'users' 或 'user_accounts'
+            .from('user_accounts')
             .select('is_ai_authorized, ai_tokens_remaining')
             .eq('id', user_id)
             .single();
@@ -34,7 +39,6 @@ exports.handler = async function(event, context) {
             return { statusCode: 403, body: JSON.stringify({ success: false, message: 'AI功能未授权' }) };
         }
         
-        // 假设每个公司消耗1个点数
         const tokens_needed = companies.length;
         if (user.ai_tokens_remaining < tokens_needed) {
             return { statusCode: 402, body: JSON.stringify({ success: false, message: 'AI点数余额不足' }) };
@@ -69,12 +73,21 @@ JSON模板：
 ${companiesListString}
 `;
         // --- 3. 调用Gemini API ---
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-        const result = await model.generateContent(prompt);
+        
+        // 【修改点 1】更新模型名称为 gemini-2.5-flash
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash",
+        });
+
+        const result = await model.generateContent({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            // 【修改点 2】添加 tools 配置，启用联网搜索
+            tools: [googleSearchTool],
+        });
+        
         const response = await result.response;
         let aiJsonText = response.text();
         
-        // 清理Gemini可能返回的包裹代码块的```json ... ```
         aiJsonText = aiJsonText.replace(/^```json\n/, '').replace(/\n```$/, '');
 
         let enrichedData;
@@ -84,19 +97,17 @@ ${companiesListString}
              throw new Error("AI未能返回有效的JSON数据格式。");
         }
 
-
         // --- 4. 更新用户Token余额 ---
         const tokens_used = tokens_needed;
         const new_tokens_remaining = user.ai_tokens_remaining - tokens_used;
 
         const { error: updateError } = await supabase
-            .from('users') // 同样，用您的用户表名
+            .from('user_accounts')
             .update({ ai_tokens_remaining: new_tokens_remaining })
             .eq('id', user_id);
 
         if (updateError) {
             console.error("更新Token失败:", updateError);
-            // 即使更新失败，也先把结果返回给用户，但需要记录这个错误
         }
 
         // --- 5. 返回成功响应 ---

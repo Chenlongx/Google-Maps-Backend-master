@@ -7,7 +7,8 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// 【新增】定义一个 tool，用于开启联网搜索功能
+// 【正确方式】定义一个 tool，用于开启联网搜索功能
+// 这在JavaScript/Node.js库中等同于Python的 types.Tool(Google Search=types.GoogleSearch())
 const googleSearchTool = {
   "Google Search": {},
 };
@@ -74,14 +75,14 @@ ${companiesListString}
 `;
         // --- 3. 调用Gemini API ---
         
-        // 【修改点 1】更新模型名称为 gemini-2.5-flash
+        // 使用当前最新的 gemini-2.5-flash 模型
         const model = genAI.getGenerativeModel({ 
             model: "gemini-2.5-flash",
         });
 
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
-            // 【修改点 2】添加 tools 配置，启用联网搜索
+            // 使用正确的 tools 配置，启用联网搜索
             tools: [googleSearchTool],
         });
         

@@ -21,7 +21,7 @@ exports.handler = async function(event, context) {
         
         // --- 1. 权限和Token余额验证 (服务器端再次验证，确保安全) ---
         let { data: user, error: userError } = await supabase
-            .from('users') // 注意：这里应该用您存储终端用户的表名，比如 'users' 或 'user_accounts'
+            .from('user_accounts') // 注意：这里应该用您存储终端用户的表名，比如 'users' 或 'user_accounts'
             .select('is_ai_authorized, ai_tokens_remaining')
             .eq('id', user_id)
             .single();

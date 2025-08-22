@@ -34,5 +34,6 @@
   to = "/.netlify/functions/register"
   status = 200
 
-[functions]
-  timeout = 30
+[dev]
+  port = 5000
+  functions = "netlify/functions"

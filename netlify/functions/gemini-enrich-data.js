@@ -1,9 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 
-// Configure the client
 const ai = new GoogleGenAI({});
 
-// Define the function declaration for the model
 const scheduleMeetingFunctionDeclaration = {
   name: 'schedule_meeting',
   description: 'Schedules a meeting with specified attendees at a given time and date.',
@@ -32,25 +30,45 @@ const scheduleMeetingFunctionDeclaration = {
   },
 };
 
-// Send request with function declarations
-const response = await ai.models.generateContent({
-  model: 'gemini-2.5-flash',
-  contents: 'Schedule a meeting with Bob and Alice for 03/27/2025 at 10:00 AM about the Q3 planning.',
-  config: {
-    tools: [{
-      functionDeclarations: [scheduleMeetingFunctionDeclaration]
-    }],
-  },
-});
+// ✅ Netlify function entry point
+export async function handler(event, context) {
+  try {
+    // Send request with function declarations
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: 'Schedule a meeting with Bob and Alice for 03/27/2025 at 10:00 AM about the Q3 planning.',
+      config: {
+        tools: [{
+          functionDeclarations: [scheduleMeetingFunctionDeclaration]
+        }],
+      },
+    });
 
-// Check for function calls in the response
-if (response.functionCalls && response.functionCalls.length > 0) {
-  const functionCall = response.functionCalls[0]; // Assuming one function call
-  console.log(`Function to call: ${functionCall.name}`);
-  console.log(`Arguments: ${JSON.stringify(functionCall.args)}`);
-  // In a real app, you would call your actual function here:
-  // const result = await scheduleMeeting(functionCall.args);
-} else {
-  console.log("No function call found in the response.");
-  console.log(response.text);
+    let result;
+    if (response.functionCalls && response.functionCalls.length > 0) {
+      const functionCall = response.functionCalls[0];
+      result = {
+        message: "Function call detected",
+        function: functionCall.name,
+        args: functionCall.args,
+      };
+    } else {
+      result = {
+        message: "No function call found in the response.",
+        text: response.text,
+      };
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(result, null, 2),
+    };
+
+  } catch (error) {
+    console.error("Error in gemini-enrich-data:", error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
+  }
 }

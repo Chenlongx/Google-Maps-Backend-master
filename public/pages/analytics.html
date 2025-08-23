@@ -1,0 +1,146 @@
+<header class="page-header">
+    <h1 class="page-title">数据洞察与可视化</h1>
+</header>
+
+<div class="main-card time-filter-card">
+    <div class="form-group">
+        <label for="dateRangeFilter">选择时间范围:</label>
+        <select id="dateRangeFilter">
+            <option value="7">最近 7 天</option>
+            <option value="30" selected>最近 30 天</option>
+            <option value="90">最近 90 天</option>
+        </select>
+    </div>
+</div>
+
+<div class="analytics-grid">
+    <div class="main-card">
+        <h3 class="card-title">收入与订阅分析</h3>
+        <div class="chart-container">
+            <canvas id="mrrChart"></canvas>
+        </div>
+    </div>
+    <div class="main-card">
+        <h3 class="card-title">套餐收入占比</h3>
+        <div class="chart-container pie-chart-container">
+            <canvas id="planRevenueChart"></canvas>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <h3 class="card-title">日活跃用户 (DAU)</h3>
+        <div class="chart-container">
+            <canvas id="dauChart"></canvas>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <h3 class="card-title">AI Tokens 消耗趋势</h3>
+        <div class="chart-container">
+            <canvas id="tokensUsageChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+// 使用IIFE创建独立作用域
+(function() {
+    // 模拟从后端获取的数据 (您需要替换为真实的API请求)
+    function getMockAnalyticsData(days) {
+        const labels = [];
+        const mrrData = [];
+        const dauData = [];
+        const tokensData = [];
+        for (let i = days - 1; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(`${date.getMonth() + 1}-${date.getDate()}`);
+            mrrData.push(Math.floor(Math.random() * (500 - 300 + 1) + 300) + i * 20);
+            dauData.push(Math.floor(Math.random() * (150 - 80 + 1) + 80));
+            tokensData.push(Math.floor(Math.random() * (500000 - 200000 + 1) + 200000));
+        }
+        return {
+            labels,
+            mrrData,
+            dauData,
+            tokensData,
+            planRevenue: [12000, 8500, 4500] // [月度, 季度, 年度]
+        };
+    }
+
+    // Chart.js 图表实例存储
+    let chartInstances = {};
+
+    // 渲染图表的通用函数
+    function renderChart(canvasId, type, labels, datasets, options = {}) {
+        if (chartInstances[canvasId]) {
+            chartInstances[canvasId].destroy();
+        }
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        chartInstances[canvasId] = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                ...options
+            }
+        });
+    }
+
+    // 更新所有图表
+    function updateAllCharts() {
+        const days = parseInt(document.getElementById('dateRangeFilter').value, 10);
+        const data = getMockAnalyticsData(days);
+
+        // 渲染 MRR 趋势图
+        renderChart('mrrChart', 'line', data.labels, [{
+            label: '月度经常性收入 (MRR)',
+            data: data.mrrData,
+            borderColor: 'var(--success-color)',
+            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]);
+
+        // 渲染套餐收入占比图
+        renderChart('planRevenueChart', 'doughnut', ['月度套餐', '季度套餐', '年度套餐'], [{
+            label: '收入',
+            data: data.planRevenue,
+            backgroundColor: ['var(--primary-color)', 'var(--success-color)', 'var(--warning-color)']
+        }]);
+
+        // 渲染 DAU 图
+        renderChart('dauChart', 'bar', data.labels, [{
+            label: '日活跃用户 (DAU)',
+            data: data.dauData,
+            backgroundColor: 'var(--primary-color)'
+        }]);
+
+        // 渲染 Tokens 消耗图
+        renderChart('tokensUsageChart', 'line', data.labels, [{
+            label: 'AI Tokens 消耗量',
+            data: data.tokensData,
+            borderColor: 'var(--danger-color)',
+            fill: false,
+            tension: 0.4
+        }]);
+    }
+
+    // 页面初始化函数
+    function initializeAnalyticsPage() {
+        const dateRangeFilter = document.getElementById('dateRangeFilter');
+        if (dateRangeFilter) {
+            dateRangeFilter.addEventListener('change', updateAllCharts);
+        }
+        // 初始加载图表
+        updateAllCharts();
+    }
+
+    // 立即执行
+    initializeAnalyticsPage();
+})();
+</script>

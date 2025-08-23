@@ -7,6 +7,7 @@
     <button class="tab-item" data-tab="plans">订阅与套餐</button>
     <button class="tab-item" data-tab="api">API设置</button>
     <button class="tab-item" data-tab="security">安全设置</button>
+    <button class="tab-item" data-tab="personalization">个性化</button>
 </div>
 
 <div id="general" class="tab-content active">
@@ -99,19 +100,37 @@
     </div>
 </div>
 
+
+<div id="personalization" class="tab-content">
+    <div class="main-card">
+       <div class="card-title" style="font-size: 16px; border: none; padding: 0; margin-bottom: 20px;">偏好设置</div>
+        <div class="form-group">
+            <label for="itemsPerPage">用户列表每页显示条数</label>
+            <p class="label-desc">设置用户管理页面表格中，每页默认展示多少行数据。</p>
+            <select id="itemsPerPage" style="margin-top: 8px; max-width: 200px;">
+                <option value="10">10 条/页</option>
+                <option value="20">20 条/页</option>
+                <option value="50">50 条/页</option>
+                <option value="100">100 条/页</option>
+            </select>
+        </div>
+        <div class="card-footer">
+            <button class="btn-primary" id="save-prefs-btn">保存偏好设置</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // 页面专属脚本，用于处理选项卡切换逻辑
+(function() { // 使用IIFE创建独立作用域
     function initializeSettingsPage() {
         const tabs = document.querySelectorAll('.tab-item');
         const tabContents = document.querySelectorAll('.tab-content');
 
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                // 移除所有 active class
                 tabs.forEach(item => item.classList.remove('active'));
                 tabContents.forEach(content => content.classList.remove('active'));
-
-                // 为点击的tab和对应content添加 active class
+                
                 tab.classList.add('active');
                 const content = document.getElementById(tab.dataset.tab);
                 if (content) {
@@ -120,11 +139,36 @@
             });
         });
 
-        // 注意：这里的保存按钮没有实现后端逻辑，
-        // 您需要为每个保存按钮添加事件监听器，
-        // 来收集对应表单的数据并发送到后端API进行保存。
+        // --- 3. JavaScript修改：为新表单添加逻辑 ---
+        
+        const itemsPerPageSelect = document.getElementById('itemsPerPage');
+        const savePrefsBtn = document.getElementById('save-prefs-btn');
+        const customAlert = document.getElementById('customAlert'); // 假设有这个全局元素用于提示
+
+        // 当内容加载时，从localStorage读取并设置当前值
+        if (itemsPerPageSelect) {
+            itemsPerPageSelect.value = localStorage.getItem('itemsPerPage') || '20'; // 默认20条
+        }
+
+        // 监听保存按钮的点击
+        if (savePrefsBtn) {
+            savePrefsBtn.addEventListener('click', () => {
+                const selectedValue = itemsPerPageSelect.value;
+                localStorage.setItem('itemsPerPage', selectedValue);
+                
+                // 提供一个保存成功的反馈
+                if (customAlert) {
+                    customAlert.textContent = '偏好设置已保存！';
+                    customAlert.style.display = 'block';
+                    setTimeout(() => { customAlert.style.display = 'none'; }, 2000);
+                } else {
+                    alert('偏好设置已保存！');
+                }
+            });
+        }
     }
 
     // 立即执行初始化
     initializeSettingsPage();
+})();
 </script>

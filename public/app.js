@@ -6,6 +6,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburgerMenu = document.getElementById('hamburgerMenu');
     const sidebar = document.getElementById('sidebar');
 
+    const notificationCenter = document.getElementById('notification-center');
+    const notificationBellBtn = document.getElementById('notification-bell-btn');
+    const notificationPanel = document.getElementById('notification-panel');
+    const notificationDot = document.getElementById('notification-dot');
+    
+    // --- 深色模式逻辑 ---
+    const themeToggle = document.getElementById('theme-toggle-checkbox');
+    const currentTheme = localStorage.getItem('theme');
+
+    // 初始化主题
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        if(themeToggle) themeToggle.checked = true;
+    }
+
+
+    // 监听切换事件
+    if (themeToggle) {
+        themeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode');
+            let theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+        });
+    }
+
+    // --- 通知中心逻辑 ---
+    if (notificationBellBtn) {
+        notificationBellBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 防止点击事件冒泡到 body 关闭自身
+            notificationPanel.classList.toggle('show');
+            notificationDot.style.display = 'none'; // 点击后清除红点
+        });
+    }
+
+    // 点击页面其他地方关闭通知面板
+    document.body.addEventListener('click', () => {
+        if (notificationPanel && notificationPanel.classList.contains('show')) {
+            notificationPanel.classList.remove('show');
+        }
+    });
+
+    // 模拟获取通知
+    function fetchNotifications() {
+        // 在这里，您应该发起一个API请求到后端获取真实通知
+        const mockNotifications = [ /* ... */ ]; 
+        if (mockNotifications.length > 0) {
+            notificationDot.style.display = 'block';
+            // ... 渲染通知列表 ...
+        }
+    }
+    fetchNotifications(); // 页面加载时获取一次
+
+
     // --- 侧边栏伸缩逻辑 ---
     // 检查 localStorage 中保存的状态，刷新后保持
     if (localStorage.getItem('sidebarState') === 'collapsed') {
@@ -46,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const routes = {
         '/dashboard': 'pages/dashboard.html',
         '/users': 'pages/users.html',
+        '/analytics': 'pages/analytics.html', 
         '/settings': 'pages/settings.html',
         '/addUser': 'pages/addUser.html',
         '/editUser': 'pages/editUser.html'

@@ -17,7 +17,7 @@
     <div class="admin-layout" id="admin-layout">
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <span class="nav-text">Admin Panel</span>
+                <span class="nav-text">谷歌地图后台管理</span>
             </div>
             <ul class="sidebar-nav">
                 <li><a href="/dashboard" class="nav-link"><svg style="width:20px;height:20px;"
@@ -32,6 +32,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.278 1 1 0 0 0 0-1.414zM2.879 8.121A9.337 9.337 0 0 1 7 5.845a9.38 9.38 0 0 1 2.625.372M17.12 14.122A9.337 9.337 0 0 1 14.845 17a9.38 9.38 0 0 1-2.625-.372m-10.562 2.278a9.337 9.337 0 0 1-4.12-2.278 1 1 0 0 1 0-1.414zM12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" />
                         </svg><span class="nav-text">用户管理</span></a></li>
+                <li><a href="/analytics" class="nav-link">
+                    <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v18M9.75 3v18M15.75 3v18M21.75 3v18M3.75 12h18M9.75 12h12M15.75 12h6M3.75 6h18M9.75 6h12M15.75 6h6" /></svg>
+                    <span class="nav-text">数据洞察</span>
+                </a></li>
+                    
                 <li><a href="/settings" class="nav-link"><svg style="width:20px;height:20px;"
                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor">
@@ -49,15 +54,38 @@
                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg></button>
                 <div class="top-bar-right">
+                    <div class="theme-switcher">
+                        <label class="switch">
+                            <input type="checkbox" id="theme-toggle-checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="notification-center" id="notification-center">
+                        <button class="notification-bell" id="notification-bell-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                            </svg>
+                            <span class="dot" id="notification-dot" style="display: none;"></span>
+                        </button>
+                        <div class="notification-panel" id="notification-panel">
+                            <div class="panel-header">通知</div>
+                            <ul class="notification-list" id="notification-list">
+                                <li>暂无新通知</li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="user-profile"><img src="https://i.pravatar.cc/36" alt="User Avatar"><span
-                            class="user-name">Admin User</span></div>
+                            class="user-name">Admin User</span>
+                    </div>
                 </div>
             </header>
 
             <main class="main-content" id="main-content"></main>
         </div>
     </div>
-    <script src="app.js"></script> 
+    <script src="app.js"></script>
 </body>
 
 </html>

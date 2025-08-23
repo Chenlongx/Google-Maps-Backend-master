@@ -22,6 +22,19 @@
     --topbar-height: 70px;
 }
 
+/* 深色模式变量 */
+body.dark-mode {
+    --primary-color: #5d82d1;
+    /* ... 其他深色变量 ... */
+    --light-gray-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --white-color: #2a2a2a;
+    --border-color: #444444;
+    --sidebar-bg: #1f2937;
+    --sidebar-text: #d1d5db;
+}
+
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -126,6 +139,31 @@ a {
     align-items: center;
     gap: 24px;
 }
+
+
+/* 小铃铛通知样式 */
+/* --- 新功能：通知中心样式 --- */
+.notification-center { position: relative; }
+.notification-bell { background: none; border: none; cursor: pointer; position: relative; color: var(--dark-gray-color); }
+.notification-bell .dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: var(--danger-color); border-radius: 50%; border: 2px solid var(--white-color); }
+.notification-panel {
+    display: none; /* 默认隐藏 */
+    position: absolute;
+    top: calc(100% + 15px);
+    right: 0;
+    width: 320px;
+    background-color: var(--white-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    z-index: 1100;
+}
+.notification-panel.show { display: block; }
+.notification-panel .panel-header { font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+.notification-panel .notification-list { list-style: none; max-height: 300px; overflow-y: auto; }
+.notification-panel .notification-list li { padding: 12px 16px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+.notification-panel .notification-list li:last-child { border-bottom: none; }
 
 .user-profile {
     display: flex;
@@ -823,6 +861,43 @@ input:checked+.slider:before {
     padding-right: 15px;
 }
 
+/* --- 页面专属样式 - 数据洞察页 (analytics.html) --- */
+.time-filter-card {
+    margin-bottom: 24px;
+    padding: 16px 24px;
+}
+
+.time-filter-card .form-group {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.time-filter-card label {
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+.time-filter-card select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    font-size: 14px;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+}
+
+.pie-chart-container {
+    max-height: 320px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
 @media (max-width: 992px) {
     .dashboard-grid {

@@ -903,6 +903,9 @@ input:checked+.slider:before {
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 768px) {
@@ -947,5 +950,13 @@ input:checked+.slider:before {
     .sidebar.is-open+.main-wrapper::before {
         opacity: 1;
         visibility: visible;
+    }
+    .analytics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* 减小最小宽度 */
+    }
+    .time-filter-card .form-group {
+        flex-direction: column; /* 垂直堆叠 */
+        align-items: flex-start; /* 左对齐 */
+        gap: 8px;
     }
 }

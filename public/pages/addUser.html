@@ -1,0 +1,195 @@
+<header class="page-header">
+    <h1 class="page-title">添加新用户</h1>
+</header>
+<div class="main-card" style="max-width: 100%; margin: 0 auto;">
+    <form id="createUserForm" autocomplete="off">
+        <div class="form-group">
+            <label for="account">账号 (仅限字母和数字)</label>
+            <div style="display:flex;align-items:center;">
+                <input id="account" type="text" pattern="^[a-zA-Z0-9]+$" 
+                    placeholder="请输入或点击右侧按钮生成" required
+                    style="flex:1;padding:8px;border:1px solid #ccc;border-right:none;
+                            border-radius:6px 0 0 6px;outline:none;font-size:14px;">
+                <button type="button" onclick="generateAccount_AddUser()" 
+                        style="padding:8px 14px;background-color:#409eff;color:#fff;
+                            border:1px solid #409eff;border-radius:0 6px 6px 0;
+                            cursor:pointer;transition:background-color 0.2s;">
+                    生成
+                </button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">密码 (仅限字母和数字)</label>
+            <div style="display:flex;align-items:center;">
+                <input id="password" type="password" pattern="^[a-zA-Z0-9]+$" 
+                    placeholder="请输入或点击右侧按钮生成" required
+                    style="flex:1;padding:8px;border:1px solid #ccc;border-right:none;
+                            border-radius:6px 0 0 6px;outline:none;font-size:14px;">
+                <button type="button" onclick="generatePassword_AddUser()" 
+                        style="padding:8px 14px;background-color:#409eff;color:#fff;
+                            border:1px solid #409eff;border-radius:0 6px 6px 0;
+                            cursor:pointer;transition:background-color 0.2s;">
+                    生成
+                </button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="userType">用户类型</label>
+            <select id="userType">
+                <option value="trial">试用用户</option>
+                <option value="regular">正式用户</option>
+                <option value="permanent">永久用户</option>
+            </select>
+        </div>
+        <div id="timeLimitContainer" class="form-group" style="display:none;">
+            <label for="timeLimit">时间限制（自动计算）</label>
+            <select id="timeLimit">
+                <option value="">（不使用）</option>
+                <option value="1day">1 天</option>
+                <option value="1week">7 天</option>
+                <option value="1month">1 个月</option>
+                <option value="1year">1 年</option>
+            </select>
+        </div>
+        <div id="dateRangeContainer" class="form-group" style="display:none;">
+            <label>自定义开始 / 到期时间</label>
+            <div class="row" style="display: flex; gap: 20px;">
+                <input id="startDate" type="datetime-local" style="flex: 1;">
+                <input id="expiryDate" type="datetime-local" style="flex: 1;">
+            </div>
+        </div>
+        <div class="btn-row" style="display: flex; gap: 12px; margin-top: 16px; padding-top: 24px; border-top: 1px solid #e9ecef;">
+             <button type="button" class="btn-secondary" id="back-to-list-btn" style="flex: 1; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; background: #f1f1f1; color: #343a40; border: 1px solid #dee2e6;">返回列表</button>
+            <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 15px; font-weight: 500; cursor: pointer;">创建用户</button>
+        </div>
+    </form>
+</div>
+<div id="customAlert"></div>
+
+<script>
+    // --- 页面专属脚本 ---
+
+    function generateAccount_AddUser(length = 8) {
+        let result = '';
+        const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        document.getElementById('account').value = result;
+    }
+
+    function generatePassword_AddUser(length = 12) {
+        let result = '';
+        const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        const passwordInput = document.getElementById('password');
+        passwordInput.value = result;
+        passwordInput.type = 'text'; 
+        setTimeout(() => { if(passwordInput) passwordInput.type = 'password'; }, 2000);
+    }
+
+    function showTimedAlert_AddUser(msg, type = 'success', ms = 3000){
+        const a = document.getElementById('customAlert');
+        if (!a) { alert(msg); return; }
+        a.textContent = msg;
+        a.className = type === 'error' ? 'error' : '';
+        a.style.display = 'block';
+        setTimeout(() => a.style.display = 'none', ms);
+    }
+
+    function checkAuthToken_AddUser(){
+        const token = localStorage.getItem('authToken');
+        if(!token){
+            showTimedAlert_AddUser('请先登录', 'error', 3000);
+            setTimeout(() => window.location.href='login.html', 800);
+            return false;
+        }
+        return true;
+    }
+
+    function initializeAddUserPage(){
+        if(!checkAuthToken_AddUser()) return;
+
+        const form = document.getElementById('createUserForm');
+        const userTypeSel = document.getElementById('userType');
+        const timeLimitContainer = document.getElementById('timeLimitContainer');
+        const dateRangeContainer = document.getElementById('dateRangeContainer');
+        const backBtn = document.getElementById('back-to-list-btn');
+
+        function updateVisibility(){
+            const userType = userTypeSel.value;
+            timeLimitContainer.style.display = 'block';
+            dateRangeContainer.style.display = (userType === 'trial') ? 'none' : 'block';
+        }
+        userTypeSel.addEventListener('change', updateVisibility);
+        updateVisibility();
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitButton = form.querySelector('button[type="submit"]');
+            submitButton.textContent = '创建中...';
+            submitButton.disabled = true;
+
+            const account = document.getElementById('account').value.trim();
+            const password = document.getElementById('password').value;
+            const userType = userTypeSel.value;
+            const timeLimit = document.getElementById('timeLimit').value || null;
+            const startDateRaw = document.getElementById('startDate').value;
+            const expiryDateRaw = document.getElementById('expiryDate').value;
+
+            if(!account || !password || !userType){
+                showTimedAlert_AddUser('账号/密码/用户类型为必填项', 'error', 3000);
+                submitButton.textContent = '创建用户';
+                submitButton.disabled = false;
+                return;
+            }
+
+            const startDate = startDateRaw ? new Date(startDateRaw).toISOString() : null;
+            const expiryDate = expiryDateRaw ? new Date(expiryDateRaw).toISOString() : null;
+            const payload = { account, password, userType, timeLimit, startDate, expiryDate };
+
+            try {
+                const token = localStorage.getItem('authToken') || '';
+                const resp = await fetch('/.netlify/functions/createUser', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${token}`},
+                    body: JSON.stringify(payload)
+                });
+                const resJson = await resp.json();
+                if(resp.ok && resJson.success){
+                    showTimedAlert_AddUser('用户添加成功', 'success', 2000);
+                    setTimeout(()=> {
+                        form.reset();
+                        updateVisibility();
+                    }, 800);
+                } else {
+                    const msg = resJson.message || resJson.error || '添加失败';
+                    showTimedAlert_AddUser('添加失败：' + msg, 'error', 4000);
+                }
+            } catch (err) {
+                console.error(err);
+                showTimedAlert_AddUser('网络错误或服务器错误', 'error', 4000);
+            } finally {
+                submitButton.textContent = '创建用户';
+                submitButton.disabled = false;
+            }
+        });
+
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // 派发自定义导航事件，通知shell.html切换页面
+            const navigateEvent = new CustomEvent('navigate', { 
+                detail: { path: '/users' }, // 跳转回用户列表页
+                bubbles: true,
+                cancelable: true
+            });
+            backBtn.dispatchEvent(navigateEvent);
+        });
+    }
+
+    // 立即执行初始化
+    initializeAddUserPage();
+</script>

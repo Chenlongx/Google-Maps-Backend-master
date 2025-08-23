@@ -1,0 +1,130 @@
+<header class="page-header">
+    <h1 class="page-title">系统设置</h1>
+</header>
+
+<div class="tabs">
+    <button class="tab-item active" data-tab="general">通用设置</button>
+    <button class="tab-item" data-tab="plans">订阅与套餐</button>
+    <button class="tab-item" data-tab="api">API设置</button>
+    <button class="tab-item" data-tab="security">安全设置</button>
+</div>
+
+<div id="general" class="tab-content active">
+    <div class="main-card">
+        <div class="form-group">
+            <label for="siteName">站点名称</label>
+            <input type="text" id="siteName" value="GoogleMapsScraper Admin">
+        </div>
+        <div class="form-group">
+            <label for="adminEmail">管理员邮箱</label>
+            <input type="email" id="adminEmail" placeholder="用于接收系统通知">
+        </div>
+        <div class="form-group form-group-flex">
+            <div>
+                <label>维护模式</label>
+                <p class="label-desc">开启后，所有普通用户将无法访问应用。</p>
+            </div>
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="card-footer">
+            <button class="btn-primary">保 存</button>
+        </div>
+    </div>
+</div>
+
+<div id="plans" class="tab-content">
+    <div class="main-card">
+        <div class="form-group">
+            <label for="planName">套餐名称</label>
+            <input type="text" id="planName" placeholder="例如：标准月度套餐">
+        </div>
+        <div class="form-group">
+            <label for="planPrice">价格 (元)</label>
+            <input type="number" id="planPrice" placeholder="例如：29.9">
+        </div>
+        <div class="form-group">
+            <label for="planDuration">有效期 (天)</label>
+            <input type="number" id="planDuration" placeholder="例如：30">
+        </div>
+         <div class="form-group">
+            <label for="planTokens">默认AI Tokens</label>
+            <input type="number" id="planTokens" placeholder="例如：50000">
+        </div>
+        <div class="card-footer">
+            <button class="btn-primary">保存套餐设置</button>
+        </div>
+    </div>
+</div>
+
+<div id="api" class="tab-content">
+    <div class="main-card">
+        <div class="form-group">
+            <label for="geminiApiKey">Gemini API Key</label>
+             <input type="password" id="geminiApiKey" placeholder="请输入您的Gemini API Key">
+        </div>
+         <div class="form-group">
+            <label for="smtpHost">SMTP 服务器地址</label>
+             <input type="text" id="smtpHost" placeholder="例如：smtp.example.com">
+        </div>
+         <div class="form-group">
+            <label for="smtpUser">SMTP 用户名</label>
+             <input type="text" id="smtpUser" placeholder="您的邮箱账号">
+        </div>
+         <div class="form-group">
+            <label for="smtpPass">SMTP 密码/授权码</label>
+             <input type="password" id="smtpPass" placeholder="请输入密码或授权码">
+        </div>
+        <div class="card-footer">
+            <button class="btn-primary">保存API设置</button>
+        </div>
+    </div>
+</div>
+
+<div id="security" class="tab-content">
+     <div class="main-card">
+        <div class="form-group">
+            <label for="sessionTimeout">后台登录会话时长 (分钟)</label>
+            <input type="number" id="sessionTimeout" value="60">
+        </div>
+        <div class="form-group">
+            <label for="passwordMinLength">密码最小长度</label>
+            <input type="number" id="passwordMinLength" value="8">
+        </div>
+        <div class="card-footer">
+            <button class="btn-primary">保存安全设置</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 页面专属脚本，用于处理选项卡切换逻辑
+    function initializeSettingsPage() {
+        const tabs = document.querySelectorAll('.tab-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 移除所有 active class
+                tabs.forEach(item => item.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // 为点击的tab和对应content添加 active class
+                tab.classList.add('active');
+                const content = document.getElementById(tab.dataset.tab);
+                if (content) {
+                    content.classList.add('active');
+                }
+            });
+        });
+
+        // 注意：这里的保存按钮没有实现后端逻辑，
+        // 您需要为每个保存按钮添加事件监听器，
+        // 来收集对应表单的数据并发送到后端API进行保存。
+    }
+
+    // 立即执行初始化
+    initializeSettingsPage();
+</script>

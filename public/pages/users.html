@@ -1,0 +1,665 @@
+<!-- <header class="page-header">
+    <h1 class="page-title">用户管理后台</h1>
+</header>
+
+<section class="stats-grid">
+    <div class="stat-card stat-card-earnings">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182.553-.44 1.278-.659 2.003-.659A5.25 5.25 0 0 1 15 8.25" /></svg>
+        </div>
+        <div class="info">
+            <div class="label">预估总收入</div>
+            <div class="value" id="earnings-display">计算中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-tokens">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.82m5.84-2.56a6 6 0 0 0-7.38-5.84m2.56 5.84a6 6 0 0 1 7.38 5.84m-12.56 0a6 6 0 0 1-7.38-5.84m5.84 2.56a6 6 0 0 0 7.38-5.84m-5.84 2.56a6 6 0 0 0-7.38-5.84" /></svg>
+        </div>
+        <div class="info" id="master-balance-container">
+            <div class="label">Gemini 总可用 Tokens 
+                <button id="edit-master-balance-btn" title="编辑总额度">✏️</button>
+            </div>
+            <div class="value" id="master-balance-display">加载中...</div>
+            <div class="sub-value" id="estimated-usage-display"></div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-users">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.278 1 1 0 0 0 0-1.414zM2.879 8.121A9.337 9.337 0 0 1 7 5.845a9.38 9.38 0 0 1 2.625.372M17.12 14.122A9.337 9.337 0 0 1 14.845 17a9.38 9.38 0 0 1-2.625-.372m-10.562 2.278a9.337 9.337 0 0 1-4.12-2.278 1 1 0 0 1 0-1.414zM12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /></svg>
+        </div>
+        <div class="info" id="total-users-container">
+            <div class="label">总用户数</div>
+            <div class="value" id="total-users-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-advanced">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+        </div>
+        <div class="info" id="advanced-stats-container">
+             <div class="label">用户分类统计</div>
+             <div class="advanced-stats-details">
+                 <div><strong>活跃:</strong> <span id="active-users-display" style="color: var(--success-color); font-weight: 600;">-</span></div>
+                 <div><strong>试用:</strong> <span id="trial-users-display" style="color: var(--warning-color); font-weight: 600;">-</span></div>
+                 <div><strong>正式:</strong> <span id="regular-users-display" style="color: var(--primary-color); font-weight: 600;">-</span></div>
+             </div>
+        </div>
+    </div>
+</section>
+
+<div class="main-card">
+    <div class="table-controls">
+        <div class="search-container">
+            <input class="search-input" type="text" placeholder="按账号搜索用户...">
+            <svg id="clickSearch" class="search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M448 768c176.725333 0 320-143.274667 320-320 0-176.725333-143.274667-320-320-320-176.725333 0-320 143.274667-320 320 0 176.725333 143.274667 320 320 320z m0 42.666667c-200.298667 0-362.666667-162.368-362.666667-362.666667S247.701333 85.333333 448 85.333333s362.666667 162.368 362.666667 362.666667-162.368 362.666667-362.666667 362.666667z m304.917333-27.584a21.333333 21.333333 0 0 1 30.165334-30.165334l150.848 150.848a21.333333 21.333333 0 0 1-30.165334 30.165334l-150.848-150.826667z" fill="currentColor"></path></svg>
+        </div>
+        <div class="actions-toolbar">
+            <a href="/addUser" class="action-button btn-add nav-link-internal">添加用户</a>
+            <button id="deleteButton" class="action-button btn-delete">删除选中</button>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllCheckbox"></th>
+                    <th>ID序号</th>
+                    <th>账号</th>
+                    <th>密码</th>
+                    <th>设备码</th>
+                    <th>系统</th>
+                    <th>类型</th>
+                    <th>导出次数</th>
+                    <th>最近导出</th>
+                    <th>创建时间</th>
+                    <th>到期时间</th>
+                    <th>状态</th>
+                    <th>AI权限</th>
+                    <th>AI Tokens</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 高级用户管理系统 | 版权所有</p>
+</footer>
+
+<div class="loading-container" id="loadingContainer"><div class="loading-message">加载中，请稍候...</div></div>
+<div id="customAlert"></div>
+
+<script>
+    // --- 页面专属脚本 ---
+    const TOKENS_PER_AI_REQUEST_UsersPage = 3000;
+    let allUsers_UsersPage = []; 
+
+    function formatDate_UsersPage(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "无效日期";
+        return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showTimedAlert_UsersPage(message, duration = 3000, callback = null) {
+        const alertBox = document.getElementById('customAlert');
+        if (!alertBox) { alert(message); if (callback) callback(); return; }
+        alertBox.textContent = message;
+        alertBox.style.display = 'block';
+        setTimeout(() => { if (alertBox) { alertBox.style.display = 'none'; } if (callback) { callback(); } }, duration);
+    }
+
+    async function fetchUsers_UsersPage() {
+        const loadingContainer = document.getElementById('loadingContainer');
+        if(loadingContainer) loadingContainer.style.display = 'flex';
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showTimedAlert_UsersPage('认证失败，请重新登录。', 3000, () => { window.location.href = 'login.html'; });
+                return;
+            }
+            const response = await fetch('/api/getUsers', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+            });
+            if (response.status === 401) {
+                showTimedAlert_UsersPage('会话已过期或未授权，请重新登录。', 3000, () => { window.location.href = 'login.html'; });
+                return;
+            }
+            if (!response.ok) { throw new Error(`服务器错误: ${response.statusText}`); }
+            const data = await response.json();
+            allUsers_UsersPage = data.users || [];
+            displayUsers_UsersPage(allUsers_UsersPage);
+            calculateAndDisplayEarnings_UsersPage(allUsers_UsersPage);
+            document.getElementById('total-users-display').textContent = allUsers_UsersPage.length;
+            calculateAndDisplayAdvancedStats_UsersPage(allUsers_UsersPage);
+        } catch (error) {
+            console.error('获取用户数据失败:', error);
+            showTimedAlert_UsersPage('无法加载用户列表，请检查网络或联系管理员。', 5000);
+            displayUsers_UsersPage([]);
+        } finally {
+            if(loadingContainer) loadingContainer.style.display = 'none';
+        }
+    }
+
+    async function fetchMasterBalance_UsersPage() {
+        const displayElement = document.getElementById('master-balance-display');
+        const usageElement = document.getElementById('estimated-usage-display');
+        if (!displayElement || !usageElement) return;
+        try {
+            const token = localStorage.getItem('authToken'); 
+            const response = await fetch('/.netlify/functions/getMasterBalance', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await response.json();
+            if (data.success) {
+                const totalTokens = data.balance;
+                displayElement.textContent = totalTokens.toLocaleString('en-US');
+                if (TOKENS_PER_AI_REQUEST_UsersPage > 0) {
+                    const estimatedUses = Math.floor(totalTokens / TOKENS_PER_AI_REQUEST_UsersPage);
+                    usageElement.innerHTML = `预估可用: <strong style="color: var(--success-color);">${estimatedUses.toLocaleString('en-US')}</strong> 次`;
+                }
+            } else {
+                displayElement.textContent = '获取失败';
+            }
+        } catch (error) {
+            console.error('获取总Token余额失败:', error);
+            displayElement.textContent = '获取失败';
+        }
+    }
+    
+    async function updateMasterBalance_UsersPage() {
+        const currentBalanceText = document.getElementById('master-balance-display').textContent.replace(/,/g, '');
+        const currentBalance = parseInt(currentBalanceText, 10) || 0;
+        const newBalanceStr = prompt("请输入新的总Token数量:", currentBalance);
+        if (newBalanceStr === null) return;
+        const newBalance = parseInt(newBalanceStr.replace(/,/g, ''), 10);
+        if (isNaN(newBalance) || newBalance < 0) {
+            showTimedAlert_UsersPage('请输入一个有效的非负整数。', 3000);
+            return;
+        }
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/.netlify/functions/updateMasterBalance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ newBalance })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showTimedAlert_UsersPage('总Token数已更新！', 2000);
+                fetchMasterBalance_UsersPage();
+            } else {
+                throw new Error(data.message || '更新失败');
+            }
+        } catch (error) {
+            showTimedAlert_UsersPage(`更新失败: ${error.message}`, 3000);
+        }
+    }
+
+    function displayUsers_UsersPage(usersToDisplay) {
+        const tableBody = document.querySelector("#userTable tbody");
+        tableBody.innerHTML = '';
+        if (usersToDisplay.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="15" style="text-align: center; padding: 40px; color: #888;">暂无用户数据</td></tr>`;
+            return;
+        }
+        usersToDisplay.forEach((user, index) => {
+            const row = document.createElement('tr');
+            let statusBadge = '';
+            if (!user.expiry_at || isNaN(new Date(user.expiry_at).getTime())) {
+                statusBadge = '<span class="status-badge status-pending">待开通</span>';
+            } else {
+                const isExpired = new Date(user.expiry_at) < new Date();
+                statusBadge = isExpired ? '<span class="status-badge status-expired">已过期</span>' : '<span class="status-badge status-valid">有效</span>';
+            }
+            const aiStatusBadge = `<span class="status-badge ${user.is_ai_authorized ? 'status-valid' : 'status-pending'}">${user.is_ai_authorized ? '已开通' : '未开通'}</span>`;
+            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${index + 1}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${user.user_type === "regular" ? "正式用户" : "试用用户"}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
+            tableBody.appendChild(row);
+        });
+
+        document.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                const userId = this.getAttribute('data-user-id');
+                const navigateEvent = new CustomEvent('navigate', { 
+                    detail: { path: `/editUser?userId=${encodeURIComponent(userId)}` },
+                    bubbles: true, cancelable: true 
+                });
+                this.dispatchEvent(navigateEvent);
+            });
+        });
+    }
+
+    async function deleteSelectedUsers_UsersPage() {
+        const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showTimedAlert_UsersPage('请至少选择一个要删除的用户。', 3000);
+            return;
+        }
+        if (!confirm(`确定要永久删除这 ${selectedCheckboxes.length} 个用户吗？此操作不可撤销。`)) {
+            return;
+        }
+        const userIdsToDelete = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-user-id'));
+        const token = localStorage.getItem('authToken');
+        const loadingContainer = document.getElementById('loadingContainer');
+        if(loadingContainer) loadingContainer.style.display = 'flex';
+        try {
+            const response = await fetch('/.netlify/functions/deleteUser', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ userIds: userIdsToDelete })
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                showTimedAlert_UsersPage('用户删除成功！', 3000);
+                fetchUsers_UsersPage();
+            } else {
+                throw new Error(result.message || '删除失败');
+            }
+        } catch (error) {
+            console.error('删除用户时出错:', error);
+            showTimedAlert_UsersPage(`删除操作失败: ${error.message}`);
+        } finally {
+            if(loadingContainer) loadingContainer.style.display = 'none';
+        }
+    }
+
+    function calculateAndDisplayEarnings_UsersPage(users) {
+        const pricing = { monthly: 29.9, quarterly: 89.7, yearly: 299.9 };
+        let totalEarnings = 0;
+        users.forEach(user => {
+            if (user.user_type === 'trial' || !user.created_at || !user.expiry_at) return;
+            const durationInMs = new Date(user.expiry_at).getTime() - new Date(user.created_at).getTime();
+            const durationInDays = durationInMs / (1000 * 60 * 60 * 24);
+            if (durationInDays > 330) totalEarnings += pricing.yearly; 
+            else if (durationInDays > 85 && durationInDays < 95) totalEarnings += pricing.quarterly; 
+            else if (durationInDays > 28 && durationInDays < 32) totalEarnings += pricing.monthly;
+        });
+        const earningsElement = document.getElementById('earnings-display');
+        if (earningsElement) {
+            earningsElement.textContent = `¥ ${totalEarnings.toFixed(2)}`;
+        }
+    }
+
+    function calculateAndDisplayAdvancedStats_UsersPage(users) {
+        let activeUsers = 0, trialUsers = 0, regularUsers = 0;
+        const now = new Date();
+        users.forEach(user => {
+            if (user.user_type === 'trial') trialUsers++; 
+            else if (user.user_type === 'regular' || user.user_type === 'permanent') regularUsers++;
+            if (user.expiry_at) {
+                const expiryDate = new Date(user.expiry_at);
+                if (!isNaN(expiryDate.getTime()) && expiryDate > now) activeUsers++;
+            }
+        });
+        document.getElementById('active-users-display').textContent = activeUsers;
+        document.getElementById('trial-users-display').textContent = trialUsers;
+        document.getElementById('regular-users-display').textContent = regularUsers;
+    }
+
+    function initializeUsersPage() {
+        fetchUsers_UsersPage();
+        fetchMasterBalance_UsersPage();
+        
+        const searchInput = document.querySelector('.search-input');
+        const searchButton = document.querySelector('#clickSearch');
+        const deleteButton = document.getElementById('deleteButton');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const editMasterBalanceBtn = document.getElementById('edit-master-balance-btn');
+        const addUserButton = document.querySelector('.btn-add.nav-link-internal');
+
+        const performSearch = () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const filteredUsers = allUsers_UsersPage.filter(user => user.account && user.account.toLowerCase().includes(searchTerm));
+            displayUsers_UsersPage(filteredUsers);
+        };
+
+        if(searchButton) searchButton.addEventListener('click', performSearch);
+        if(searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+        if(deleteButton) deleteButton.addEventListener('click', deleteSelectedUsers_UsersPage);
+        if(selectAllCheckbox) selectAllCheckbox.addEventListener('change', function () {
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => { checkbox.checked = this.checked; });
+        });
+        if(addUserButton) addUserButton.addEventListener('click', function(e) {
+             e.preventDefault();
+             const path = this.getAttribute('href');
+             const navigateEvent = new CustomEvent('navigate', { 
+                    detail: { path: path },
+                    bubbles: true,
+                    cancelable: true
+                });
+             this.dispatchEvent(navigateEvent);
+        });
+        if(editMasterBalanceBtn) editMasterBalanceBtn.addEventListener('click', updateMasterBalance_UsersPage);
+    }
+
+    // 立即执行初始化
+    initializeUsersPage();
+</script> -->
+
+
+<header class="page-header">
+    <h1 class="page-title">用户管理后台</h1>
+</header>
+
+<section class="stats-grid">
+    <div class="stat-card stat-card-earnings">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182.553-.44 1.278-.659 2.003-.659A5.25 5.25 0 0 1 15 8.25" /></svg></div>
+        <div class="info">
+            <div class="label">预估总收入</div>
+            <div class="value" id="earnings-display">计算中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-tokens">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.82m5.84-2.56a6 6 0 0 0-7.38-5.84m2.56 5.84a6 6 0 0 1 7.38 5.84m-12.56 0a6 6 0 0 1-7.38-5.84m5.84 2.56a6 6 0 0 0 7.38-5.84m-5.84 2.56a6 6 0 0 0-7.38-5.84" /></svg></div>
+        <div class="info" id="master-balance-container">
+            <div class="label">Gemini 总可用 Tokens 
+                <button id="edit-master-balance-btn" title="编辑总额度">✏️</button>
+            </div>
+            <div class="value" id="master-balance-display">加载中...</div>
+            <div class="sub-value" id="estimated-usage-display"></div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-users">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.278 1 1 0 0 0 0-1.414zM2.879 8.121A9.337 9.337 0 0 1 7 5.845a9.38 9.38 0 0 1 2.625.372M17.12 14.122A9.337 9.337 0 0 1 14.845 17a9.38 9.38 0 0 1-2.625-.372m-10.562 2.278a9.337 9.337 0 0 1-4.12-2.278 1 1 0 0 1 0-1.414zM12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /></svg></div>
+        <div class="info" id="total-users-container">
+            <div class="label">总用户数</div>
+            <div class="value" id="total-users-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-advanced">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg></div>
+        <div class="info" id="advanced-stats-container">
+             <div class="label">用户分类统计</div>
+             <div class="advanced-stats-details">
+                 <div><strong>活跃:</strong> <span id="active-users-display" style="color: var(--success-color); font-weight: 600;">-</span></div>
+                 <div><strong>试用:</strong> <span id="trial-users-display" style="color: var(--warning-color); font-weight: 600;">-</span></div>
+                 <div><strong>正式:</strong> <span id="regular-users-display" style="color: var(--primary-color); font-weight: 600;">-</span></div>
+             </div>
+        </div>
+    </div>
+</section>
+
+<div class="main-card">
+    <div class="table-controls">
+        <div class="search-container">
+            <input class="search-input" type="text" placeholder="按账号搜索用户...">
+            <svg id="clickSearch" class="search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M448 768c176.725333 0 320-143.274667 320-320 0-176.725333-143.274667-320-320-320-176.725333 0-320 143.274667-320 320 0 176.725333 143.274667 320 320 320z m0 42.666667c-200.298667 0-362.666667-162.368-362.666667-362.666667S247.701333 85.333333 448 85.333333s362.666667 162.368 362.666667 362.666667-162.368 362.666667-362.666667 362.666667z m304.917333-27.584a21.333333 21.333333 0 0 1 30.165334-30.165334l150.848 150.848a21.333333 21.333333 0 0 1-30.165334 30.165334l-150.848-150.826667z" fill="currentColor"></path></svg>
+        </div>
+        <div class="actions-toolbar">
+            <a href="/addUser" class="action-button btn-add nav-link-internal">添加用户</a>
+            <button id="deleteButton" class="action-button btn-delete">删除选中</button>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllCheckbox"></th>
+                    <th>ID序号</th>
+                    <th>账号</th>
+                    <th>密码</th>
+                    <th>设备码</th>
+                    <th>系统</th>
+                    <th>类型</th>
+                    <th>导出次数</th>
+                    <th>最近导出</th>
+                    <th>创建时间</th>
+                    <th>到期时间</th>
+                    <th>状态</th>
+                    <th>AI权限</th>
+                    <th>AI Tokens</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 高级用户管理系统 | 版权所有</p>
+</footer>
+
+<div class="loading-container" id="loadingContainer"><div class="loading-message">加载中，请稍候...</div></div>
+<div id="customAlert"></div>
+
+<script>
+// 使用“立即执行函数表达式”(IIFE)包裹所有代码，创建独立作用域
+(function() {
+    const TOKENS_PER_AI_REQUEST_UsersPage = 3000;
+    let allUsers_UsersPage = []; 
+
+    function formatDate_UsersPage(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "无效日期";
+        return date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showTimedAlert_UsersPage(message, duration = 3000, callback = null) {
+        const alertBox = document.getElementById('customAlert');
+        if (!alertBox) { alert(message); if (callback) callback(); return; }
+        alertBox.textContent = message;
+        alertBox.style.display = 'block';
+        setTimeout(() => { if (alertBox) { alertBox.style.display = 'none'; } if (callback) { callback(); } }, duration);
+    }
+
+    async function fetchUsers_UsersPage() {
+        const loadingContainer = document.getElementById('loadingContainer');
+        if(loadingContainer) loadingContainer.style.display = 'flex';
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showTimedAlert_UsersPage('认证失败，请重新登录。', 3000, () => { window.location.href = 'login.html'; });
+                return;
+            }
+            const response = await fetch('/api/getUsers', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+            });
+            if (response.status === 401) {
+                showTimedAlert_UsersPage('会话已过期或未授权，请重新登录。', 3000, () => { window.location.href = 'login.html'; });
+                return;
+            }
+            if (!response.ok) { throw new Error(`服务器错误: ${response.statusText}`); }
+            const data = await response.json();
+            allUsers_UsersPage = data.users || [];
+            displayUsers_UsersPage(allUsers_UsersPage);
+            calculateAndDisplayEarnings_UsersPage(allUsers_UsersPage);
+            
+            const totalUsersDisplay = document.getElementById('total-users-display');
+            if(totalUsersDisplay) totalUsersDisplay.textContent = allUsers_UsersPage.length;
+
+            calculateAndDisplayAdvancedStats_UsersPage(allUsers_UsersPage);
+        } catch (error) {
+            console.error('获取用户数据失败:', error);
+            showTimedAlert_UsersPage('无法加载用户列表，请检查网络或联系管理员。', 5000);
+            displayUsers_UsersPage([]);
+        } finally {
+            if(loadingContainer) loadingContainer.style.display = 'none';
+        }
+    }
+
+    async function fetchMasterBalance_UsersPage() {
+        const displayElement = document.getElementById('master-balance-display');
+        const usageElement = document.getElementById('estimated-usage-display');
+        if (!displayElement || !usageElement) return;
+        try {
+            const token = localStorage.getItem('authToken'); 
+            const response = await fetch('/.netlify/functions/getMasterBalance', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await response.json();
+            if (data.success) {
+                const totalTokens = data.balance;
+                displayElement.textContent = totalTokens.toLocaleString('en-US');
+                if (TOKENS_PER_AI_REQUEST_UsersPage > 0) {
+                    const estimatedUses = Math.floor(totalTokens / TOKENS_PER_AI_REQUEST_UsersPage);
+                    usageElement.innerHTML = `预估可用: <strong style="color: var(--success-color);">${estimatedUses.toLocaleString('en-US')}</strong> 次`;
+                }
+            } else {
+                displayElement.textContent = '获取失败';
+            }
+        } catch (error) {
+            console.error('获取总Token余额失败:', error);
+            displayElement.textContent = '获取失败';
+        }
+    }
+    
+    async function updateMasterBalance_UsersPage() {
+        const displayElement = document.getElementById('master-balance-display');
+        if (!displayElement) return;
+        const currentBalanceText = displayElement.textContent.replace(/,/g, '');
+        const currentBalance = parseInt(currentBalanceText, 10) || 0;
+        const newBalanceStr = prompt("请输入新的总Token数量:", currentBalance);
+        if (newBalanceStr === null) return;
+        const newBalance = parseInt(newBalanceStr.replace(/,/g, ''), 10);
+        if (isNaN(newBalance) || newBalance < 0) {
+            showTimedAlert_UsersPage('请输入一个有效的非负整数。', 3000);
+            return;
+        }
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/.netlify/functions/updateMasterBalance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ newBalance })
+            });
+            const data = await response.json();
+            if (data.success) {
+                showTimedAlert_UsersPage('总Token数已更新！', 2000);
+                fetchMasterBalance_UsersPage();
+            } else {
+                throw new Error(data.message || '更新失败');
+            }
+        } catch (error) {
+            showTimedAlert_UsersPage(`更新失败: ${error.message}`, 3000);
+        }
+    }
+
+    function displayUsers_UsersPage(usersToDisplay) {
+        const tableBody = document.querySelector("#userTable tbody");
+        if(!tableBody) return;
+        tableBody.innerHTML = '';
+        if (usersToDisplay.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="15" style="text-align: center; padding: 40px; color: #888;">暂无用户数据</td></tr>`;
+            return;
+        }
+        usersToDisplay.forEach((user, index) => {
+            const row = document.createElement('tr');
+            let statusBadge = '';
+            if (!user.expiry_at || isNaN(new Date(user.expiry_at).getTime())) {
+                statusBadge = '<span class="status-badge status-pending">待开通</span>';
+            } else {
+                const isExpired = new Date(user.expiry_at) < new Date();
+                statusBadge = isExpired ? '<span class="status-badge status-expired">已过期</span>' : '<span class="status-badge status-valid">有效</span>';
+            }
+            const aiStatusBadge = `<span class="status-badge ${user.is_ai_authorized ? 'status-valid' : 'status-pending'}">${user.is_ai_authorized ? '已开通' : '未开通'}</span>`;
+            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${index + 1}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${user.user_type === "regular" ? "正式用户" : "试用用户"}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
+            tableBody.appendChild(row);
+        });
+
+        // 这段逻辑不需要修改，因为它会被 shell.html 的全局事件监听捕获
+    }
+
+    async function deleteSelectedUsers_UsersPage() {
+        const selectedCheckboxes = document.querySelectorAll('.user-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showTimedAlert_UsersPage('请至少选择一个要删除的用户。', 3000);
+            return;
+        }
+        if (!confirm(`确定要永久删除这 ${selectedCheckboxes.length} 个用户吗？此操作不可撤销。`)) {
+            return;
+        }
+        const userIdsToDelete = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-user-id'));
+        const token = localStorage.getItem('authToken');
+        const loadingContainer = document.getElementById('loadingContainer');
+        if(loadingContainer) loadingContainer.style.display = 'flex';
+        try {
+            const response = await fetch('/.netlify/functions/deleteUser', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ userIds: userIdsToDelete })
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                showTimedAlert_UsersPage('用户删除成功！', 3000);
+                fetchUsers_UsersPage();
+            } else {
+                throw new Error(result.message || '删除失败');
+            }
+        } catch (error) {
+            console.error('删除用户时出错:', error);
+            showTimedAlert_UsersPage(`删除操作失败: ${error.message}`);
+        } finally {
+            if(loadingContainer) loadingContainer.style.display = 'none';
+        }
+    }
+
+    function calculateAndDisplayEarnings_UsersPage(users) {
+        const pricing = { monthly: 29.9, quarterly: 89.7, yearly: 299.9 };
+        let totalEarnings = 0;
+        users.forEach(user => {
+            if (user.user_type === 'trial' || !user.created_at || !user.expiry_at) return;
+            const durationInMs = new Date(user.expiry_at).getTime() - new Date(user.created_at).getTime();
+            const durationInDays = durationInMs / (1000 * 60 * 60 * 24);
+            if (durationInDays > 330) totalEarnings += pricing.yearly; 
+            else if (durationInDays > 85 && durationInDays < 95) totalEarnings += pricing.quarterly; 
+            else if (durationInDays > 28 && durationInDays < 32) totalEarnings += pricing.monthly;
+        });
+        const earningsElement = document.getElementById('earnings-display');
+        if (earningsElement) {
+            earningsElement.textContent = `¥ ${totalEarnings.toFixed(2)}`;
+        }
+    }
+
+    function calculateAndDisplayAdvancedStats_UsersPage(users) {
+        let activeUsers = 0, trialUsers = 0, regularUsers = 0;
+        const now = new Date();
+        users.forEach(user => {
+            if (user.user_type === 'trial') trialUsers++; 
+            else if (user.user_type === 'regular' || user.user_type === 'permanent') regularUsers++;
+            if (user.expiry_at) {
+                const expiryDate = new Date(user.expiry_at);
+                if (!isNaN(expiryDate.getTime()) && expiryDate > now) activeUsers++;
+            }
+        });
+        const activeUsersDisplay = document.getElementById('active-users-display');
+        const trialUsersDisplay = document.getElementById('trial-users-display');
+        const regularUsersDisplay = document.getElementById('regular-users-display');
+        if(activeUsersDisplay) activeUsersDisplay.textContent = activeUsers;
+        if(trialUsersDisplay) trialUsersDisplay.textContent = trialUsers;
+        if(regularUsersDisplay) regularUsersDisplay.textContent = regularUsers;
+    }
+
+    function initializeUsersPage() {
+        fetchUsers_UsersPage();
+        fetchMasterBalance_UsersPage();
+        
+        const searchInput = document.querySelector('.search-input');
+        const searchButton = document.querySelector('#clickSearch');
+        const deleteButton = document.getElementById('deleteButton');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        const editMasterBalanceBtn = document.getElementById('edit-master-balance-btn');
+
+        const performSearch = () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const filteredUsers = allUsers_UsersPage.filter(user => user.account && user.account.toLowerCase().includes(searchTerm));
+            displayUsers_UsersPage(filteredUsers);
+        };
+
+        if(searchButton) searchButton.addEventListener('click', performSearch);
+        if(searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+        if(deleteButton) deleteButton.addEventListener('click', deleteSelectedUsers_UsersPage);
+        if(selectAllCheckbox) selectAllCheckbox.addEventListener('change', function () {
+            document.querySelectorAll('.user-checkbox').forEach(checkbox => { checkbox.checked = this.checked; });
+        });
+        if(editMasterBalanceBtn) editMasterBalanceBtn.addEventListener('click', updateMasterBalance_UsersPage);
+    }
+
+    // 立即执行初始化
+    initializeUsersPage();
+})();
+</script>

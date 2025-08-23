@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户登录</title>
+    <title>系统登录</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4a69bd;
+            --primary-hover-color: #3b569a;
+            --light-gray-color: #f8f9fa;
+            --text-color: #343a40;
+            --border-color: #e9ecef;
+            --danger-color: #e74c3c;
+            --white-color: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,238 +28,248 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f7fb;
+            font-family: 'Poppins', 'Arial', sans-serif;
+            background-color: var(--light-gray-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .login-showcase {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(74,105,189,0.9), rgba(67,95,171,0.95)), url('https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop') no-repeat center center;
+            background-size: cover;
+            color: var(--white-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .showcase-title {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .showcase-text {
+            font-size: 16px;
+            max-width: 400px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .login-form-wrapper {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            background-color: var(--white-color);
         }
-        /* 背景样式：为 loading container 设置背景 */
+
+        .login-card {
+            width: 100%;
+            max-width: 380px;
+            padding: 20px;
+        }
+        
+        .login-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+            outline: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .login-btn:hover {
+            background-color: var(--primary-hover-color);
+        }
+        .login-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 18px;
+            color: #aaa;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
         .loading-container {
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);  /* 半透明背景 */
-            z-index: 9999;  /* 确保它位于页面最上层 */
-            flex-direction: column;  /* 垂直方向排列 */
-            color: white;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            flex-direction: column;
+            color: var(--text-color);
         }
-
-        /* 加载中的文字样式 */
-        .loading-message {
-            font-size: 20px;
-            margin-bottom: 20px;
-        }
-
-        /* 旋转动画的样式 */
         .spinner {
-            border: 8px solid #f3f3f3; /* 轻灰色背景 */
-            border-top: 8px solid #3498db; /* 深蓝色的上边框 */
+            border: 6px solid #e9ecef;
+            border-top: 6px solid var(--primary-color);
             border-radius: 50%;
             width: 50px;
             height: 50px;
-            animation: spin 1s linear infinite; /* 旋转动画 */
+            animation: spin 1s linear infinite;
+            margin-top: 16px;
         }
-
-        /* 旋转动画关键帧 */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .login-container {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            text-align: center;
-        }
 
-        h1 {
-            color: #333;
-            font-size: 26px;
-            margin-bottom: 20px;
-            font-weight: 600;
+        @media (max-width: 768px) {
+            .login-showcase {
+                display: none;
+            }
+            .login-form-wrapper {
+                padding: 20px;
+            }
         }
-
-        .login-container p {
-            color: #555;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .input-field:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-
-        .login-button {
-            width: 100%;
-            padding: 14px;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .login-button:hover {
-            background-color: #45a049;
-        }
-
-        /* 密码显示/隐藏按钮样式 */
-        .input-container {
-            position: relative;
-        }
-        .toggle-btn {
-            position: absolute;
-            right: 10px; /* 距离容器右边10px */
-            top: 50%; /* 垂直居中 */
-            transform: translateY(-50%); /* 使按钮完全居中 */
-            cursor: pointer;
-            font-size: 18px;
-            color: #777;
-            transition: color 0.3s;
-        }
-        .toggle-btn:hover {
-            color: #333;
-        }
-        .forgot-password {
-            color: #4CAF50;
-            font-size: 14px;
-            text-decoration: none;
-            margin-top: 20px;
-            display: inline-block;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>用户登录</h1>
-        <p>请输入您的用户名和密码进行登录</p>
-
-        <!-- 登录表单 -->
-        <form id="loginForm">
-            <input type="text" id="username" class="input-field" placeholder="用户名" required>
-            <!-- 密码输入框和显示/隐藏按钮 -->
-            <div class="input-container">
-                <input type="password" id="password" class="input-field" placeholder="密码" required>
-                <span id="togglePassword" class="toggle-btn">👁️</span>
+    <div class="login-wrapper">
+        <div class="login-showcase">
+            <h2 class="showcase-title">欢迎回来</h2>
+            <p class="showcase-text">登录以继续访问您的专属管理后台，高效管理所有数据与信息。</p>
+        </div>
+        <div class="login-form-wrapper">
+            <div class="login-card">
+                <h1 class="login-title">系统登录</h1>
+                <p class="login-subtitle">请输入您的凭据以继续</p>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <input type="text" id="account" name="account" required autocomplete="username" placeholder="账号">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="密码">
+                        <span id="togglePassword" class="toggle-btn">👁️</span>
+                    </div>
+                    <button type="submit" class="login-btn">安全登录</button>
+                    <p id="errorMessage" class="error-message"></p>
+                </form>
             </div>
-            <button type="submit" class="login-button">登录</button>
-        </form>
+        </div>
+    </div>
+    
+    <div class="loading-container" id="loadingContainer">
+        <p>正在验证，请稍候...</p>
+        <div class="spinner"></div>
+    </div>
 
-        <!-- 忘记密码链接 -->
-        <a href="#" class="forgot-password" >忘记密码?</a>
-    </div>
-    <!-- 加载容器 -->
-    <div class="loading-container" id="loadingContainer" style="display: none">
-        <div class="loading-message">加载中，请稍候...</div>
-    </div>
     <script>
-        // 获取表单元素
-        const loginForm = document.getElementById('loginForm');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const loadingContainer = document.getElementById('loadingContainer');
-        const togglePassword = document.getElementById('togglePassword');
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const accountInput = document.getElementById('account');
+            const passwordInput = document.getElementById('password');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitButton = this.querySelector('.login-btn');
+            const loadingContainer = document.getElementById('loadingContainer');
 
-        // 切换密码显示/隐藏
-        togglePassword.addEventListener('click', function () {
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
-
-            // 切换图标
-            this.textContent = type === 'password' ? '👁️' : '🙈';
-        });
-
-        // 监听表单提交
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // 防止表单默认提交行为
-
-            const username = usernameInput.value;
+            const account = accountInput.value;
             const password = passwordInput.value;
 
-            // 检查用户名和密码是否为空
-            if (!username || !password) {
-                alert("请输入用户名和密码");
+            if (!account || !password) {
+                errorMessage.textContent = "请输入账号和密码";
                 return;
             }
-            console.log(username, password);
-            try {
-                // 显示加载器
-                document.getElementById('loadingContainer').style.display = 'flex';
 
-                // 发起登录请求
+            errorMessage.textContent = ''; 
+            loadingContainer.style.display = 'flex';
+            submitButton.disabled = true;
+
+            try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, password })
+                    headers: { 'Content-Type': 'application/json' },
+                    // 核心修复：确保这里发送的字段名是您后端需要的，比如 'username'
+                    body: JSON.stringify({ email: account, password })
                 });
 
-                const data = await response.json();
+                const result = await response.json();
 
-                if (response.ok) {
-                    // 隐藏加载器
-                    document.getElementById('loadingContainer').style.display = 'none';
-
-                    // 登录成功
-                    // alert("登录成功！");
-
-                    // *** 核心修改：将 'data.token' 改为 'data.access_token' ***
-                    localStorage.setItem('authToken', data.access_token);
-                    console.log('authToken', data.access_token); // 也相应修改这里
-
-                    // 根据返回的用户信息，可以进行进一步操作，比如跳转到管理页面
-                    console.log("用户信息:", data.user);
-                    // 跳转页面
-                    window.location.href = 'index.html';
+                if (response.ok && result.token) {
+                    localStorage.setItem('authToken', result.token);
+                    window.location.href = 'shell.html';
                 } else {
-                    // 登录失败
-                    alert(data.message || "登录失败，请重试");
-                    document.getElementById('loadingContainer').style.display = 'none';
+                    errorMessage.textContent = result.message || '账号或密码错误';
                 }
-
             } catch (error) {
-                // 网络错误或其他异常
-                console.error("请求失败:", error);
-                alert("请求失败，请稍后再试");
+                console.error('登录请求失败:', error);
+                errorMessage.textContent = '网络错误，请稍后重试';
+            } finally {
+                if (!localStorage.getItem('authToken')) {
+                    loadingContainer.style.display = 'none';
+                    submitButton.disabled = false;
+                }
             }
         });
 
-
-        // 监听 "忘记密码" 链接的点击事件
-        document.querySelector('.forgot-password').addEventListener('click', function(event) {
-            event.preventDefault();  // 防止链接的默认跳转行为
-
-            // 弹出联系管理员的信息
-            alert('请联系管理员进行密码重置 \n邮箱: aa2231401652@gmail.com');
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            this.textContent = type === 'password' ? '👁️' : '🙈';
         });
     </script>
 </body>

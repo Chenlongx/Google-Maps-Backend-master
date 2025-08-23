@@ -1,0 +1,296 @@
+<header class="page-header">
+    <h1 class="page-title">仪表盘</h1>
+    <button id="refresh-dashboard-btn">
+        <svg class="icon" style="width:16px; height:16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 11.667 0l3.182-3.182m0-4.991v4.99" /></svg>
+        <span>刷新</span>
+    </button>
+</header>
+<div id="customAlert"></div>
+
+<section class="stats-grid">
+    <div class="stat-card stat-card-earnings"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182.553-.44 1.278-.659 2.003-.659A5.25 5.25 0 0 1 15 8.25" /></svg></div><div class="info"><div class="label">预估总收入</div><div class="value" id="earnings-display">加载中...</div></div></div>
+    <div class="stat-card stat-card-tokens"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.82m5.84-2.56a6 6 0 0 0-7.38-5.84m2.56 5.84a6 6 0 0 1 7.38 5.84m-12.56 0a6 6 0 0 1-7.38-5.84m5.84 2.56a6 6 0 0 0 7.38-5.84m-5.84 2.56a6 6 0 0 0-7.38-5.84" /></svg></div><div class="info"><div class="label">Gemini 总可用 Tokens</div><div class="value" id="master-balance-display">加载中...</div><div class="sub-value" id="estimated-usage-display"></div></div></div>
+    <div class="stat-card stat-card-users"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.278 1 1 0 0 0 0-1.414zM2.879 8.121A9.337 9.337 0 0 1 7 5.845a9.38 9.38 0 0 1 2.625.372M17.12 14.122A9.337 9.337 0 0 1 14.845 17a9.38 9.38 0 0 1-2.625-.372m-10.562 2.278a9.337 9.337 0 0 1-4.12-2.278 1 1 0 0 1 0-1.414zM12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /></svg></div><div class="info"><div class="label">总用户数</div><div class="value" id="total-users-display">加载中...</div></div></div>
+    <div class="stat-card stat-card-advanced"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg></div><div class="info"><div class="label">用户分类</div><div class="advanced-stats-details"><div><strong>活跃:</strong> <span id="active-users-display" style="color: var(--success-color); font-weight: 600;">-</span></div><div><strong>试用:</strong> <span id="trial-users-display" style="color: var(--warning-color); font-weight: 600;">-</span></div><div><strong>正式:</strong> <span id="regular-users-display" style="color: var(--primary-color); font-weight: 600;">-</span></div></div></div></div>
+</section>
+
+<div class="dashboard-grid">
+    <div class="main-card">
+        <h3 class="card-title">新用户增长趋势 (最近30天)</h3>
+        <div class="chart-container">
+            <canvas id="userGrowthChart"></canvas>
+        </div>
+    </div>
+    <div class="main-card">
+         <h3 class="card-title">用户类型分布</h3>
+         <div class="chart-container">
+            <canvas id="userTypeChart"></canvas>
+         </div>
+    </div>
+     <div class="main-card">
+         <h3 class="card-title">最近活动</h3>
+         <ul class="activity-feed" id="activityFeed"></ul>
+    </div>
+     <div class="main-card">
+         <h3 class="card-title">即将到期用户 (7天内)</h3>
+         <table class="simple-table">
+             <thead><tr><th>账号</th><th>类型</th><th>到期日</th></tr></thead>
+             <tbody id="expiringUsersBody"></tbody>
+         </table>
+    </div>
+</div>
+
+<script>
+(function() {
+    // --- 页面专属脚本 ---
+    const TOKENS_PER_AI_REQUEST_DASH = 3000;
+    let allUsers_DASH = [];
+    let userGrowthChartInstance_DASH = null;
+    let userTypeChartInstance_DASH = null;
+
+    // --- 辅助函数 ---
+    function formatDate_DASH(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? "无效日期" : date.toLocaleDateString('zh-CN');
+    }
+
+    function showTimedAlert_DASH(message, duration = 3000, callback = null) {
+        const alertBox = document.getElementById('customAlert');
+        if (!alertBox) {
+            alert(message);
+            if (callback) callback();
+            return;
+        }
+        alertBox.textContent = message;
+        alertBox.style.display = 'block';
+        setTimeout(() => {
+            if (alertBox) alertBox.style.display = 'none';
+            if (callback) callback();
+        }, duration);
+    }
+
+    // --- API 数据获取函数 ---
+    async function fetchUsers_DASH() {
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showTimedAlert_DASH('认证失败，请重新登录。', 3000, () => window.location.href = '/login.html');
+                return null;
+            }
+            const response = await fetch('/api/getUsers', { headers: { 'Authorization': `Bearer ${token}` } });
+            
+            // 新增：专门处理401未授权错误
+            if (response.status === 401) {
+                // 清除无效的token
+                localStorage.removeItem('authToken'); 
+                showTimedAlert_DASH('您的登录已过期，请重新登录。', 3000, () => window.location.href = '/login.html');
+                return null; // 中断后续执行
+            }
+
+            if (!response.ok) throw new Error('服务器错误');
+            const data = await response.json();
+            return data.users || [];
+        } catch (error) {
+            console.error('获取用户数据失败:', error);
+            showTimedAlert_DASH('无法加载用户列表，请检查网络。', 5000);
+            return null;
+        }
+    }
+
+    async function fetchMasterBalance_DASH() {
+        const displayElement = document.getElementById('master-balance-display');
+        const usageElement = document.getElementById('estimated-usage-display');
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/.netlify/functions/getMasterBalance', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await response.json();
+            if (data.success) {
+                const totalTokens = data.balance;
+                if(displayElement) displayElement.textContent = totalTokens.toLocaleString('en-US');
+                if(usageElement) {
+                    const estimatedUses = Math.floor(totalTokens / TOKENS_PER_AI_REQUEST_DASH);
+                    usageElement.innerHTML = `预估可用: <strong style="color: var(--success-color);">${estimatedUses.toLocaleString('en-US')}</strong> 次`;
+                }
+            } else {
+                if(displayElement) displayElement.textContent = '获取失败';
+            }
+        } catch (error) {
+            console.error('获取总Token余额失败:', error);
+            if(displayElement) displayElement.textContent = '获取失败';
+        }
+    }
+
+    // --- 数据处理与渲染函数 ---
+    function populateStatCards_DASH(users) {
+        const pricing = { monthly: 29.9, quarterly: 89.7, yearly: 299.9 };
+        let totalEarnings = 0;
+        users.forEach(user => {
+            if (user.user_type === 'trial' || !user.created_at || !user.expiry_at) return;
+            const durationInDays = (new Date(user.expiry_at) - new Date(user.created_at)) / (1000 * 60 * 60 * 24);
+            if (durationInDays > 330) totalEarnings += pricing.yearly;
+            else if (durationInDays > 85) totalEarnings += pricing.quarterly;
+            else if (durationInDays > 28) totalEarnings += pricing.monthly;
+        });
+
+        let activeUsers = 0, trialUsers = 0, regularUsers = 0;
+        users.forEach(user => {
+            if (user.user_type === 'trial') trialUsers++;
+            else if (user.user_type === 'regular' || user.user_type === 'permanent') regularUsers++;
+            if (user.expiry_at && new Date(user.expiry_at) > new Date()) activeUsers++;
+        });
+
+        // 在操作DOM前，先获取元素
+        const earningsDisplay = document.getElementById('earnings-display');
+        const totalUsersDisplay = document.getElementById('total-users-display');
+        const activeUsersDisplay = document.getElementById('active-users-display');
+        const trialUsersDisplay = document.getElementById('trial-users-display');
+        const regularUsersDisplay = document.getElementById('regular-users-display');
+
+        if (earningsDisplay) earningsDisplay.textContent = `¥ ${totalEarnings.toFixed(2)}`;
+        if (totalUsersDisplay) totalUsersDisplay.textContent = users.length;
+        if (activeUsersDisplay) activeUsersDisplay.textContent = activeUsers;
+        if (trialUsersDisplay) trialUsersDisplay.textContent = trialUsers;
+        if (regularUsersDisplay) regularUsersDisplay.textContent = regularUsers;
+    }
+
+    function renderUserGrowthChart_DASH(users) {
+        if (userGrowthChartInstance_DASH) {
+            userGrowthChartInstance_DASH.destroy();
+        }
+        const ctx = document.getElementById('userGrowthChart').getContext('2d');
+        const data = {};
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        users.forEach(user => {
+            const createdAt = new Date(user.created_at);
+            if (createdAt >= thirtyDaysAgo) {
+                const day = createdAt.toISOString().split('T')[0];
+                data[day] = (data[day] || 0) + 1;
+            }
+        });
+        const labels = [];
+        const counts = [];
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dayString = date.toISOString().split('T')[0];
+            labels.push(`${date.getMonth() + 1}-${date.getDate()}`);
+            counts.push(data[dayString] || 0);
+        }
+        userGrowthChartInstance_DASH = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '新增用户数',
+                    data: counts,
+                    borderColor: 'rgba(74, 105, 189, 1)',
+                    backgroundColor: 'rgba(74, 105, 189, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function renderUserTypeChart_DASH(users) {
+        if (userTypeChartInstance_DASH) {
+            userTypeChartInstance_DASH.destroy();
+        }
+        const ctx = document.getElementById('userTypeChart').getContext('2d');
+        let trial = 0, regular = 0, permanent = 0;
+        users.forEach(user => {
+            if (user.user_type === 'trial') trial++;
+            else if (user.user_type === 'regular') regular++;
+            else if (user.user_type === 'permanent') permanent++;
+        });
+        userTypeChartInstance_DASH = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['试用用户', '正式用户', '永久用户'],
+                datasets: [{
+                    data: [trial, regular, permanent],
+                    backgroundColor: ['rgba(243, 156, 18, 0.8)', 'rgba(74, 105, 189, 0.8)', 'rgba(46, 204, 113, 0.8)']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function populateActivityFeed_DASH(users) {
+        const feed = document.getElementById('activityFeed');
+        if(!feed) return;
+        feed.innerHTML = '';
+        users.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, 5)
+            .forEach(user => {
+                const li = document.createElement('li');
+                li.className = 'activity-item';
+                li.innerHTML = `
+                     <div class="activity-icon user"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg></div>
+                     <div>
+                         <p class="activity-text">新用户 <strong>${user.account}</strong> 注册成功。</p>
+                         <p class="activity-time">${new Date(user.created_at).toLocaleString('zh-CN')}</p>
+                     </div>`;
+                feed.appendChild(li);
+            });
+    }
+
+    function populateExpiringUsers_DASH(users) {
+        const tableBody = document.getElementById('expiringUsersBody');
+        if(!tableBody) return;
+        tableBody.innerHTML = '';
+        const now = new Date();
+        const sevenDaysLater = new Date();
+        sevenDaysLater.setDate(now.getDate() + 7);
+        users.filter(user => user.expiry_at && new Date(user.expiry_at) > now && new Date(user.expiry_at) <= sevenDaysLater)
+            .sort((a, b) => new Date(a.expiry_at) - new Date(b.expiry_at))
+            .forEach(user => {
+                const tr = document.createElement('tr');
+                const typeClass = user.user_type === 'trial' ? 'trial' : 'regular';
+                const typeText = user.user_type === 'trial' ? '试用' : '正式';
+                tr.innerHTML = `
+                     <td>${user.account}</td>
+                     <td><span class="status-tag ${typeClass}">${typeText}</span></td>
+                     <td>${formatDate_DASH(user.expiry_at)}</td>`;
+                tableBody.appendChild(tr);
+            });
+    }
+
+    async function initializeDashboard() {
+        fetchMasterBalance_DASH();
+        const users = await fetchUsers_DASH();
+        if (users) {
+            allUsers_DASH = users;
+            populateStatCards_DASH(allUsers_DASH);
+            renderUserGrowthChart_DASH(allUsers_DASH);
+            renderUserTypeChart_DASH(allUsers_DASH);
+            populateActivityFeed_DASH(allUsers_DASH);
+            populateExpiringUsers_DASH(allUsers_DASH);
+        }
+    }
+
+    // 立即执行初始化
+    initializeDashboard();
+
+    // 为刷新按钮绑定事件
+    const refreshBtn = document.getElementById('refresh-dashboard-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.classList.add('loading');
+            refreshBtn.disabled = true;
+            try {
+                await initializeDashboard();
+                showTimedAlert_DASH('仪表盘数据已刷新！', 2000);
+            } catch (error) {
+                showTimedAlert_DASH('刷新失败，请稍后重试。', 3000);
+            } finally {
+                refreshBtn.classList.remove('loading');
+                refreshBtn.disabled = false;
+            }
+        });
+    }
+})();
+</script>

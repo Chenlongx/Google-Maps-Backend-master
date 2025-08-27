@@ -35,9 +35,11 @@ exports.handler = async (event) => {
 
         const alipaySdk = new AlipaySdk({
             appId: "9021000151648033",
-            privateKey: hardcoded_private_key,
-            alipayPublicKey: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoSMK/HRjatgzXtQVVez4uauQOMdqdTVXX1KspxCEdohW8f5RhVVW64ZByPENiCqovzjtQlxPqt2ThE1Lm3//WxkuGcbYGpLsr98p5JIfA4ZRdhINeDhrRaZKXbFCEt4qTDJ8WY+hvjvg7A6JK8Ie8pnL/zju1X880KkOXBhun2e2THATYWdNcxg7SxNByCNUJTMYQQbzw1wSUpHFapfOgmzLoh7peWV950Tn+g+2ZL2qFeleeYOjHWnCon6bhde1bvlp0CK9Wrk54+jUPNM9vL6fu/CQ78lbExgM7Tap6WJ0I9F/lQ79rDTp2II2ZNi9MI+9umA+dbLGT51R76W/QwIDAQAB",
-            gateway: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do',
+            privateKey:
+            "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC7JCy7sPWURREiaLJ1ZBJmIeYCJCxevIUaG9+sQuXebt3hADX60UmapWDsSQ2+QHByMwPWPftdRlDsWN+mbSBy8HErZlWfWvDDyJCreA5wC8fA/bB5Vi6GnAMRi4WhVuZ14BkinSvACFZ4ZWQ8uUNI6QoMRhnEF02bklTn13lO72psL+wiLHe/G7JfP4+jC9zo5n29FyN64g+I/padi+0TRJ8ET9jMfG+VATycBSzTxd+Fe+Jdy7RE4WL0Qx30jymtwvrHmXHBb0uyB4n7OAWjLx/qUxxVjMUQjmbrwGblDQcF4Wb2EJUWhpvg22rTqXML+R8lAHmqogXZH92ewtphAgMBAAECggEAds/YtrD6uU/AOSBPbMhEBiOva9ybbuoxdwoLT8qJNlcc9ySzILKPEGe+yUT4PLmcqmRJI1Pmqqlh5yvlkjvmRhLxRqSJ58pM4YAMmVB3mhtgjt6BlAdrMnsKV7FE/dG2L1A/pQI0LI8elwGISiU02q1Ze8FlymEhHIwi666ZjcrKPz2wS7kPKCXUFYbqlQD2Q5CBTgxZW0OwH3flEZsQTCfUe5DRPCNji6qEd8jjP4kvNI86UxFzK6/hqGvO8VYFWd7cPxW4XjD7mK1wlHrtJCGicAJYgIMa435gdLdRAViz2JmsLm9C5I/XhiXif3cShkLGt0Hmtt+iRYZLuT9IAQKBgQD6uiPUVVF4MoMwrOdcb1RxxtSjz+ghj7Vssapz15Ggb5EvZykQRztr56ONkOMuJNl+dxz43R6FzBcrFHQAocLPXgHfAhCYjIcfihHDIxWWCvQe7BO9frvHhEKMV2a34RcHME9kkFKf5l0G9O+O4ccoteD5VE9L+47XH9BvZ3GtMQKBgQC/E7PkKIvhw0yU0ra0SQ6FJK+f8+RkQ+OrVkUxoQL/9Ry3aCghxwjOOoto1vl3kXY03omLbTX6dmiUW/X0PcAON1CNCuASbU5k5eYRQUyCmZEmZCfKUiSMGf8kikLogHr2nzIx/mfDWkdvFS9J0reab47v9F+uMilTNt7N9E70MQKBgFi59mP1rVbzySk4hsdXPnLlAerWcDcwO+uzE7ba2lYEJUS5JPb1vjl5R4+ZbkuuDqmKTV5kIaEHkEtWeZafp+jqQ48/k8/oKwkmOxLrH4Bxb+JheLreVmVMkKBJbbg0l4mbtvzHdfXP96u2ke/mRixJ8MtK4qTo6KuIPqKt4LSBAoGBAIxR68mh/RfOVG72TzYWcJNWXaMZeKApOwiYUjggBhPx7STDWLV1dQH9/GMBfDJSoHwy8M9zZDCKxEIvRnAW6POHq5/oXKUroGZ4bnw9d/Jw1CddZdsud6hrbvNmlbwoniR+xF3ydkEAC3WIGTIdjLfdNRsCW0GRlMeHhBe7UkABAoGBANDgzBQBXFOhMoMhbthpThqiSqu1uJpyg1tHlQfwMYTouXCc/vqMOCBaXbTqBpgHbr07GJEOT3D79q2oTR03toK/SX+1ukjrJh0JQdD0pivNcqkZmE2RSBvbP/ndRNwwedF/QZgUlxBxuOglbtPtonc8059mSGs2z+EgDrgwFJoD",
+            alipayPublicKey:
+            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhNlncu+dbzYz0nXFFZYAkF+NolGCWOyyzTY3JoVG5IdG0DmrMSI9SJo7kV2r9yv28kMSAHyUojvX+WOh0BYCrpXbSG8DZiGCIgnxbg4IgamqtZ5y+KOdgxo4snooebcwPE2Ft1x3LLsDIA5Juo0OdD3PZYlaj3rcrzAj6MN9ckUaNLPk5A8Ta/avYVITQ3PTgLKmSpiAE8SdHLcuXmODWdromUBxXgHvaAOE9TWu7nFxBykvILHb71d//QCy2BOpngOn6rzPgI56PZAkPeMYpy1thZKkp9zRBKK1FRN0rFNa2G1uvc7Jsflp0t5c6YGGE3iO9J8AOvR4HnsY9YvdgwIDAQAB",
+            gateway: "https://openapi-sandbox.dl.alipaydev.com/gateway.do",
         });
         
         // ... 后续的业务逻辑完全不变 ...

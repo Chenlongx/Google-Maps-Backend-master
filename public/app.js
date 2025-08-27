@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const routes = {
         '/dashboard': 'pages/dashboard.html',
         '/users': 'pages/users.html',
+        '/licenses': 'pages/licenses.html',
         '/analytics': 'pages/analytics.html', 
         '/settings': 'pages/settings.html',
         '/addUser': 'pages/addUser.html',

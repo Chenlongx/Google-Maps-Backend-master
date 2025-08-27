@@ -339,6 +339,15 @@ a {
     border-collapse: collapse;
     border-spacing: 0;
 }
+#licenseTable {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+#licenseTable th {
+    text-align: center;
+}
 
 #userTable th,
 #userTable td {
@@ -958,5 +967,63 @@ input:checked+.slider:before {
         flex-direction: column; /* 垂直堆叠 */
         align-items: flex-start; /* 左对齐 */
         gap: 8px;
+    }
+
+    /* 在小屏幕上，我们隐藏原始的表头 */
+    #licenseTable thead {
+        display: none;
+    }
+
+    /* 将表格、表体、行的布局方式改变，为卡片化做准备 */
+    #licenseTable, #licenseTable tbody, #licenseTable tr {
+        display: block;
+    }
+
+    /* 将每一行 `<tr>` 变成一张独立的卡片 */
+    #licenseTable tr {
+        margin-bottom: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        background-color: var(--white-color);
+    }
+
+    /* 让空数据行的提示信息更好看 */
+    #licenseTable tr:has(td[colspan='9']) {
+        border: none;
+        box-shadow: none;
+        background: none;
+    }
+
+    /* 将每个单元格 `<td>` 垂直排列 */
+    #licenseTable td {
+        display: flex; /* 使用flex布局来对齐标题和内容 */
+        justify-content: space-between; /* 标题和内容两端对齐 */
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-color);
+        text-align: right; /* 内容默认右对齐 */
+        white-space: normal; /* 允许内容换行 */
+    }
+
+    #licenseTable td:last-child {
+        border-bottom: none;
+    }
+
+    /* 这是最关键的一步：使用 ::before 伪元素，将我们之前在HTML中设置的 data-label 属性内容显示出来，作为卡片中每一行的标题 */
+    #licenseTable td[data-label]::before {
+        content: attr(data-label); /* 获取data-label属性的值 */
+        font-weight: 600;
+        text-align: left;
+        margin-right: 10px;
+        color: var(--dark-gray-color);
+    }
+
+    /* 对第一个单元格（复选框）做特殊处理，让它看起来更和谐 */
+    #licenseTable td[data-label="选择"] {
+        justify-content: flex-end; /* 只需右对齐即可 */
+    }
+    #licenseTable td[data-label="选择"]::before {
+        display: none; /* 无需显示“选择”二字 */
     }
 }

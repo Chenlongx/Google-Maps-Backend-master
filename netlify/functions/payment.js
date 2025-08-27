@@ -7,11 +7,10 @@ const cors = require('cors');
 
 const app = express();
 
-// ====== 1. 【重要】将 CORS 配置移到最前面 ======
-// 为开发环境和生产环境都配置允许的源
+// ====== 1. CORS 配置 (保持不变) ======
 const allowedOrigins = [
-    'http://localhost:8888', // 允许您本地开发服务器的地址
-    'https://google-maps-backend-master.netlify.app' // 【重要】您网站最终部署的线上地址
+    'http://localhost:8888',
+    'https://google-maps-backend-master.netlify.app'
 ];
 const corsOptions = {
   origin: (origin, callback) => {
@@ -22,22 +21,21 @@ const corsOptions = {
     }
   }
 };
-app.use(cors(corsOptions)); // 在所有路由之前应用 CORS 配置
+app.use(cors(corsOptions));
 app.use(express.json());
 
-
-// ====== 2. 从环境变量安全地初始化支付宝 SDK ======
+// ====== 2. 支付宝 SDK 初始化 (保持不变) ======
 const alipaySdk = new AlipaySdk({
     appId: process.env.ALIPAY_APP_ID,
     privateKey: process.env.ALIPAY_PRIVATE_KEY.replace(/\\n/g, '\n'),
     alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY.replace(/\\n/g, '\n'),
-    gateway: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do',
+    gateway: 'https://openapi-sandbox.dl. Alipaydev.com/gateway.do',
 });
 
-// ====== 3. 创建支付订单的 API 接口 ======
+// ====== 3. 创建支付路由 (保持不变) ======
 const router = express.Router();
 router.post('/create-payment', async (req, res) => {
-    // ... 这部分内部逻辑保持不变 ...
+    // ... 内部逻辑完全不变 ...
     const { productId, price, email } = req.body;
     if (!productId || !price || !email) {
         return res.status(400).json({ success: false, message: 'Missing parameters' });
@@ -67,8 +65,8 @@ router.post('/create-payment', async (req, res) => {
 });
 
 // ====== 4. 【重要】修正路由挂载方式 ======
-// 直接将 router 挂载到根路径，不再需要复杂的前缀
-app.use('/', router);
+// 创建一个基础路径 /api，并将 router 挂载到它下面
+app.use('/api', router);
 
 // 使用 serverless-http 导出 handler
 module.exports.handler = serverless(app);

@@ -9,25 +9,37 @@ const cors = require('cors');
 const app = express();
 
 // ====== 1. 从环境变量安全地初始化支付宝 SDK ======
-// Netlify 会自动将您在UI界面设置的环境变量注入到 process.env 对象中
 const alipaySdk = new AlipaySdk({
     appId: process.env.ALIPAY_APP_ID,
-    // process.env 读取的环境变量中的换行符 `\n` 会被转义成字符串 "\\n"
-    // 我们需要用.replace(/\\n/g, '\n') 将其转换回真实的换行符
     privateKey: process.env.ALIPAY_PRIVATE_KEY.replace(/\\n/g, '\n'),
     alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY.replace(/\\n/g, '\n'),
-    // 网关需要指向您正在使用的环境（沙盒或生产）
     gateway: 'https://openapi-sandbox.dl.alipaydev.com/gateway.do',
 });
 
-// 使用 express.Router 来管理路由，这是一个好习惯
+// ====== 2. 【重要】配置 CORS 跨域许可 ======
+// 为开发环境和生产环境都配置允许的源
+const allowedOrigins = [
+    'http://localhost:8888', // 允许您本地开发服务器的地址
+    'https://google-maps-backend-master.netlify.app' // 【重要】您网站最终部署的线上地址
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
+// 在所有路由之前应用 CORS 配置
+app.use(cors(corsOptions));
+app.use(express.json());
+
+
+// ====== 3. 创建支付订单的 API 接口 ======
+// 使用 Express Router 来管理路由
 const router = express.Router();
-
-router.use(express.json());
-router.use(cors()); // 允许跨域请求
-
-// ====== 2. 创建支付订单的 API 接口 ======
-// 注意：路由路径不再需要 /api/ 前缀，因为 Netlify 的重定向规则会处理
 router.post('/create-payment', async (req, res) => {
     const { productId, price, email } = req.body;
 
@@ -51,8 +63,8 @@ router.post('/create-payment', async (req, res) => {
                 out_trade_no: outTradeNo,
                 total_amount: price,
                 subject: subject,
-                // 在回调通知中，您可以通过 notify_url 指定接收通知的地址
-                // notify_url: 'https://YOUR_SITE_NAME.netlify.app/.netlify/functions/alipay-notify'
+                // 回调通知地址，支付成功后支付宝会请求这个地址
+                notify_url: `https://google-maps-backend-master.netlify.app/.netlify/functions/alipay-notify`
             },
         });
 
@@ -64,10 +76,10 @@ router.post('/create-payment', async (req, res) => {
     }
 });
 
-// ====== 3. 将 Express 应用与 Netlify Function 结合 ======
-// 将 Express 路由挂载到 /api/ 路径下
-// 这样，Netlify 会将所有 /api/ 的请求都交给这个 Express 应用处理
+
+// ====== 4. 将 Express 应用与 Netlify Function 结合 ======
+// 将路由挂载到应用的根路径
 app.use('/.netlify/functions/payment', router);
 
-// 使用 serverless-http 导出 handler
+// 使用 serverless-http 导出 handler，这是 Netlify 运行函数的入口
 module.exports.handler = serverless(app);

@@ -908,6 +908,92 @@ input:checked+.slider:before {
     align-items: center;
 }
 
+
+/* --- 表格排序图标样式 --- */
+#userTable th[id^="sort-"] span {
+    display: inline-block;
+    width: 1em; /* 确保图标有占位空间 */
+    margin-left: 6px;
+    color: var(--dark-gray-color);
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+#userTable th[id^="sort-"]:hover span {
+    opacity: 1;
+}
+
+/* 未排序状态的默认图标 (上下箭头) */
+#userTable th[id^="sort-"] span::before {
+    content: ' \2195'; /* Unicode for up-down arrow */
+}
+
+/* 升序图标 (向上箭头) */
+#userTable th[id^="sort-"].sorted-asc span::before {
+    content: ' \2191'; /* Unicode for up arrow */
+}
+
+/* 降序图标 (向下箭头) */
+#userTable th[id^="sort-"].sorted-desc span::before {
+    content: ' \2193'; /* Unicode for down arrow */
+}
+
+/* 当排序激活时，图标更明显 */
+#userTable th[id^="sort-"].sorted-asc span,
+#userTable th[id^="sort-"].sorted-desc span {
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+
+
+
+.button-group {
+    display: flex;
+    justify-content: flex-end; /* 让按钮靠右对齐 */
+    gap: 12px;                /* 按钮之间的间距 */
+    padding-top: 16px;
+    margin-top: 24px;
+    border-top: 1px solid var(--border-color); /* 在按钮组上方添加一条分割线 */
+}
+
+/* 通用保存按钮样式 (主操作) */
+.save-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--primary-color); /* 使用主题主色 */
+    color: #fff;
+}
+
+.save-btn:hover {
+    background: var(--primary-hover-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+}
+
+/* 通用取消按钮样式 (次要操作) */
+.cancel-btn {
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--medium-gray-color); /* 边框颜色 */
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--white-color); /* 背景为白色 */
+    color: var(--text-color);       /* 文字为主题文字颜色 */
+}
+
+.cancel-btn:hover {
+    background: var(--light-gray-color); /* 鼠标悬停时背景变灰 */
+    border-color: var(--dark-gray-color);
+}
+
 @media (max-width: 992px) {
     .dashboard-grid {
         grid-template-columns: 1fr;

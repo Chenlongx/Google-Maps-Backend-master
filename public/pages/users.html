@@ -62,10 +62,16 @@
                     <th>设备码</th>
                     <th>系统</th>
                     <th>类型</th>
-                    <th>导出次数</th>
+                    <th id="sort-export-count" style="cursor: pointer;">
+                        导出次数 <span id="sort-icon-export-count"></span>
+                    </th>
                     <th>最近导出</th>
-                    <th>创建时间</th>
-                    <th>到期时间</th>
+                    <th id="sort-created-at" style="cursor: pointer;">
+                        创建时间 <span id="sort-icon-created-at"></span>
+                    </th>
+                    <th id="sort-expiry-at" style="cursor: pointer;">
+                        到期时间 <span id="sort-icon-expiry-at"></span>
+                    </th>
                     <th>状态</th>
                     <th>AI权限</th>
                     <th>AI Tokens</th>
@@ -89,6 +95,9 @@
 (function() {
     const TOKENS_PER_AI_REQUEST_UsersPage = 3000;
     let allUsers_UsersPage = []; 
+    let createdAtSortState = 'none';
+    let expiryAtSortState = 'none';  // 新增：到期时间排序状态
+    let exportCountSortState = 'none'; // 新增：导出次数排序状态
 
     function formatDate_UsersPage(dateString) {
         if (!dateString) return "N/A";
@@ -314,6 +323,67 @@
             document.querySelectorAll('.user-checkbox').forEach(checkbox => { checkbox.checked = this.checked; });
         });
         if(editMasterBalanceBtn) editMasterBalanceBtn.addEventListener('click', updateMasterBalance_UsersPage);
+
+        // --- 新增的排序逻辑 (完整版) ---
+        const sortHeaders = {
+            'sort-created-at': { state: 'createdAtSortState', type: 'date', key: 'created_at' },
+            'sort-expiry-at': { state: 'expiryAtSortState', type: 'date', key: 'expiry_at' },
+            'sort-export-count': { state: 'exportCountSortState', type: 'number', key: 'daily_export_count' }
+        };
+
+        // 一个重置所有排序状态和样式的函数
+        const resetAllSortStates = (exceptId) => {
+            for (const id in sortHeaders) {
+                if (id !== exceptId) {
+                    window[sortHeaders[id].state] = 'none';
+                    const header = document.getElementById(id);
+                    if (header) header.className = '';
+                }
+            }
+        };
+        
+        // 循环为所有可排序表头绑定事件
+        for (const id in sortHeaders) {
+            const header = document.getElementById(id);
+            if (header) {
+                header.addEventListener('click', () => {
+                    resetAllSortStates(id); // 点击时先重置其他列
+
+                    const config = sortHeaders[id];
+                    const currentState = window[config.state];
+
+                    if (currentState === 'none' || currentState === 'asc') {
+                        // 切换到降序
+                        window[config.state] = 'desc';
+                        header.className = 'sorted-desc';
+                        allUsers_UsersPage.sort((a, b) => {
+                            let valA = a[config.key];
+                            let valB = b[config.key];
+                            if (config.type === 'date') {
+                                // 处理无效或空日期，将其排在最后
+                                return (valB ? new Date(valB).getTime() : 0) - (valA ? new Date(valA).getTime() : 0);
+                            } else { // number
+                                return (valB || 0) - (valA || 0);
+                            }
+                        });
+                    } else {
+                        // 切换到升序
+                        window[config.state] = 'asc';
+                        header.className = 'sorted-asc';
+                        allUsers_UsersPage.sort((a, b) => {
+                             let valA = a[config.key];
+                             let valB = b[config.key];
+                             if (config.type === 'date') {
+                                return (valA ? new Date(valA).getTime() : 0) - (valB ? new Date(valB).getTime() : 0);
+                            } else { // number
+                                return (valA || 0) - (valB || 0);
+                            }
+                        });
+                    }
+                    displayUsers_UsersPage(allUsers_UsersPage); // 重新渲染表格
+                });
+            }
+        }
     }
 
     // 立即执行初始化

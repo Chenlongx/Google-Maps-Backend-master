@@ -205,6 +205,39 @@
         }
     }
 
+
+    function displaySkeletonRows_UsersPage(rowCount = 10) {
+        const tableBody = document.querySelector("#userTable tbody");
+        if (!tableBody) return;
+        tableBody.innerHTML = ''; // 清空现有内容
+        
+        const skeletonRowHtml = `
+            <tr>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
+            </tr>
+        `;
+
+        for (let i = 0; i < rowCount; i++) {
+            tableBody.innerHTML += skeletonRowHtml;
+        }
+    }
+
+
+
     function displayUsers_UsersPage(usersToDisplay) {
         const tableBody = document.querySelector("#userTable tbody");
         if(!tableBody) return;
@@ -301,6 +334,10 @@
     }
 
     function initializeUsersPage() {
+
+        // 1. 立即显示骨架屏，而不是等待 fetch
+        displaySkeletonRows_UsersPage(10); 
+
         fetchUsers_UsersPage();
         fetchMasterBalance_UsersPage();
         

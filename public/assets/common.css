@@ -994,6 +994,35 @@ input:checked+.slider:before {
     border-color: var(--dark-gray-color);
 }
 
+
+/* --- 骨架屏 (Skeleton Screen) 样式 --- */
+.skeleton-cell span {
+    display: inline-block;
+    height: 1.2em; /* 高度与一行文字大致相同 */
+    width: 80%;   /* 宽度不占满，更真实 */
+    border-radius: 4px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+/* 深色模式下的骨架屏颜色 */
+body.dark-mode .skeleton-cell span {
+    background: linear-gradient(90deg, #3a3a3a 25%, #4a4a4a 50%, #3a3a3a 75%);
+    background-size: 200% 100%;
+}
+
+/* 定义扫光动画 */
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+
 @media (max-width: 992px) {
     .dashboard-grid {
         grid-template-columns: 1fr;

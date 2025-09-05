@@ -103,7 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '/analytics': 'pages/analytics.html', 
         '/settings': 'pages/settings.html',
         '/addUser': 'pages/addUser.html',
-        '/editUser': 'pages/editUser.html'
+        '/editUser': 'pages/editUser.html',
+        '/whatsapp-licenses': 'pages/whatsapp-licenses.html' 
     };
 
     const executeScripts = (container) => {
@@ -194,10 +195,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始加载
     const initialPath = window.location.pathname + window.location.search;
     const initialBasePath = initialPath.split('?')[0];
-    if (!routes[initialBasePath] || ['/', '/index.html', '/shell.html'].includes(initialBasePath)) {
+
+    // --- 修改后的逻辑 ---
+    // 只检查当前路径是否是一个已定义的、有效的路由
+    if (routes[initialBasePath]) {
+        // 如果是一个有效路由，就加载对应内容
+        loadContent(initialPath);
+    } else {
+        // 如果不是一个有效路由 (包括'/', '/index.html'等未在routes中定义的路径)
+        // 那么，才重定向到 dashboard
         history.replaceState({ path: '/dashboard' }, '', '/dashboard');
         loadContent('/dashboard');
-    } else {
-        loadContent(initialPath);
     }
 });

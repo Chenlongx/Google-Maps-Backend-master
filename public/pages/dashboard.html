@@ -155,46 +155,64 @@
     }
 
     function renderUserGrowthChart_DASH(users) {
-        if (userGrowthChartInstance_DASH) {
-            userGrowthChartInstance_DASH.destroy();
-        }
-        const ctx = document.getElementById('userGrowthChart').getContext('2d');
-        const data = {};
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        users.forEach(user => {
-            const createdAt = new Date(user.created_at);
-            if (createdAt >= thirtyDaysAgo) {
-                const day = createdAt.toISOString().split('T')[0];
-                data[day] = (data[day] || 0) + 1;
+        // 1. 首先，尝试获取画布元素
+        const chartCanvas = document.getElementById('userGrowthChart');
+
+        // 2. 关键！检查这个元素是否存在
+        if (chartCanvas) {
+            // --- 只有当画布存在时，才执行下面所有的绘图逻辑 ---
+
+            // 销毁旧的图表实例 (如果存在)
+            if (userGrowthChartInstance_DASH) {
+                userGrowthChartInstance_DASH.destroy();
             }
-        });
-        const labels = [];
-        const counts = [];
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dayString = date.toISOString().split('T')[0];
-            labels.push(`${date.getMonth() + 1}-${date.getDate()}`);
-            counts.push(data[dayString] || 0);
+
+            // 获取绘图上下文
+            const ctx = chartCanvas.getContext('2d');
+            
+            // --- 您原来的所有数据处理和图表创建代码都保持不变，放在这个 if 内部 ---
+            const data = {};
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            users.forEach(user => {
+                const createdAt = new Date(user.created_at);
+                if (createdAt >= thirtyDaysAgo) {
+                    const day = createdAt.toISOString().split('T')[0];
+                    data[day] = (data[day] || 0) + 1;
+                }
+            });
+
+            const labels = [];
+            const counts = [];
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dayString = date.toISOString().split('T')[0];
+                labels.push(`${date.getMonth() + 1}-${date.getDate()}`);
+                counts.push(data[dayString] || 0);
+            }
+
+            userGrowthChartInstance_DASH = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '新增用户数',
+                        data: counts,
+                        borderColor: 'rgba(74, 105, 189, 1)',
+                        backgroundColor: 'rgba(74, 105, 189, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
         }
-        userGrowthChartInstance_DASH = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '新增用户数',
-                    data: counts,
-                    borderColor: 'rgba(74, 105, 189, 1)',
-                    backgroundColor: 'rgba(74, 105, 189, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+        // 如果 chartCanvas 不存在 (即在非仪表盘页面), 这个函数会直接结束，什么也不做，也就不会报错了。
     }
 
+    
     function renderUserTypeChart_DASH(users) {
         if (userTypeChartInstance_DASH) {
             userTypeChartInstance_DASH.destroy();

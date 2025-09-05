@@ -1,0 +1,297 @@
+<header class="page-header">
+    <h1 class="page-title">激活码管理 (WhatsApp Validator)</h1>
+</header>
+
+<section class="stats-grid">
+    <div class="stat-card stat-card-tokens">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.82m5.84-2.56a6 6 0 0 0-7.38-5.84m2.56 5.84a6 6 0 0 1 7.38 5.84m-12.56 0a6 6 0 0 1-7.38-5.84m5.84 2.56a6 6 0 0 0 7.38-5.84m-5.84 2.56a6 6 0 0 0-7.38-5.84" /></svg></div>
+        <div class="info">
+            <div class="label">总生成数</div>
+            <div class="value" id="total-licenses-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-users">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg></div>
+        <div class="info">
+            <div class="label">可用数量</div>
+            <div class="value" id="available-licenses-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-earnings">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" /></svg></div>
+        <div class="info">
+            <div class="label">已激活数量</div>
+            <div class="value" id="active-licenses-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-advanced">
+        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg></div>
+        <div class="info">
+            <div class="label">已吊销/过期</div>
+            <div class="value" id="revoked-licenses-display">加载中...</div>
+        </div>
+    </div>
+</section>
+
+<div class="main-card">
+    <div class="table-controls">
+        <div class="search-container">
+            <input class="search-input" type="text" placeholder="按激活码、机器码或备注搜索...">
+            <svg id="clickSearch" class="search-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M448 768c176.725333 0 320-143.274667 320-320 0-176.725333-143.274667-320-320-320-176.725333 0-320 143.274667-320 320 0 176.725333 143.274667 320 320 320z m0 42.666667c-200.298667 0-362.666667-162.368-362.666667-362.666667S247.701333 85.333333 448 85.333333s362.666667 162.368 362.666667 362.666667-162.368 362.666667-362.666667 362.666667z m304.917333-27.584a21.333333 21.333333 0 0 1 30.165334-30.165334l150.848 150.848a21.333333 21.333333 0 0 1-30.165334 30.165334l-150.848-150.826667z" fill="currentColor"></path></svg>
+        </div>
+        <div class="actions-toolbar">
+            <button id="generateButton" class="action-button btn-add">生成激活码</button>
+            <button id="deleteButton" class="action-button btn-delete">删除选中</button>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table id="licenseTable">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAllCheckbox"></th>
+                    <th>激活码 (KEY)</th>
+                    <th>状态</th>
+                    <th>绑定的机器码</th>
+                    <th>激活时间</th>
+                    <th>创建时间</th>
+                    <th>到期时间</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody style="text-align: center;"></tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 高级用户管理系统 | 版权所有</p>
+</footer>
+
+<div class="loading-container" id="loadingContainer"><div class="loading-message">加载中，请稍候...</div></div>
+<div id="customAlert"></div>
+
+<script>
+(function() {
+    // --- 1. 全局变量名已修正 ---
+    let allLicenses_WhatsAppPage = []; 
+
+    // --- 2. 所有辅助函数名已修正 ---
+    function formatDate_WhatsAppPage(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? "无效日期" : date.toLocaleDateString('zh-CN') + ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showTimedAlert_WhatsAppPage(message, duration = 3000) {
+        const alertBox = document.getElementById('customAlert');
+        if (alertBox) {
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            setTimeout(() => { alertBox.style.display = 'none'; }, duration);
+        } else {
+            alert(message);
+        }
+    }
+
+    async function fetchWhatsAppLicenses() {
+        document.getElementById('loadingContainer').style.display = 'flex';
+        try {
+            // 1. 从 localStorage 获取 authToken (这是登录后保存的)
+            const token = localStorage.getItem('authToken'); 
+
+            if (!token) {
+                showTimedAlert_WhatsAppPage('用户未登录，无法加载数据。');
+                // 可选：跳转回登录页
+                // window.location.href = 'login.html'; 
+                return;
+            }
+
+            // --- 核心修改：使用 Token 发送请求 ---
+            const response = await fetch('/api/getWhatsAppLicenses', { // URL里不再需要 ?password=...
+                method: 'GET', // 明确指定请求方法
+                headers: {
+                    // 在请求头中携带 Token
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+
+            if (response.status === 401) {
+                showTimedAlert_WhatsAppPage('认证失败，请重新登录。');
+                return;
+            }
+            if (!response.ok) {
+                const errorResult = await response.json();
+                throw new Error(errorResult.message || '服务器响应错误');
+            }
+
+            const data = await response.json();
+            
+            allLicenses_WhatsAppPage = data.licenses || [];
+            displayLicenses_WhatsAppPage(allLicenses_WhatsAppPage);
+            updateStats_WhatsAppPage(allLicenses_WhatsAppPage);
+
+        } catch (error) {
+            console.error('获取激活码数据失败:', error);
+            showTimedAlert_WhatsAppPage(`无法加载激活码列表: ${error.message}`);
+            displayLicenses_WhatsAppPage([]);
+        } finally {
+            document.getElementById('loadingContainer').style.display = 'none';
+        }
+    }
+
+    function displaySkeletonRows_WhatsAppPage(rowCount = 10) {
+        const tableBody = document.querySelector("#licenseTable tbody");
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+        const skeletonRowHtml = `<tr><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td><td class="skeleton-cell"><span></span></td></tr>`;
+        for (let i = 0; i < rowCount; i++) {
+            tableBody.innerHTML += skeletonRowHtml;
+        }
+    }
+    
+    function displayLicenses_WhatsAppPage(licenses) {
+        const tableBody = document.querySelector("#licenseTable tbody");
+        tableBody.innerHTML = '';
+        if (licenses.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px;">暂无激活码数据</td></tr>`;
+            return;
+        }
+        licenses.forEach(license => {
+            const row = document.createElement('tr');
+            const statusMap = {
+                'available': { text: '可用', class: 'status-valid' },
+                'active': { text: '已激活', class: 'status-pending' },
+                'revoked': { text: '已吊销', class: 'status-expired' },
+                'expired': { text: '已过期', class: 'status-expired' }
+            };
+            const statusInfo = statusMap[license.status] || { text: license.status, class: '' };
+            const statusBadge = `<span class="status-badge ${statusInfo.class}">${statusInfo.text}</span>`;
+            row.innerHTML = `<td><input type="checkbox" class="license-checkbox" data-license-id="${license.id}"></td><td><code class="copyable" title="点击复制">${license.key || 'N/A'}</code></td><td>${statusBadge}</td><td>${license.machine_id || '未绑定'}</td><td>${formatDate_WhatsAppPage(license.activation_date)}</td><td>${formatDate_WhatsAppPage(license.created_at)}</td><td>${formatDate_WhatsAppPage(license.expiry_at)}</td><td>${license.notes || ''}</td><td><button class="edit-button" data-license-id="${license.id}" title="编辑备注、状态、有效期等">编辑</button></td>`;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function updateStats_WhatsAppPage(licenses) {
+        document.getElementById('total-licenses-display').textContent = licenses.length;
+        document.getElementById('available-licenses-display').textContent = licenses.filter(l => l.status === 'available').length;
+        document.getElementById('active-licenses-display').textContent = licenses.filter(l => l.status === 'active').length;
+        document.getElementById('revoked-licenses-display').textContent = licenses.filter(l => l.status === 'revoked' || l.status === 'expired').length;
+    }
+    
+    async function generateLicenseKey_WhatsAppPage() {
+        const countStr = prompt("请输入要生成的激活码数量:", "1");
+        if (countStr === null) return;
+        const count = parseInt(countStr, 10);
+        if (isNaN(count) || count <= 0 || count > 100) {
+            showTimedAlert_WhatsAppPage('请输入一个1到100之间的有效数字。');
+            return;
+        }
+        
+        document.getElementById('loadingContainer').style.display = 'flex';
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/generateWhatsAppLicense', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ count })
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                showTimedAlert_WhatsAppPage(`成功生成 ${count} 个新的激活码！`);
+                fetchWhatsAppLicenses(); 
+            } else {
+                throw new Error(result.message || '生成失败');
+            }
+        } catch (error) {
+            showTimedAlert_WhatsAppPage(`操作失败: ${error.message}`);
+        } finally {
+             document.getElementById('loadingContainer').style.display = 'none';
+        }
+    }
+
+    async function deleteSelectedLicenses_WhatsAppPage() {
+        const selectedCheckboxes = document.querySelectorAll('.license-checkbox:checked');
+        if (selectedCheckboxes.length === 0) {
+            showTimedAlert_WhatsAppPage('请至少选择一个要删除的激活码。');
+            return;
+        }
+        if (!confirm(`确定要永久删除这 ${selectedCheckboxes.length} 个激活码吗？`)) return;
+        
+        const licenseIdsToDelete = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-license-id'));
+        document.getElementById('loadingContainer').style.display = 'flex';
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/deleteWhatsAppLicense', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ licenseIds: licenseIdsToDelete })
+            });
+            const result = await response.json();
+            if (response.ok && result.success) {
+                showTimedAlert_WhatsAppPage('激活码删除成功！');
+                fetchWhatsAppLicenses();
+            } else {
+                throw new Error(result.message || '删除失败');
+            }
+        } catch (error) {
+            showTimedAlert_WhatsAppPage(`删除失败: ${error.message}`);
+        } finally {
+            document.getElementById('loadingContainer').style.display = 'none';
+        }
+    }
+
+    function initialize_WhatsAppPage() {
+        displaySkeletonRows_WhatsAppPage(10);
+        fetchWhatsAppLicenses();
+        
+        const searchInput = document.querySelector('.search-input');
+        const searchButton = document.querySelector('#clickSearch');
+        const generateButton = document.getElementById('generateButton');
+        const deleteButton = document.getElementById('deleteButton');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        
+        const performSearch = () => {
+            const term = searchInput.value.toLowerCase().trim();
+            if (!term) {
+                displayLicenses_WhatsAppPage(allLicenses_WhatsAppPage);
+                return;
+            }
+            const filtered = allLicenses_WhatsAppPage.filter(l => 
+                (l.key && l.key.toLowerCase().includes(term)) ||
+                (l.machine_id && l.machine_id.toLowerCase().includes(term)) ||
+                (l.notes && l.notes.toLowerCase().includes(term))
+            );
+            displayLicenses_WhatsAppPage(filtered);
+        };
+
+        if(searchButton) searchButton.addEventListener('click', performSearch);
+        if(searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+        if(generateButton) generateButton.addEventListener('click', generateLicenseKey_WhatsAppPage);
+        if(deleteButton) deleteButton.addEventListener('click', deleteSelectedLicenses_WhatsAppPage);
+        if(selectAllCheckbox) selectAllCheckbox.addEventListener('change', function() {
+            document.querySelectorAll('.license-checkbox').forEach(cb => { cb.checked = this.checked; });
+        });
+
+        document.querySelector("#licenseTable tbody").addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('copyable')) {
+                const keyToCopy = e.target.textContent;
+                navigator.clipboard.writeText(keyToCopy).then(() => {
+                    showTimedAlert_WhatsAppPage('激活码已复制到剪贴板！', 1500);
+                }, (err) => {
+                    console.error('复制失败: ', err);
+                    showTimedAlert_WhatsAppPage('复制失败，请手动复制。');
+                });
+            }
+        });
+    }
+
+    initialize_WhatsAppPage();
+})();
+</script>

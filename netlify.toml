@@ -1,7 +1,9 @@
 [build]
   base = "."
   publish = "public"
-  functions = "netlify/functions"
+
+[functions]
+  directory = "netlify/functions"
 
 # --- API 重定向规则 ---
 # 将所有 /api/ 开头的请求转发到对应的 Netlify Function
@@ -17,5 +19,8 @@
   to = "/index.html"
   status = 200
 
+[dev]
+  port = 5000
+  functionsPort = 4999
 
 

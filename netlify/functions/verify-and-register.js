@@ -131,7 +131,7 @@ exports.handler = async (event) => {
         // --- 密码加密过程已被移除 ---
 
         const now = new Date();
-        const expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
+        const expiryDate = new Date(now.setDate(now.getDate() + 1)); 
 
         const newUserRecord = {
             account: email,
@@ -140,7 +140,7 @@ exports.handler = async (event) => {
             password: password, // 直接使用从前端传来的原始密码
             device_id: device_id,
             os_type: os_type,
-            user_type: 'trial',
+            user_type: 'standard',
             status: 'active',
             expiry_at: expiryDate.toISOString(),
             is_ai_authorized: false,
@@ -162,7 +162,7 @@ exports.handler = async (event) => {
 
         return {
             statusCode: 201,
-            body: JSON.stringify({ success: true, message: '试用账号注册成功！有效期一年。' })
+            body: JSON.stringify({ success: true, message: '试用账号注册成功！有效期一天，请及时转为正式账号。' })
         };
 
     } catch (err) {

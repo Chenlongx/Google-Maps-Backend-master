@@ -66,7 +66,7 @@
 
 // netlify/functions/verify-and-register.js
 const { createClient } = require('@supabase/supabase-js');
-const bcrypt = require('bcryptjs'); // 引入加密库
+// const bcrypt = require('bcryptjs'); // 步骤1：移除或注释掉加密库的引用
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
@@ -78,14 +78,12 @@ exports.handler = async (event) => {
     }
 
     try {
-        // --- 核心修改 1: 从前端接收更多字段 ---
         const { email, password, token, device_id, os_type } = JSON.parse(event.body);
 
         if (!email || !password || !token || !device_id || !os_type) {
             return { statusCode: 400, body: JSON.stringify({ success: false, message: '所有字段都不能为空' }) };
         }
         
-        // --- 核心修改 2: 检查设备ID是否已被使用 ---
         const { data: existingDevice, error: deviceCheckError } = await supabase
             .from('user_accounts')
             .select('id')
@@ -100,9 +98,7 @@ exports.handler = async (event) => {
         if (existingDevice) {
             return { statusCode: 409, body: JSON.stringify({ success: false, message: '此设备已注册过试用账号' }) };
         }
-        // --- 设备ID检查结束 ---
 
-        // 3. 验证邮箱和验证码 (OTP)
         const { data: { user }, error: verifyError } = await supabase.auth.verifyOtp({
             email: email,
             token: token,
@@ -114,37 +110,36 @@ exports.handler = async (event) => {
             return { statusCode: 400, body: JSON.stringify({ success: false, message: '验证码错误或已过期' }) };
         }
 
-        // --- 核心修改 3: 密码加密 ---
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-        // --- 密码加密结束 ---
+        // --- 核心修改 2: 移除密码加密过程 ---
+        // const saltRounds = 10;
+        // const hashedPassword = await bcrypt.hash(password, saltRounds);
+        // --- 密码加密过程已被移除 ---
 
-        // --- 核心修改 4: 设置账户类型、有效期和其他试用属性 ---
         const now = new Date();
-        const expiryDate = new Date(now.setFullYear(now.getFullYear() + 1)); // 当前时间加一年
+        const expiryDate = new Date(now.setFullYear(now.getFullYear() + 1));
 
         const newUserRecord = {
             account: email,
-            password: hashedPassword, // 存储加密后的密码
+            // --- 核心修改 3: 直接存储原始密码 ---
+            // 注意：您的数据库字段应为 password 或 password_hash，请确保此处匹配
+            password: password, // 直接使用从前端传来的原始密码
             device_id: device_id,
             os_type: os_type,
-            user_type: 'trial',         // 设置用户类型为 trial
+            user_type: 'trial',
             status: 'active',
-            expiry_at: expiryDate.toISOString(), // 设置一年后的到期时间
-            is_ai_authorized: false,     // 试用期默认授权AI
-            ai_tokens_remaining: 0,    // 赠送50个AI Tokens
+            expiry_at: expiryDate.toISOString(),
+            is_ai_authorized: false,
+            ai_tokens_remaining: 0,
             daily_export_count: 0
         };
-        // --- 设置结束 ---
 
-        // 5. 将完整的用户信息插入到 `user_accounts` 表中
         const { error: insertError } = await supabase
             .from('user_accounts')
             .insert([newUserRecord]);
 
         if (insertError) {
             console.error('Error inserting new user:', insertError);
-            if (insertError.code === '23505') { // PostgreSQL a unique violation error code
+            if (insertError.code === '23505') {
                  return { statusCode: 409, body: JSON.stringify({ success: false, message: '此邮箱已被注册' }) };
             }
             return { statusCode: 500, body: JSON.stringify({ success: false, message: '创建用户失败' }) };

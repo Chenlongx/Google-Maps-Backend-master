@@ -84,7 +84,9 @@ exports.handler = async (event) => {
             expiryAt: user.expiry_at,
             status: user.status,
             deviceCode: device_id,
-            osType: os_type
+            osType: os_type,
+            trial_search_used: user.trial_search_used,
+            daily_export_count: user.daily_export_count
           }
         }),
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -113,7 +115,9 @@ exports.handler = async (event) => {
           expiryAt: user.expiry_at,
           status: user.status,
           deviceCode: storedDeviceId,
-          osType: user.os_type
+          osType: user.os_type,
+          trial_search_used: user.trial_search_used,
+          daily_export_count: user.daily_export_count
         }
       }),
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },

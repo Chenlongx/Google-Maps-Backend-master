@@ -117,7 +117,7 @@ exports.handler = async (event) => {
         const { data: { user }, error: verifyError } = await supabase.auth.verifyOtp({
             email: email,
             token: token,
-            type: 'signup',
+            type: 'email', 
         });
 
         if (verifyError || !user) {

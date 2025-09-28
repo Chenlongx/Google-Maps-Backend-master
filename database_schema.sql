@@ -47,13 +47,19 @@ CREATE TABLE IF NOT EXISTS orders (
     out_trade_no VARCHAR(128) NOT NULL UNIQUE,
 
     -- 关联的产品ID
-    product_id BIGINT NOT NULL,
+    product_id VARCHAR(100) NOT NULL,
 
     -- 客户的邮箱地址
     customer_email VARCHAR(255) NOT NULL,
 
     -- 订单状态，默认为 'pending'
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
+
+    -- 推广码
+    referral_code VARCHAR(100),
+
+    -- 代理代码
+    agent_code VARCHAR(50),
 
     -- 记录创建时间，使用带时区的 TIMESTAMP
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()

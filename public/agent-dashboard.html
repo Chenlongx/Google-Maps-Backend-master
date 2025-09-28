@@ -1090,16 +1090,15 @@
                     const tbody = document.getElementById('commissionTableBody');
                     tbody.innerHTML = '';
                     
-                    agentData.recentOrders.forEach(record => {
-                        const order = record.order;
+                    agentData.recentOrders.forEach(order => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>${order?.out_trade_no || 'N/A'}</td>
-                            <td>产品ID: ${order?.product_id || 'N/A'}</td>
-                            <td>¥${record.commission_amount}</td>
-                            <td>¥${record.commission_amount}</td>
-                            <td><span class="status-badge status-${record.status}">${getStatusText(record.status)}</span></td>
-                            <td>${new Date(record.created_at).toLocaleDateString()}</td>
+                            <td>${order.payment_id || 'N/A'}</td>
+                            <td>${getProductName(order.product_type)}</td>
+                            <td>¥${order.order_amount}</td>
+                            <td>¥${order.commission_amount}</td>
+                            <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
+                            <td>${new Date(order.created_at).toLocaleDateString()}</td>
                         `;
                         tbody.appendChild(row);
                     });
@@ -1248,6 +1247,16 @@
                 'rejected': '已拒绝'
             };
             return statusMap[status] || status;
+        }
+
+        // 获取产品名称
+        function getProductName(productType) {
+            const productNames = {
+                'google-maps': '谷歌地图拓客程序',
+                'email-filter': '邮件过滤程序',
+                'whatsapp-filter': 'WhatsApp过滤程序'
+            };
+            return productNames[productType] || productType;
         }
 
         // 复制邀请链接

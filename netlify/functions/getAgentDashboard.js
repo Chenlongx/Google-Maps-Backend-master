@@ -132,20 +132,10 @@ exports.handler = async (event, context) => {
       .order('created_at', { ascending: false })
       .limit(10);
 
-    // 7. 获取最近订单（通过佣金记录）
+    // 7. 获取最近订单（通过产品订单表）
     const { data: recentOrders } = await supabase
-      .from('commission_records')
-      .select(`
-        *,
-        order:orders(
-          id,
-          out_trade_no,
-          product_id,
-          customer_email,
-          status,
-          created_at
-        )
-      `)
+      .from('product_orders')
+      .select('*')
       .eq('agent_id', agentProfile.id)
       .order('created_at', { ascending: false })
       .limit(5);
@@ -171,11 +161,7 @@ exports.handler = async (event, context) => {
           teamMembers: teamMembers?.map(member => member.agent) || [],
           pendingCommissions: pendingCommissions || [],
           withdrawalRequests: withdrawalRequests || [],
-          recentOrders: recentOrders?.map(record => ({
-            ...record.order,
-            commission: record.commission_amount,
-            status: record.status
-          })) || []
+          recentOrders: recentOrders || []
         }
       }),
     };

@@ -69,7 +69,6 @@ exports.handler = async function (event, context) {
         ip_address: event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'unknown',
         user_agent: userAgent,
         referrer: referrer,
-        page_url: pageUrl,
         clicked_at: new Date(timestamp).toISOString()
       }])
       .select()

@@ -140,14 +140,48 @@ exports.handler = async (event, context) => {
       .order('created_at', { ascending: false })
       .limit(5);
 
-    // 8. 计算统计数据
+    // 8. 获取推广点击量统计
+    const { data: promotionClicks } = await supabase
+      .from('promotion_clicks')
+      .select('*')
+      .eq('agent_id', agentProfile.id)
+      .order('clicked_at', { ascending: false });
+
+    // 9. 获取推广记录统计
+    const { data: promotionStats } = await supabase
+      .from('product_promotions')
+      .select('clicks_count, conversions_count, total_commission')
+      .eq('agent_id', agentProfile.id);
+
+    // 计算推广统计数据
+    const totalClicks = promotionClicks?.length || 0;
+    const totalConversions = promotionStats?.reduce((sum, stat) => sum + (stat.conversions_count || 0), 0) || 0;
+    const totalPromotionCommission = promotionStats?.reduce((sum, stat) => sum + parseFloat(stat.total_commission || 0), 0) || 0;
+
+    // 10. 获取今日点击量
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const { data: todayClicks } = await supabase
+      .from('promotion_clicks')
+      .select('*')
+      .eq('agent_id', agentProfile.id)
+      .gte('clicked_at', today.toISOString());
+
+    const todayClicksCount = todayClicks?.length || 0;
+
+    // 11. 计算统计数据
     const stats = {
       totalCommission: parseFloat(agentProfile.total_commission) || 0,
       availableBalance: parseFloat(agentProfile.available_balance) || 0,
       monthlyCommission: monthlyCommission,
       pendingCommission: pendingCommissionAmount,
       subAgentsCount: subAgentsCount || 0,
-      teamMembersCount: teamMembers?.length || 0
+      teamMembersCount: teamMembers?.length || 0,
+      // 推广统计数据
+      totalClicks: totalClicks,
+      totalConversions: totalConversions,
+      totalPromotionCommission: totalPromotionCommission,
+      todayClicks: todayClicksCount
     };
 
     return {
@@ -161,7 +195,9 @@ exports.handler = async (event, context) => {
           teamMembers: teamMembers?.map(member => member.agent) || [],
           pendingCommissions: pendingCommissions || [],
           withdrawalRequests: withdrawalRequests || [],
-          recentOrders: recentOrders || []
+          recentOrders: recentOrders || [],
+          promotionClicks: promotionClicks || [],
+          promotionStats: promotionStats || []
         }
       }),
     };

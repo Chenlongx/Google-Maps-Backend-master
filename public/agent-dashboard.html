@@ -515,6 +515,33 @@
                                 <p>团队成员</p>
                             </div>
                         </div>
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-mouse-pointer"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalClicks">0</h3>
+                                <p>总点击量</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon secondary">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="todayClicks">0</h3>
+                                <p>今日点击</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalConversions">0</h3>
+                                <p>总转化数</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -555,6 +582,51 @@
                                 <p>近30天佣金</p>
                             </div>
                         </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🖱️</div>
+                            <div class="stat-content">
+                                <h3 id="promotionTotalClicks">0</h3>
+                                <p>推广总点击</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-content">
+                                <h3 id="promotionTodayClicks">0</h3>
+                                <p>今日点击</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-content">
+                                <h3 id="promotionConversions">0</h3>
+                                <p>推广转化</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💎</div>
+                            <div class="stat-content">
+                                <h3 id="promotionCommission">¥0</h3>
+                                <p>推广佣金</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="promoted-users-table">
+                        <h3>推广点击记录</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>点击时间</th>
+                                    <th>推广码</th>
+                                    <th>IP地址</th>
+                                    <th>来源页面</th>
+                                    <th>用户代理</th>
+                                </tr>
+                            </thead>
+                            <tbody id="promotionClicksTableBody">
+                            </tbody>
+                        </table>
                     </div>
                     
                     <div class="promoted-users-table">
@@ -941,9 +1013,19 @@
             document.getElementById('pendingCommission').textContent = `¥${data.stats.pendingCommission}`;
             document.getElementById('teamCount').textContent = data.stats.teamMembersCount;
             
+            // 更新推广点击量统计
+            document.getElementById('totalClicks').textContent = data.stats.totalClicks || 0;
+            document.getElementById('todayClicks').textContent = data.stats.todayClicks || 0;
+            document.getElementById('totalConversions').textContent = data.stats.totalConversions || 0;
+            
             if (data.agentProfile) {
                 document.getElementById('userName').textContent = data.agentProfile.real_name;
                 document.getElementById('userAvatar').textContent = data.agentProfile.real_name.charAt(0);
+            }
+            
+            // 显示推广点击记录
+            if (data.promotionClicks && data.promotionClicks.length > 0) {
+                displayPromotionClicks(data.promotionClicks);
             }
             
             // 加载推广统计
@@ -968,6 +1050,31 @@
             }
         }
 
+        // 显示推广点击记录
+        function displayPromotionClicks(clicks) {
+            const tbody = document.getElementById('promotionClicksTableBody');
+            tbody.innerHTML = '';
+            
+            if (!clicks || clicks.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5" style="text-align: center; color: #999;">暂无点击记录</td>';
+                tbody.appendChild(row);
+                return;
+            }
+            
+            clicks.slice(0, 20).forEach(click => { // 只显示最近20条记录
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(click.clicked_at).toLocaleString('zh-CN')}</td>
+                    <td>${click.promotion_code}</td>
+                    <td>${click.ip_address || '未知'}</td>
+                    <td>${click.referrer || '直接访问'}</td>
+                    <td title="${click.user_agent || ''}">${(click.user_agent || '').substring(0, 50)}${(click.user_agent || '').length > 50 ? '...' : ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
         // 显示推广统计
         function displayPromotionStats(data) {
             // 更新统计数据
@@ -975,21 +1082,33 @@
             document.getElementById('totalSubAgents').textContent = data.stats.totalSubAgents;
             document.getElementById('recentUsers').textContent = data.stats.recentUsers;
             document.getElementById('recentCommissions').textContent = `¥${data.stats.recentCommissions}`;
+            
+            // 更新推广统计页面的点击量数据
+            document.getElementById('promotionTotalClicks').textContent = data.stats.totalClicks || 0;
+            document.getElementById('promotionTodayClicks').textContent = data.stats.todayClicks || 0;
+            document.getElementById('promotionConversions').textContent = data.stats.totalConversions || 0;
+            document.getElementById('promotionCommission').textContent = `¥${data.stats.totalPromotionCommission || 0}`;
 
             // 更新推广用户列表
             const tbody = document.getElementById('promotedUsersTableBody');
             tbody.innerHTML = '';
             
-            data.promotedUsers.forEach(user => {
+            if (data.promotedUsers && data.promotedUsers.length > 0) {
+                data.promotedUsers.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.email}</td>
+                        <td>${new Date(user.registrationDate).toLocaleDateString()}</td>
+                        <td>${user.inviteCode}</td>
+                        <td><span class="status-badge status-active">已注册</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } else {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.email}</td>
-                    <td>${new Date(user.registrationDate).toLocaleDateString()}</td>
-                    <td>${user.inviteCode}</td>
-                    <td><span class="status-badge status-active">已注册</span></td>
-                `;
+                row.innerHTML = '<td colspan="4" style="text-align: center; color: #999;">暂无推广用户</td>';
                 tbody.appendChild(row);
-            });
+            }
         }
 
         // 生成邀请链接

@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统登录</title>
+    <title>代理登录</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4a69bd;
-            --primary-hover-color: #3b569a;
+            --primary-color: #27ae60;
+            --primary-hover-color: #229954;
             --light-gray-color: #f8f9fa;
             --text-color: #343a40;
             --border-color: #e9ecef;
@@ -42,7 +41,7 @@
 
         .login-showcase {
             flex: 1;
-            background: linear-gradient(135deg, rgba(74,105,189,0.9), rgba(67,95,171,0.95)), url('https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop') no-repeat center center;
+            background: linear-gradient(135deg, rgba(39,174,96,0.9), rgba(34,153,84,0.95)), url('https://images.unsplash.com/photo-1559526324-4b87b5e36e44?q=80&w=2070&auto=format&fit=crop') no-repeat center center;
             background-size: cover;
             color: var(--white-color);
             display: flex;
@@ -109,7 +108,7 @@
         }
         .form-group input:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(74, 105, 189, 0.2);
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
             outline: none;
         }
 
@@ -151,19 +150,6 @@
             min-height: 20px;
         }
 
-        .switch-login {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .switch-login a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .switch-login a:hover {
-            text-decoration: underline;
-        }
-
         .loading-container {
             display: none;
             justify-content: center;
@@ -190,6 +176,19 @@
             100% { transform: rotate(360deg); }
         }
 
+        .switch-login {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .switch-login a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .switch-login a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
             .login-showcase {
                 display: none;
@@ -203,26 +202,27 @@
 <body>
     <div class="login-wrapper">
         <div class="login-showcase">
-            <h2 class="showcase-title">欢迎回来</h2>
-            <p class="showcase-text">登录以继续访问您的专属管理后台，高效管理所有数据与信息。</p>
+            <h2 class="showcase-title">代理中心</h2>
+            <p class="showcase-text">欢迎来到代理管理系统，管理您的团队，查看收益，申请提现。</p>
         </div>
         <div class="login-form-wrapper">
             <div class="login-card">
-                <h1 class="login-title">系统登录</h1>
-                <p class="login-subtitle">请输入您的凭据以继续</p>
+                <h1 class="login-title">代理登录</h1>
+                <p class="login-subtitle">请输入您的代理账号信息</p>
                 <form id="loginForm">
                     <div class="form-group">
-                        <input type="text" id="account" name="account" required autocomplete="username" placeholder="账号">
+                        <input type="email" id="email" name="email" required autocomplete="username" placeholder="邮箱地址">
                     </div>
                     <div class="form-group">
                         <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="密码">
                         <span id="togglePassword" class="toggle-btn">👁️</span>
                     </div>
-                    <button type="submit" class="login-btn">安全登录</button>
+                    <button type="submit" class="login-btn">登录代理中心</button>
                     <p id="errorMessage" class="error-message"></p>
                 </form>
                 <div class="switch-login">
-                    <a href="agent-login.html">代理登录</a>
+                    <a href="login.html">管理员登录</a> | 
+                    <a href="agent-register.html">注册代理</a>
                 </div>
             </div>
         </div>
@@ -236,17 +236,17 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(event) {
             event.preventDefault();
-            const accountInput = document.getElementById('account');
+            const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
             const errorMessage = document.getElementById('errorMessage');
             const submitButton = this.querySelector('.login-btn');
             const loadingContainer = document.getElementById('loadingContainer');
 
-            const account = accountInput.value;
+            const email = emailInput.value;
             const password = passwordInput.value;
 
-            if (!account || !password) {
-                errorMessage.textContent = "请输入账号和密码";
+            if (!email || !password) {
+                errorMessage.textContent = "请输入邮箱和密码";
                 return;
             }
 
@@ -255,24 +255,22 @@
             submitButton.disabled = true;
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch('/api/agentLogin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // 核心修复：确保这里发送的字段名是您后端需要的，比如 'username'
-                    body: JSON.stringify({ email: account, password })
+                    body: JSON.stringify({ email, password })
                 });
 
                 const result = await response.json();
 
                 if (response.ok && result.token) {
                     localStorage.setItem('authToken', result.token);
-                    // 存储用户信息，包括邮箱
-                    if (result.user) {
-                        localStorage.setItem('userInfo', JSON.stringify(result.user));
-                    }
-                    window.location.href = 'shell.html';
+                    localStorage.setItem('userType', 'agent');
+                    localStorage.setItem('agentInfo', JSON.stringify(result.agent));
+                    localStorage.setItem('userInfo', JSON.stringify(result.user));
+                    window.location.href = 'agent-dashboard.html';
                 } else {
-                    errorMessage.textContent = result.message || '账号或密码错误';
+                    errorMessage.textContent = result.message || '邮箱或密码错误';
                 }
             } catch (error) {
                 console.error('登录请求失败:', error);

@@ -2,6 +2,207 @@
     <h1 class="page-title">数据洞察与可视化</h1>
 </header>
 
+<style>
+/* 指标卡片样式 */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.metric-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.metric-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
+}
+
+.metric-content h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    color: var(--text-primary-color);
+}
+
+.metric-content p {
+    font-size: 14px;
+    color: var(--text-secondary-color);
+    margin: 0;
+}
+
+/* 时间过滤器样式 */
+.time-filter-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.loading-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+/* 摘要网格样式 */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--background-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.summary-label {
+    font-size: 14px;
+    color: var(--text-secondary-color);
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary-color);
+}
+
+/* 图表容器样式 */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: 20px;
+}
+
+.pie-chart-container {
+    height: 250px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    
+    .metric-card {
+        padding: 15px;
+        gap: 10px;
+    }
+    
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .metric-content h3 {
+        font-size: 20px;
+    }
+    
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .time-filter-card {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+}
+</style>
+
+<!-- 关键指标卡片 -->
+<div class="metrics-grid">
+    <div class="metric-card">
+        <div class="metric-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="metric-content">
+            <h3 id="totalUsers">0</h3>
+            <p>总用户数</p>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon">
+            <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="metric-content">
+            <h3 id="totalAgents">0</h3>
+            <p>代理数量</p>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="metric-content">
+            <h3 id="totalRevenue">¥0</h3>
+            <p>总收入</p>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon">
+            <i class="fas fa-mouse-pointer"></i>
+        </div>
+        <div class="metric-content">
+            <h3 id="totalClicks">0</h3>
+            <p>推广点击</p>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon">
+            <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="metric-content">
+            <h3 id="totalOrders">0</h3>
+            <p>订单数量</p>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon">
+            <i class="fas fa-percentage"></i>
+        </div>
+        <div class="metric-content">
+            <h3 id="conversionRate">0%</h3>
+            <p>转化率</p>
+        </div>
+    </div>
+</div>
+
 <div class="main-card time-filter-card">
     <div class="form-group">
         <label for="dateRangeFilter">选择时间范围:</label>
@@ -11,33 +212,81 @@
             <option value="90">最近 90 天</option>
         </select>
     </div>
+    <div class="loading-indicator" id="loadingIndicator" style="display: none;">
+        <i class="fas fa-spinner fa-spin"></i> 加载数据中...
+    </div>
 </div>
 
 <div class="analytics-grid">
     <div class="main-card">
-        <h3 class="card-title">收入与订阅分析</h3>
+        <h3 class="card-title">用户注册趋势</h3>
         <div class="chart-container">
-            <canvas id="mrrChart"></canvas>
+            <canvas id="userRegistrationsChart"></canvas>
         </div>
     </div>
     <div class="main-card">
-        <h3 class="card-title">套餐收入占比</h3>
+        <h3 class="card-title">代理注册趋势</h3>
+        <div class="chart-container">
+            <canvas id="agentRegistrationsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <h3 class="card-title">收入趋势</h3>
+        <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <h3 class="card-title">推广点击趋势</h3>
+        <div class="chart-container">
+            <canvas id="clicksChart"></canvas>
+        </div>
+    </div>
+
+    <div class="main-card">
+        <h3 class="card-title">产品收入占比</h3>
         <div class="chart-container pie-chart-container">
-            <canvas id="planRevenueChart"></canvas>
+            <canvas id="productRevenueChart"></canvas>
         </div>
     </div>
 
     <div class="main-card">
-        <h3 class="card-title">日活跃用户 (DAU)</h3>
-        <div class="chart-container">
-            <canvas id="dauChart"></canvas>
+        <h3 class="card-title">用户注册来源分布</h3>
+        <div class="chart-container pie-chart-container">
+            <canvas id="userTypeChart"></canvas>
         </div>
     </div>
+</div>
 
-    <div class="main-card">
-        <h3 class="card-title">AI Tokens 消耗趋势</h3>
-        <div class="chart-container">
-            <canvas id="tokensUsageChart"></canvas>
+<!-- 数据摘要 -->
+<div class="main-card">
+    <h3 class="card-title">数据摘要</h3>
+    <div class="summary-grid">
+        <div class="summary-item">
+            <span class="summary-label">平均每日用户注册:</span>
+            <span class="summary-value" id="avgDailyUsers">0</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">平均每日收入:</span>
+            <span class="summary-value" id="avgDailyRevenue">¥0</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">平均每日点击:</span>
+            <span class="summary-value" id="avgDailyClicks">0</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">最受欢迎产品:</span>
+            <span class="summary-value" id="topProduct">-</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">活跃代理数:</span>
+            <span class="summary-value" id="activeAgents">0</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">代理总余额:</span>
+            <span class="summary-value" id="totalAgentBalance">¥0</span>
         </div>
     </div>
 </div>
@@ -45,89 +294,249 @@
 <script>
 // 使用IIFE创建独立作用域
 (function() {
-    // 模拟从后端获取的数据 (您需要替换为真实的API请求)
-    function getMockAnalyticsData(days) {
-        const labels = [];
-        const mrrData = [];
-        const dauData = [];
-        const tokensData = [];
-        for (let i = days - 1; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            labels.push(`${date.getMonth() + 1}-${date.getDate()}`);
-            mrrData.push(Math.floor(Math.random() * (500 - 300 + 1) + 300) + i * 20);
-            dauData.push(Math.floor(Math.random() * (150 - 80 + 1) + 80));
-            tokensData.push(Math.floor(Math.random() * (500000 - 200000 + 1) + 200000));
-        }
-        return {
-            labels,
-            mrrData,
-            dauData,
-            tokensData,
-            planRevenue: [12000, 8500, 4500] // [月度, 季度, 年度]
-        };
-    }
-
     // Chart.js 图表实例存储
     let chartInstances = {};
 
+    // 显示/隐藏加载指示器
+    function toggleLoading(show) {
+        const indicator = document.getElementById('loadingIndicator');
+        if (indicator) {
+            indicator.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // 从后端获取真实数据
+    async function getAnalyticsData(days) {
+        try {
+            toggleLoading(true);
+            const response = await fetch(`/api/getAnalytics?days=${days}`);
+            if (response.ok) {
+                const result = await response.json();
+                return result.data;
+            } else {
+                throw new Error('获取数据失败');
+            }
+        } catch (error) {
+            console.error('获取分析数据失败:', error);
+            // 返回空数据以避免页面崩溃
+            return {
+                labels: [],
+                trends: {
+                    userRegistrations: [],
+                    agentRegistrations: [],
+                    revenue: [],
+                    clicks: [],
+                    licenseActivations: []
+                },
+                distributions: {
+                    productRevenue: {},
+                    userTypeDistribution: {}
+                },
+                metrics: {
+                    totalUsers: 0,
+                    totalAgents: 0,
+                    totalRevenue: 0,
+                    totalClicks: 0,
+                    totalOrders: 0,
+                    conversionRate: 0,
+                    activeAgents: 0,
+                    totalAgentBalance: 0
+                },
+                summary: {
+                    avgDailyUsers: 0,
+                    avgDailyRevenue: 0,
+                    avgDailyClicks: 0,
+                    topProduct: '-'
+                }
+            };
+        } finally {
+            toggleLoading(false);
+        }
+    }
+
     // 渲染图表的通用函数
     function renderChart(canvasId, type, labels, datasets, options = {}) {
+        // 销毁现有图表实例
         if (chartInstances[canvasId]) {
             chartInstances[canvasId].destroy();
+            chartInstances[canvasId] = null;
         }
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        chartInstances[canvasId] = new Chart(ctx, {
-            type: type,
-            data: {
-                labels: labels,
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                ...options
-            }
-        });
+        
+        // 获取canvas元素并清除内容
+        const canvas = document.getElementById(canvasId);
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 创建新的图表实例
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: type !== 'doughnut' ? {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: '日期'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            beginAtZero: true
+                        }
+                    } : {},
+                    ...options
+                }
+            });
+        }
+    }
+
+    // 更新关键指标
+    function updateMetrics(metrics) {
+        document.getElementById('totalUsers').textContent = metrics.totalUsers.toLocaleString();
+        document.getElementById('totalAgents').textContent = metrics.totalAgents.toLocaleString();
+        document.getElementById('totalRevenue').textContent = `¥${metrics.totalRevenue.toLocaleString()}`;
+        document.getElementById('totalClicks').textContent = metrics.totalClicks.toLocaleString();
+        document.getElementById('totalOrders').textContent = metrics.totalOrders.toLocaleString();
+        document.getElementById('conversionRate').textContent = `${metrics.conversionRate}%`;
+    }
+
+    // 更新数据摘要
+    function updateSummary(summary, metrics) {
+        document.getElementById('avgDailyUsers').textContent = summary.avgDailyUsers;
+        document.getElementById('avgDailyRevenue').textContent = `¥${summary.avgDailyRevenue}`;
+        document.getElementById('avgDailyClicks').textContent = summary.avgDailyClicks;
+        
+        // 产品名称映射
+        const productNames = {
+            'google-maps': '谷歌地图拓客程序',
+            'email-filter': '邮件过滤程序',
+            'whatsapp-filter': 'WhatsApp过滤程序'
+        };
+        document.getElementById('topProduct').textContent = productNames[summary.topProduct] || summary.topProduct;
+        
+        document.getElementById('activeAgents').textContent = metrics.activeAgents.toLocaleString();
+        document.getElementById('totalAgentBalance').textContent = `¥${metrics.totalAgentBalance.toLocaleString()}`;
     }
 
     // 更新所有图表
-    function updateAllCharts() {
+    async function updateAllCharts() {
         const days = parseInt(document.getElementById('dateRangeFilter').value, 10);
-        const data = getMockAnalyticsData(days);
+        const data = await getAnalyticsData(days);
 
-        // 渲染 MRR 趋势图
-        renderChart('mrrChart', 'line', data.labels, [{
-            label: '月度经常性收入 (MRR)',
-            data: data.mrrData,
+        // 更新关键指标
+        updateMetrics(data.metrics);
+        updateSummary(data.summary, data.metrics);
+
+        // 确保在渲染新图表前清理所有现有图表
+        destroyAllCharts();
+
+        // 渲染用户注册趋势图
+        renderChart('userRegistrationsChart', 'line', data.labels, [{
+            label: '用户注册数',
+            data: data.trends.userRegistrations,
+            borderColor: 'var(--primary-color)',
+            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]);
+
+        // 渲染代理注册趋势图
+        renderChart('agentRegistrationsChart', 'line', data.labels, [{
+            label: '代理注册数',
+            data: data.trends.agentRegistrations,
             borderColor: 'var(--success-color)',
             backgroundColor: 'rgba(46, 204, 113, 0.1)',
             fill: true,
             tension: 0.4
         }]);
 
-        // 渲染套餐收入占比图
-        renderChart('planRevenueChart', 'doughnut', ['月度套餐', '季度套餐', '年度套餐'], [{
-            label: '收入',
-            data: data.planRevenue,
-            backgroundColor: ['var(--primary-color)', 'var(--success-color)', 'var(--warning-color)']
-        }]);
-
-        // 渲染 DAU 图
-        renderChart('dauChart', 'bar', data.labels, [{
-            label: '日活跃用户 (DAU)',
-            data: data.dauData,
-            backgroundColor: 'var(--primary-color)'
-        }]);
-
-        // 渲染 Tokens 消耗图
-        renderChart('tokensUsageChart', 'line', data.labels, [{
-            label: 'AI Tokens 消耗量',
-            data: data.tokensData,
-            borderColor: 'var(--danger-color)',
-            fill: false,
+        // 渲染收入趋势图
+        renderChart('revenueChart', 'line', data.labels, [{
+            label: '收入 (¥)',
+            data: data.trends.revenue,
+            borderColor: 'var(--warning-color)',
+            backgroundColor: 'rgba(241, 196, 15, 0.1)',
+            fill: true,
             tension: 0.4
         }]);
+
+        // 渲染推广点击趋势图
+        renderChart('clicksChart', 'bar', data.labels, [{
+            label: '推广点击数',
+            data: data.trends.clicks,
+            backgroundColor: 'var(--danger-color)',
+            borderColor: 'var(--danger-color)',
+            borderWidth: 1
+        }]);
+
+        // 渲染产品收入占比图
+        const productLabels = Object.keys(data.distributions.productRevenue).map(key => {
+            const productNames = {
+                'google-maps': '谷歌地图拓客',
+                'email-filter': '邮件过滤',
+                'whatsapp-filter': 'WhatsApp过滤'
+            };
+            return productNames[key] || key;
+        });
+        const productData = Object.values(data.distributions.productRevenue);
+        
+        renderChart('productRevenueChart', 'doughnut', productLabels, [{
+            label: '收入 (¥)',
+            data: productData,
+            backgroundColor: [
+                'var(--primary-color)',
+                'var(--success-color)',
+                'var(--warning-color)',
+                'var(--danger-color)'
+            ]
+        }]);
+
+        // 渲染用户注册来源分布图
+        const userTypeLabels = Object.keys(data.distributions.userTypeDistribution).map(key => {
+            const typeNames = {
+                'agent_invite': '代理邀请',
+                'direct': '直接注册',
+                'admin': '管理员创建'
+            };
+            return typeNames[key] || key;
+        });
+        const userTypeData = Object.values(data.distributions.userTypeDistribution);
+        
+        renderChart('userTypeChart', 'doughnut', userTypeLabels, [{
+            label: '用户数量',
+            data: userTypeData,
+            backgroundColor: [
+                'var(--primary-color)',
+                'var(--success-color)',
+                'var(--warning-color)'
+            ]
+        }]);
+    }
+
+    // 清理所有图表实例
+    function destroyAllCharts() {
+        Object.keys(chartInstances).forEach(canvasId => {
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+                chartInstances[canvasId] = null;
+            }
+        });
     }
 
     // 页面初始化函数
@@ -136,6 +545,10 @@
         if (dateRangeFilter) {
             dateRangeFilter.addEventListener('change', updateAllCharts);
         }
+        
+        // 页面卸载时清理图表
+        window.addEventListener('beforeunload', destroyAllCharts);
+        
         // 初始加载图表
         updateAllCharts();
     }

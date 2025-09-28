@@ -12,15 +12,43 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
+# --- 静态HTML文件访问规则 ---
+# 允许直接访问登录页面和其他静态HTML文件
+[[redirects]]
+  from = "/login.html"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-login.html"
+  to = "/agent-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-dashboard.html"
+  to = "/agent-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-register.html"
+  to = "/agent-register.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-products.html"
+  to = "/agent-products.html"
+  status = 200
+
 # --- SPA 回退规则 (必须在最后) ---
 # 这个规则会处理所有前端路由，同时避免影响静态资源的加载
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
 [dev]
-  port = 5000
-  functionsPort = 4999
+  port = 8888
+  functionsPort = 8889
 
 

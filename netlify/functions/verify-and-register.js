@@ -12,7 +12,7 @@ exports.handler = async (event) => {
     }
 
     try {
-        const { email, password, token, device_id, os_type } = JSON.parse(event.body);
+        const { email, password, token, device_id, os_type, invite_code } = JSON.parse(event.body);
 
         if (!email || !password || !token || !device_id || !os_type) {
             return { statusCode: 400, body: JSON.stringify({ success: false, message: '所有字段都不能为空' }) };
@@ -77,6 +77,52 @@ exports.handler = async (event) => {
                  return { statusCode: 409, body: JSON.stringify({ success: false, message: '此邮箱已被注册' }) };
             }
             return { statusCode: 500, body: JSON.stringify({ success: false, message: '创建用户失败' }) };
+        }
+
+        // 处理代理邀请码关联
+        if (invite_code) {
+            try {
+                // 1. 验证邀请码
+                const { data: invitation, error: inviteError } = await supabase
+                    .from('invitations')
+                    .select('*, agent_profiles!inner(*)')
+                    .eq('invite_code', invite_code)
+                    .eq('status', 'pending')
+                    .single();
+
+                if (!inviteError && invitation) {
+                    // 检查邀请码是否过期
+                    const now = new Date();
+                    const expiresAt = new Date(invitation.expires_at);
+                    
+                    if (now < expiresAt) {
+                        // 2. 创建用户-代理关联记录
+                        await supabase
+                            .from('user_agent_relations')
+                            .insert([{
+                                user_id: user.id,
+                                agent_id: invitation.agent_profiles.id,
+                                invite_code: invite_code,
+                                registration_source: 'agent_invite'
+                            }]);
+
+                        // 3. 更新邀请记录状态
+                        await supabase
+                            .from('invitations')
+                            .update({ 
+                                status: 'accepted',
+                                accepted_at: new Date().toISOString(),
+                                invitee_email: email
+                            })
+                            .eq('id', invitation.id);
+
+                        console.log(`用户 ${email} 通过代理 ${invitation.agent_profiles.agent_code} 注册成功`);
+                    }
+                }
+            } catch (relationError) {
+                console.error('处理代理关联失败:', relationError);
+                // 不影响用户注册，只记录错误
+            }
         }
 
         return {

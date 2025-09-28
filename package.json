@@ -1,12 +1,15 @@
 {
   "name": "google-maps-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Google Maps Backend with Agent System",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "netlify dev",
+    "build": "echo \"Build completed\"",
+    "deploy": "netlify deploy --prod"
   },
-  "keywords": [],
+  "keywords": ["google-maps", "agent-system", "commission", "withdrawal"],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -22,5 +25,8 @@
     "mongodb": "^6.11.0",
     "resend": "^6.0.1",
     "serverless-http": "^3.2.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
   }
 }

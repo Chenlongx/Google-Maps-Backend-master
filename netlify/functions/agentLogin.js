@@ -1,0 +1,107 @@
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('Supabase 配置缺失');
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+exports.handler = async function (event, context) {
+  // CORS 预检请求处理
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+      body: '',
+    };
+  }
+
+  try {
+    const { email, password } = JSON.parse(event.body || '{}');
+
+    if (!email || !password) {
+      return {
+        statusCode: 400,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ message: "邮箱和密码不能为空" }),
+      };
+    }
+
+    // 1. 先进行 Supabase 认证
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    });
+
+    if (error || !data.user) {
+      return {
+        statusCode: 401,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ message: "登录失败，邮箱或密码错误" }),
+      };
+    }
+
+    // 2. 检查用户是否为代理
+    const { data: agentProfile, error: agentError } = await supabase
+      .from('agent_profiles')
+      .select('*')
+      .eq('user_id', data.user.id)
+      .single();
+
+    if (agentError || !agentProfile) {
+      return {
+        statusCode: 403,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ message: "该账号不是代理账号，请使用管理员登录" }),
+      };
+    }
+
+    // 3. 检查代理状态
+    if (agentProfile.status !== 'active') {
+      return {
+        statusCode: 403,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ message: "代理账号已被禁用，请联系管理员" }),
+      };
+    }
+
+    // 4. 登录成功，返回代理信息
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        message: "代理登录成功",
+        token: data.session.access_token,
+        user: {
+          id: data.user.id,
+          email: data.user.email,
+          userType: 'agent'
+        },
+        agent: {
+          id: agentProfile.id,
+          agentCode: agentProfile.agent_code,
+          level: agentProfile.level,
+          commissionRate: agentProfile.commission_rate,
+          totalCommission: agentProfile.total_commission,
+          availableBalance: agentProfile.available_balance
+        }
+      }),
+    };
+
+  } catch (error) {
+    console.error('代理登录函数出错:', error);
+    return {
+      statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ message: "服务器内部错误", error: error.message }),
+    };
+  }
+};

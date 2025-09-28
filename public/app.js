@@ -126,6 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const basePath = pathWithQuery.split('?')[0];
         const contentFile = routes[basePath] || routes['/dashboard'];
         
+        console.log('loadContent调用:', {
+            pathWithQuery,
+            basePath,
+            contentFile,
+            availableRoutes: Object.keys(routes)
+        });
+        
         navLinks.forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('href') === basePath) {
@@ -141,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContent.innerHTML = html;
 
             executeScripts(mainContent);
+            console.log('内容加载成功:', contentFile);
         } catch (error) {
             console.error('内容加载失败:', error);
             mainContent.innerHTML = `<div class="main-card" style="color: #ef4444; text-align:center;"><h1>加载页面失败</h1><p>${error.message}</p></div>`;
@@ -196,14 +204,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialPath = window.location.pathname + window.location.search;
     const initialBasePath = initialPath.split('?')[0];
 
+    console.log('初始路径:', initialPath);
+    console.log('基础路径:', initialBasePath);
+    console.log('可用路由:', Object.keys(routes));
+
     // --- 修改后的逻辑 ---
-    // 只检查当前路径是否是一个已定义的、有效的路由
+    // 检查当前路径是否是一个已定义的、有效的路由
     if (routes[initialBasePath]) {
         // 如果是一个有效路由，就加载对应内容
+        console.log('匹配到有效路由，加载内容:', initialBasePath);
         loadContent(initialPath);
+    } else if (initialBasePath === '/' || initialBasePath === '/index.html' || initialBasePath === '') {
+        // 如果是根路径，重定向到dashboard
+        console.log('根路径，重定向到dashboard');
+        history.replaceState({ path: '/dashboard' }, '', '/dashboard');
+        loadContent('/dashboard');
     } else {
-        // 如果不是一个有效路由 (包括'/', '/index.html'等未在routes中定义的路径)
-        // 那么，才重定向到 dashboard
+        // 如果是其他无效路径，也重定向到dashboard
+        console.log('无效路径，重定向到dashboard');
         history.replaceState({ path: '/dashboard' }, '', '/dashboard');
         loadContent('/dashboard');
     }

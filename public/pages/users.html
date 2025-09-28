@@ -134,6 +134,8 @@
             if (!response.ok) { throw new Error(`服务器错误: ${response.statusText}`); }
             const data = await response.json();
             allUsers_UsersPage = data.users || [];
+            // 按注册时间降序排序，最新注册的用户在最上面
+            allUsers_UsersPage.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             displayUsers_UsersPage(allUsers_UsersPage);
             calculateAndDisplayEarnings_UsersPage(allUsers_UsersPage);
             
@@ -256,7 +258,21 @@
                 statusBadge = isExpired ? '<span class="status-badge status-expired">已过期</span>' : '<span class="status-badge status-valid">有效</span>';
             }
             const aiStatusBadge = `<span class="status-badge ${user.is_ai_authorized ? 'status-valid' : 'status-pending'}">${user.is_ai_authorized ? '已开通' : '未开通'}</span>`;
-            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${index + 1}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${user.user_type === "regular" ? "正式用户" : "试用用户"}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
+            // 用户类型显示逻辑
+            let userTypeText;
+            if (user.user_type === 'trial') {
+                userTypeText = '试用用户';
+            } else if (user.user_type === 'standard') {
+                userTypeText = '标准用户';
+            } else if (user.user_type === 'permanent') {
+                userTypeText = '永久用户';
+            } else if (user.user_type === 'regular') {
+                userTypeText = '正式用户';
+            } else {
+                userTypeText = '未知类型';
+            }
+            
+            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${index + 1}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${userTypeText}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
             tableBody.appendChild(row);
         });
 
@@ -298,15 +314,32 @@
     }
 
     function calculateAndDisplayEarnings_UsersPage(users) {
-        const pricing = { monthly: 29.9, quarterly: 89.7, yearly: 299.9 };
+        const pricing = { 
+            monthly: 29.9, 
+            quarterly: 89.7, 
+            yearly: 299.9,
+            standard: 29.9  // standard类型通常是月付用户
+        };
         let totalEarnings = 0;
         users.forEach(user => {
+            // 跳过试用用户和没有完整信息的用户
             if (user.user_type === 'trial' || !user.created_at || !user.expiry_at) return;
-            const durationInMs = new Date(user.expiry_at).getTime() - new Date(user.created_at).getTime();
-            const durationInDays = durationInMs / (1000 * 60 * 60 * 24);
-            if (durationInDays > 330) totalEarnings += pricing.yearly; 
-            else if (durationInDays > 85 && durationInDays < 95) totalEarnings += pricing.quarterly; 
-            else if (durationInDays > 28 && durationInDays < 32) totalEarnings += pricing.monthly;
+            
+            // 根据用户类型直接计算收入
+            if (user.user_type === 'standard') {
+                // standard类型用户通常是月付，按29.9计算
+                totalEarnings += pricing.standard;
+            } else if (user.user_type === 'regular') {
+                // regular类型用户根据订阅时长计算
+                const durationInMs = new Date(user.expiry_at).getTime() - new Date(user.created_at).getTime();
+                const durationInDays = durationInMs / (1000 * 60 * 60 * 24);
+                if (durationInDays > 330) totalEarnings += pricing.yearly;
+                else if (durationInDays > 85) totalEarnings += pricing.quarterly;
+                else if (durationInDays > 28) totalEarnings += pricing.monthly;
+            } else if (user.user_type === 'permanent') {
+                // 永久用户按年费计算
+                totalEarnings += pricing.yearly;
+            }
         });
         const earningsElement = document.getElementById('earnings-display');
         if (earningsElement) {
@@ -319,7 +352,7 @@
         const now = new Date();
         users.forEach(user => {
             if (user.user_type === 'trial') trialUsers++; 
-            else if (user.user_type === 'regular' || user.user_type === 'permanent') regularUsers++;
+            else if (user.user_type === 'regular' || user.user_type === 'permanent' || user.user_type === 'standard') regularUsers++;
             if (user.expiry_at) {
                 const expiryDate = new Date(user.expiry_at);
                 if (!isNaN(expiryDate.getTime()) && expiryDate > now) activeUsers++;
@@ -350,6 +383,8 @@
         const performSearch = () => {
             const searchTerm = searchInput.value.toLowerCase().trim();
             const filteredUsers = allUsers_UsersPage.filter(user => user.account && user.account.toLowerCase().includes(searchTerm));
+            // 搜索结果也按注册时间降序排序
+            filteredUsers.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             displayUsers_UsersPage(filteredUsers);
         };
 

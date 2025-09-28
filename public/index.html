@@ -12,8 +12,14 @@
     <script>
         (function() {
             const authToken = localStorage.getItem('authToken');
+            const userType = localStorage.getItem('userType');
+            
             if (authToken) {
-                window.location.replace('/shell.html');
+                if (userType === 'agent') {
+                    window.location.replace('/agent-dashboard.html');
+                } else {
+                    window.location.replace('/shell.html');
+                }
             } else {
                 window.location.replace('/login.html');
             }

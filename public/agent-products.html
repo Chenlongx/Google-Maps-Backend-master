@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产品推广中心 - 代理系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #27ae60;
+            --primary-hover-color: #229954;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-gray-color: #f8f9fa;
+            --text-color: #343a40;
+            --border-color: #e9ecef;
+            --white-color: #ffffff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Arial', sans-serif;
+            background-color: var(--light-gray-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: var(--white-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-header {
+            padding: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover-color));
+            color: var(--white-color);
+        }
+
+        .product-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .product-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .product-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .product-content {
+            padding: 30px;
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .features-list li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .pricing-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .pricing-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .pricing-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pricing-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--white-color);
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pricing-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .pricing-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .commission-info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .commission-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--success-color);
+            margin-bottom: 5px;
+        }
+
+        .commission-rate {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--white-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+
+        .stats-section {
+            background: var(--white-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .promotion-tools {
+            background: var(--white-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+        }
+
+        .tools-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .tool-icon {
+            font-size: 32px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .tool-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .tool-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>产品推广中心</h1>
+            <p>专业的数据拓客工具，助力您的业务增长</p>
+        </div>
+
+        <!-- 推广统计 -->
+        <div class="stats-section">
+            <h2 class="stats-title">推广统计</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalPromotions">0</div>
+                    <div class="stat-label">总推广数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCommissions">¥0</div>
+                    <div class="stat-label">累计佣金</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="activeUsers">0</div>
+                    <div class="stat-label">活跃用户</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="conversionRate">0%</div>
+                    <div class="stat-label">转化率</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 产品展示 -->
+        <div class="products-grid">
+            <!-- 谷歌地图拓客程序 -->
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">🗺️</div>
+                    <h3 class="product-title">谷歌地图拓客程序</h3>
+                    <p class="product-subtitle">智能数据抓取，精准客户获取</p>
+                </div>
+                <div class="product-content">
+                    <p class="product-description">
+                        基于Playwright自动化技术，智能抓取谷歌地图商家信息，包括联系方式、地址、营业时间等关键数据，助力企业精准拓客。
+                    </p>
+                    <ul class="features-list">
+                        <li>自动化数据抓取</li>
+                        <li>智能去重处理</li>
+                        <li>多格式数据导出</li>
+                        <li>定时任务执行</li>
+                        <li>数据质量验证</li>
+                    </ul>
+                    <div class="pricing-section">
+                        <h4 class="pricing-title">价格方案</h4>
+                        <div class="pricing-options">
+                            <div class="pricing-option">
+                                <span class="pricing-name">基础版</span>
+                                <span class="pricing-price">¥299/月</span>
+                            </div>
+                            <div class="pricing-option">
+                                <span class="pricing-name">专业版</span>
+                                <span class="pricing-price">¥2,999/年</span>
+                            </div>
+                            <div class="pricing-option">
+                                <span class="pricing-name">企业版</span>
+                                <span class="pricing-price">定制报价</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="commission-info">
+                        <div class="commission-title">代理佣金</div>
+                        <div class="commission-rate">20% 持续分佣</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="generateProductLink('google-maps')">生成推广链接</button>
+                        <button class="btn btn-secondary" onclick="viewProductDemo('google-maps')">查看演示</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 邮件过滤程序 -->
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">📧</div>
+                    <h3 class="product-title">邮件过滤程序</h3>
+                    <p class="product-subtitle">高效邮件验证，提升营销效果</p>
+                </div>
+                <div class="product-content">
+                    <p class="product-description">
+                        专业的邮件地址验证服务，实时检测邮件有效性，过滤无效地址，提升邮件营销的送达率和转化率。
+                    </p>
+                    <ul class="features-list">
+                        <li>实时邮件验证</li>
+                        <li>批量处理支持</li>
+                        <li>多种验证规则</li>
+                        <li>详细验证报告</li>
+                        <li>API接口支持</li>
+                    </ul>
+                    <div class="pricing-section">
+                        <h4 class="pricing-title">价格方案</h4>
+                        <div class="pricing-options">
+                            <div class="pricing-option">
+                                <span class="pricing-name">标准版</span>
+                                <span class="pricing-price">¥0.01/条</span>
+                            </div>
+                            <div class="pricing-option">
+                                <span class="pricing-name">高级版</span>
+                                <span class="pricing-price">¥199/月</span>
+                            </div>
+                            <div class="pricing-option">
+                                <span class="pricing-name">批量版</span>
+                                <span class="pricing-price">¥0.005/条</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="commission-info">
+                        <div class="commission-title">代理佣金</div>
+                        <div class="commission-rate">15% 持续分佣</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="generateProductLink('email-filter')">生成推广链接</button>
+                        <button class="btn btn-secondary" onclick="viewProductDemo('email-filter')">查看演示</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp过滤程序 -->
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-icon">📱</div>
+                    <h3 class="product-title">WhatsApp过滤程序</h3>
+                    <p class="product-subtitle">WhatsApp号码验证，精准营销</p>
+                </div>
+                <div class="product-content">
+                    <p class="product-description">
+                        专业的WhatsApp号码验证服务，检测号码是否注册WhatsApp，提供详细的验证结果，优化营销策略。
+                    </p>
+                    <ul class="features-list">
+                        <li>WhatsApp号码检测</li>
+                        <li>批量验证处理</li>
+                        <li>实时验证结果</li>
+                        <li>详细状态报告</li>
+                        <li>API接口集成</li>
+                    </ul>
+                    <div class="pricing-section">
+                        <h4 class="pricing-title">价格方案</h4>
+                        <div class="pricing-options">
+                            <div class="pricing-option">
+                                <span class="pricing-name">基础版</span>
+                                <span class="pricing-price">¥0.02/次</span>
+                            </div>
+                            <div class="pricing-option">
+                                <span class="pricing-name">专业版</span>
+                                <span class="pricing-price">¥299/月</span>
+                            </div>
+                            <div class="pricing-option">
+                                <span class="pricing-name">企业版</span>
+                                <span class="pricing-price">¥0.01/次</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="commission-info">
+                        <div class="commission-title">代理佣金</div>
+                        <div class="commission-rate">18% 持续分佣</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="generateProductLink('whatsapp-filter')">生成推广链接</button>
+                        <button class="btn btn-secondary" onclick="viewProductDemo('whatsapp-filter')">查看演示</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 推广工具 -->
+        <div class="promotion-tools">
+            <h2 class="tools-title">推广工具</h2>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <div class="tool-icon">🔗</div>
+                    <h3 class="tool-title">推广链接生成器</h3>
+                    <p class="tool-description">为每个产品生成专属推广链接，自动追踪推广效果</p>
+                    <button class="btn btn-primary" onclick="openLinkGenerator()">立即使用</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">📊</div>
+                    <h3 class="tool-title">推广数据统计</h3>
+                    <p class="tool-description">实时查看推广数据，分析转化效果和收益情况</p>
+                    <button class="btn btn-primary" onclick="openAnalytics()">查看统计</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">📱</div>
+                    <h3 class="tool-title">营销素材库</h3>
+                    <p class="tool-description">提供产品介绍、演示视频等营销素材</p>
+                    <button class="btn btn-primary" onclick="openMaterials()">获取素材</button>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-icon">💬</div>
+                    <h3 class="tool-title">客服支持</h3>
+                    <p class="tool-description">专业客服团队，为您提供推广支持</p>
+                    <button class="btn btn-primary" onclick="openSupport()">联系客服</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时获取推广统计
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPromotionStats();
+        });
+
+        // 加载推广统计
+        async function loadPromotionStats() {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/getAgentStats?agentId=' + getCurrentAgentId(), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.data) {
+                        updateStatsDisplay(result.data);
+                    }
+                }
+            } catch (error) {
+                console.error('加载推广统计失败:', error);
+            }
+        }
+
+        // 更新统计显示
+        function updateStatsDisplay(data) {
+            document.getElementById('totalPromotions').textContent = data.stats.totalPromotedUsers || 0;
+            document.getElementById('totalCommissions').textContent = `¥${data.stats.totalCommissions || 0}`;
+            document.getElementById('activeUsers').textContent = data.stats.recentUsers || 0;
+            document.getElementById('conversionRate').textContent = '15%'; // 示例数据
+        }
+
+        // 获取当前代理ID
+        function getCurrentAgentId() {
+            const agentInfo = localStorage.getItem('agentInfo');
+            if (agentInfo) {
+                const agent = JSON.parse(agentInfo);
+                return agent.id;
+            }
+            return null;
+        }
+
+        // 生成产品推广链接
+        async function generateProductLink(productType) {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/generateProductLink', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        productType: productType,
+                        agentId: getCurrentAgentId()
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.data) {
+                    const link = result.data.link;
+                    navigator.clipboard.writeText(link).then(() => {
+                        alert(`${getProductName(productType)} 推广链接已复制到剪贴板！\n\n链接: ${link}`);
+                    }).catch(() => {
+                        prompt('推广链接（请手动复制）:', link);
+                    });
+                } else {
+                    alert('生成推广链接失败: ' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('生成推广链接失败:', error);
+                alert('生成推广链接失败，请稍后重试');
+            }
+        }
+
+        // 获取产品名称
+        function getProductName(productType) {
+            const names = {
+                'google-maps': '谷歌地图拓客程序',
+                'email-filter': '邮件过滤程序',
+                'whatsapp-filter': 'WhatsApp过滤程序'
+            };
+            return names[productType] || '产品';
+        }
+
+        // 查看产品演示
+        function viewProductDemo(productType) {
+            const demos = {
+                'google-maps': '/demo/google-maps.html',
+                'email-filter': '/demo/email-filter.html',
+                'whatsapp-filter': '/demo/whatsapp-filter.html'
+            };
+            
+            const demoUrl = demos[productType];
+            if (demoUrl) {
+                window.open(demoUrl, '_blank');
+            } else {
+                alert('演示页面正在开发中，敬请期待！');
+            }
+        }
+
+        // 推广工具功能
+        function openLinkGenerator() {
+            alert('推广链接生成器功能开发中...');
+        }
+
+        function openAnalytics() {
+            window.location.href = 'agent-dashboard.html#promotion';
+        }
+
+        function openMaterials() {
+            alert('营销素材库功能开发中...');
+        }
+
+        function openSupport() {
+            alert('客服支持功能开发中...');
+        }
+    </script>
+</body>
+</html>

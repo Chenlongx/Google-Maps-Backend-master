@@ -70,21 +70,73 @@
 <script>
     // --- 页面专属脚本 ---
 
-    function generateAccount_AddUser(length = 8) {
-        let result = '';
-        const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-        for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        document.getElementById('account').value = result;
+    function generateAccount_AddUser() {
+        // 生成更像真实账号的格式
+        const formats = [
+            // 邮箱格式
+            () => {
+                const usernames = ['user', 'admin', 'test', 'demo', 'guest', 'member', 'client', 'customer'];
+                const domains = ['gmail.com', 'qq.com', '163.com', 'foxmail.com', 'outlook.com', 'hotmail.com'];
+                const username = usernames[Math.floor(Math.random() * usernames.length)];
+                const randomNum = Math.floor(Math.random() * 9999) + 1;
+                const domain = domains[Math.floor(Math.random() * domains.length)];
+                return `${username}${randomNum}@${domain}`;
+            },
+            // 纯字母数字组合（较长）
+            () => {
+                const length = Math.floor(Math.random() * 4) + 8; // 8-11位
+                let result = '';
+                const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+                for (let i = 0; i < length; i++) {
+                    result += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                return result;
+            },
+            // 字母开头+数字
+            () => {
+                const length = Math.floor(Math.random() * 3) + 6; // 6-8位
+                let result = '';
+                const letters = 'abcdefghijklmnopqrstuvwxyz';
+                const numbers = '0123456789';
+                result += letters.charAt(Math.floor(Math.random() * letters.length));
+                for (let i = 1; i < length; i++) {
+                    result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+                }
+                return result;
+            }
+        ];
+        
+        const selectedFormat = formats[Math.floor(Math.random() * formats.length)];
+        const account = selectedFormat();
+        document.getElementById('account').value = account;
     }
 
-    function generatePassword_AddUser(length = 12) {
+    function generatePassword_AddUser() {
+        // 生成更合理的密码长度（6-10位）
+        const length = Math.floor(Math.random() * 5) + 6; // 6-10位
         let result = '';
-        const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
+        
+        // 确保密码包含至少一个大写字母、一个小写字母和一个数字
+        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const numbers = '0123456789';
+        const allChars = lowercase + uppercase + numbers;
+        
+        // 确保至少包含一个大写字母
+        result += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+        // 确保至少包含一个小写字母
+        result += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+        // 确保至少包含一个数字
+        result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+        
+        // 填充剩余长度
+        for (let i = 3; i < length; i++) {
+            result += allChars.charAt(Math.floor(Math.random() * allChars.length));
         }
+        
+        // 打乱字符顺序
+        result = result.split('').sort(() => Math.random() - 0.5).join('');
+        
         const passwordInput = document.getElementById('password');
         passwordInput.value = result;
         passwordInput.type = 'text'; 

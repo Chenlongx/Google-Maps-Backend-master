@@ -283,10 +283,9 @@
                 console.error('登录请求失败:', error);
                 errorMessage.textContent = '网络错误，请稍后重试';
             } finally {
-                if (!localStorage.getItem('authToken')) {
-                    loadingContainer.style.display = 'none';
-                    submitButton.disabled = false;
-                }
+                // 无论成功还是失败，都要隐藏加载动画和启用按钮
+                loadingContainer.style.display = 'none';
+                submitButton.disabled = false;
             }
         });
 

@@ -68,6 +68,12 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('收到代理注册请求，请求体:', event.body);
+    console.log('请求头:', event.headers);
+    
+    const requestBody = event.body || '{}';
+    console.log('解析前的请求体:', requestBody);
+    
     const {
       email,
       password,
@@ -76,7 +82,17 @@ exports.handler = async (event, context) => {
       alipayAccount,
       parentAgentCode, // 上级代理邀请码
       commissionRate
-    } = JSON.parse(event.body || '{}');
+    } = JSON.parse(requestBody);
+    
+    console.log('解析后的数据:', {
+      email,
+      password: password ? '***' : 'undefined',
+      realName,
+      phone,
+      alipayAccount,
+      parentAgentCode,
+      commissionRate
+    });
 
     if (!email || !password || !realName || !phone || !alipayAccount) {
       return {
@@ -90,6 +106,7 @@ exports.handler = async (event, context) => {
     }
 
     // 1. 创建用户账号
+    console.log('开始创建用户账号...');
     const { data: user, error: createUserError } = await supabase.auth.admin.createUser({
       email: email,
       password: password,
@@ -122,6 +139,7 @@ exports.handler = async (event, context) => {
     }
 
     // 2. 查找上级代理
+    console.log('查找上级代理...');
     let parentAgentId = null;
     if (parentAgentCode) {
       const { data: parentAgent } = await supabase
@@ -132,13 +150,19 @@ exports.handler = async (event, context) => {
       
       if (parentAgent) {
         parentAgentId = parentAgent.id;
+        console.log('找到上级代理ID:', parentAgentId);
+      } else {
+        console.log('未找到上级代理，使用空值');
       }
     }
 
     // 3. 计算代理层级
+    console.log('计算代理层级...');
     const agentLevel = await calculateAgentLevel(parentAgentId);
+    console.log('代理层级:', agentLevel);
 
     // 4. 生成代理邀请码
+    console.log('生成代理邀请码...');
     let agentCode;
     let isUnique = false;
     while (!isUnique) {
@@ -153,21 +177,26 @@ exports.handler = async (event, context) => {
         isUnique = true;
       }
     }
+    console.log('生成的代理邀请码:', agentCode);
 
     // 5. 创建代理档案
+    console.log('创建代理档案...');
+    const agentData = {
+      user_id: user.user.id,
+      agent_code: agentCode,
+      parent_agent_id: parentAgentId,
+      level: agentLevel,
+      commission_rate: commissionRate || 10.00,
+      real_name: realName,
+      phone: phone,
+      alipay_account: alipayAccount,
+      status: 'active'
+    };
+    console.log('代理档案数据:', agentData);
+    
     const { data: agentProfile, error: agentError } = await supabase
       .from('agent_profiles')
-      .insert([{
-        user_id: user.user.id,
-        agent_code: agentCode,
-        parent_agent_id: parentAgentId,
-        level: agentLevel,
-        commission_rate: commissionRate || 10.00,
-        real_name: realName,
-        phone: phone,
-        alipay_account: alipayAccount,
-        status: 'active'
-      }])
+      .insert([agentData])
       .select()
       .single();
 
@@ -187,6 +216,7 @@ exports.handler = async (event, context) => {
     }
 
     // 6. 创建用户角色
+    console.log('创建用户角色...');
     const { error: roleError } = await supabase
       .from('user_roles')
       .insert([{
@@ -202,10 +232,13 @@ exports.handler = async (event, context) => {
 
     if (roleError) {
       console.error('创建用户角色失败:', roleError);
+    } else {
+      console.log('用户角色创建成功');
     }
 
     // 7. 如果有上级代理，建立层级关系
     if (parentAgentId) {
+      console.log('建立层级关系...');
       const { error: hierarchyError } = await supabase
         .from('agent_hierarchy')
         .insert([{
@@ -216,9 +249,12 @@ exports.handler = async (event, context) => {
 
       if (hierarchyError) {
         console.error('建立层级关系失败:', hierarchyError);
+      } else {
+        console.log('层级关系建立成功');
       }
     }
 
+    console.log('代理创建成功，返回响应');
     return {
       statusCode: 201,
       headers: { "Access-Control-Allow-Origin": "*" },

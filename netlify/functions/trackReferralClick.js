@@ -26,6 +26,8 @@ exports.handler = async function (event, context) {
   }
 
   try {
+    console.log('收到推广点击追踪请求:', event.body);
+    
     const { 
       promotionCode, 
       agentCode, 
@@ -36,7 +38,18 @@ exports.handler = async function (event, context) {
       timestamp 
     } = JSON.parse(event.body || '{}');
 
+    console.log('解析的请求数据:', {
+      promotionCode,
+      agentCode,
+      productType,
+      pageUrl,
+      userAgent: userAgent ? '***' : 'undefined',
+      referrer,
+      timestamp
+    });
+
     if (!promotionCode || !agentCode) {
+      console.log('推广码或代理代码为空');
       return {
         statusCode: 400,
         headers: { "Access-Control-Allow-Origin": "*" },
@@ -45,6 +58,7 @@ exports.handler = async function (event, context) {
     }
 
     // 1. 查找对应的推广记录
+    console.log('查找推广记录:', promotionCode);
     const { data: promotion, error: promotionError } = await supabase
       .from('product_promotions')
       .select('*')
@@ -60,7 +74,10 @@ exports.handler = async function (event, context) {
       };
     }
 
+    console.log('找到推广记录:', promotion);
+
     // 2. 记录点击
+    console.log('记录点击到promotion_clicks表');
     const { data: click, error: clickError } = await supabase
       .from('promotion_clicks')
       .insert([{
@@ -83,7 +100,10 @@ exports.handler = async function (event, context) {
       };
     }
 
+    console.log('点击记录成功:', click);
+
     // 3. 更新推广记录的点击次数
+    console.log('更新推广记录点击次数');
     const { error: updateError } = await supabase
       .from('product_promotions')
       .update({ 
@@ -94,6 +114,8 @@ exports.handler = async function (event, context) {
 
     if (updateError) {
       console.error('更新点击次数失败:', updateError);
+    } else {
+      console.log('点击次数更新成功');
     }
 
     return {

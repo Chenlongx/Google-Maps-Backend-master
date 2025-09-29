@@ -255,13 +255,20 @@
             submitButton.disabled = true;
 
             try {
+                const requestData = { email, password };
+                console.log('发送登录请求:', requestData);
+                
                 const response = await fetch('/api/agentLogin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify(requestData)
                 });
 
+                console.log('响应状态:', response.status);
+                console.log('响应头:', response.headers);
+                
                 const result = await response.json();
+                console.log('响应数据:', result);
 
                 if (response.ok && result.token) {
                     localStorage.setItem('authToken', result.token);

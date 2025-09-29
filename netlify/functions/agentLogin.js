@@ -25,9 +25,18 @@ exports.handler = async function (event, context) {
   }
 
   try {
-    const { email, password } = JSON.parse(event.body || '{}');
+    console.log('收到登录请求，请求体:', event.body);
+    console.log('请求头:', event.headers);
+    
+    const requestBody = event.body || '{}';
+    console.log('解析前的请求体:', requestBody);
+    
+    const { email, password } = JSON.parse(requestBody);
+    console.log('解析后的邮箱:', email);
+    console.log('解析后的密码:', password ? '***' : 'undefined');
 
     if (!email || !password) {
+      console.log('邮箱或密码为空，邮箱:', email, '密码:', password ? '有值' : '无值');
       return {
         statusCode: 400,
         headers: { "Access-Control-Allow-Origin": "*" },

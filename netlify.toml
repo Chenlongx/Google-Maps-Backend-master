@@ -1,9 +1,11 @@
 [build]
   base = "."
   publish = "public"
+  command = "npm install"
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 # --- API 重定向规则 ---
 # 将所有 /api/ 开头的请求转发到对应的 Netlify Function

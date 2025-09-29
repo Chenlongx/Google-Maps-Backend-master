@@ -96,7 +96,7 @@ exports.handler = async (event, context) => {
     currentMonth.setHours(0, 0, 0, 0);
 
     const { data: monthlyCommissions } = await supabase
-      .from('commission_records')
+      .from('product_orders')
       .select('commission_amount')
       .eq('agent_id', agentProfile.id)
       .eq('status', 'paid')
@@ -107,7 +107,7 @@ exports.handler = async (event, context) => {
 
     // 5. 获取待审核佣金
     const { data: pendingCommissions } = await supabase
-      .from('commission_records')
+      .from('product_orders')
       .select(`
         *,
         order:orders(

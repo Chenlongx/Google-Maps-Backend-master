@@ -136,7 +136,10 @@
             showTimedAlert_WhatsAppPage(`无法加载激活码列表: ${error.message}`);
             displayLicenses_WhatsAppPage([]);
         } finally {
-            document.getElementById('loadingContainer').style.display = 'none';
+            const loadingContainer = document.getElementById('loadingContainer');
+            if (loadingContainer) {
+                loadingContainer.style.display = 'none';
+            }
         }
     }
 
@@ -152,12 +155,25 @@
     
     function displayLicenses_WhatsAppPage(licenses) {
         const tableBody = document.querySelector("#licenseTable tbody");
+        if (!tableBody) {
+            console.error('WhatsApp页面: 找不到表格tbody元素');
+            return;
+        }
         tableBody.innerHTML = '';
         if (licenses.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px;">暂无激活码数据</td></tr>`;
             return;
         }
-        licenses.forEach(license => {
+        
+        // 对激活码进行排序：可用的排在前面，已激活的排在后面
+        const sortedLicenses = licenses.sort((a, b) => {
+            const statusOrder = { 'available': 0, 'active': 1, 'revoked': 2, 'expired': 3 };
+            const aOrder = statusOrder[a.status] || 4;
+            const bOrder = statusOrder[b.status] || 4;
+            return aOrder - bOrder;
+        });
+        
+        sortedLicenses.forEach(license => {
             const row = document.createElement('tr');
             const statusMap = {
                 'available': { text: '可用', class: 'status-valid' },
@@ -248,6 +264,22 @@
     }
 
     function initialize_WhatsAppPage() {
+        // 检查DOM是否完全加载
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                initialize_WhatsAppPage();
+            });
+            return;
+        }
+        
+        // 检查必要的DOM元素是否存在
+        const tableBody = document.querySelector("#licenseTable tbody");
+        if (!tableBody) {
+            console.error('WhatsApp页面: DOM元素未准备好，延迟初始化');
+            setTimeout(initialize_WhatsAppPage, 100);
+            return;
+        }
+        
         displaySkeletonRows_WhatsAppPage(10);
         fetchWhatsAppLicenses();
         

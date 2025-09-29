@@ -121,7 +121,17 @@ exports.handler = async function (event, context) {
     }
 
     // 2. 记录点击
-    console.log('记录点击到promotion_clicks表');
+    console.log('记录点击到promotion_clicks表, agentId:', agentId);
+    
+    if (!agentId) {
+      console.error('agentId为空，无法记录点击');
+      return {
+        statusCode: 500,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ message: "代理ID为空，无法记录点击" }),
+      };
+    }
+
     const { data: click, error: clickError } = await supabase
       .from('promotion_clicks')
       .insert([{
@@ -140,7 +150,7 @@ exports.handler = async function (event, context) {
       return {
         statusCode: 500,
         headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ message: "记录点击失败" }),
+        body: JSON.stringify({ message: "记录点击失败", error: clickError.message }),
       };
     }
 

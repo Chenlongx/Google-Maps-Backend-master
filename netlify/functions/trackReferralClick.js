@@ -132,12 +132,26 @@ exports.handler = async function (event, context) {
       };
     }
 
+    // 处理IP地址 - 提取第一个IP地址
+    let clientIp = 'unknown';
+    const forwardedFor = event.headers['x-forwarded-for'];
+    const realIp = event.headers['x-real-ip'];
+    
+    if (forwardedFor) {
+      // x-forwarded-for 可能包含多个IP，取第一个
+      clientIp = forwardedFor.split(',')[0].trim();
+    } else if (realIp) {
+      clientIp = realIp.split(',')[0].trim();
+    }
+    
+    console.log('处理后的IP地址:', clientIp);
+
     const { data: click, error: clickError } = await supabase
       .from('promotion_clicks')
       .insert([{
         promotion_code: promotionCode,
         agent_id: agentId,
-        ip_address: event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'unknown',
+        ip_address: clientIp,
         user_agent: userAgent,
         referrer: referrer,
         clicked_at: new Date(timestamp).toISOString()

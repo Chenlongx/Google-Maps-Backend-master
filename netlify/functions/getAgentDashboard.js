@@ -140,6 +140,12 @@ exports.handler = async (event, context) => {
       .order('created_at', { ascending: false })
       .limit(5);
 
+    // 7.1. 获取所有订单用于统计计算
+    const { data: allOrders } = await supabase
+      .from('product_orders')
+      .select('commission_amount')
+      .eq('agent_id', agentProfile.id);
+
     // 8. 获取推广点击量统计
     const { data: promotionClicks } = await supabase
       .from('promotion_clicks')
@@ -155,8 +161,9 @@ exports.handler = async (event, context) => {
 
     // 计算推广统计数据
     const totalClicks = promotionClicks?.length || 0;
-    const totalConversions = promotionStats?.reduce((sum, stat) => sum + (stat.conversions_count || 0), 0) || 0;
-    const totalPromotionCommission = promotionStats?.reduce((sum, stat) => sum + parseFloat(stat.total_commission || 0), 0) || 0;
+    // 从product_orders表计算实际转化数和佣金
+    const totalConversions = allOrders?.length || 0;
+    const totalPromotionCommission = allOrders?.reduce((sum, order) => sum + parseFloat(order.commission_amount || 0), 0) || 0;
 
     // 10. 获取今日点击量
     const today = new Date();

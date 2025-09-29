@@ -65,16 +65,60 @@ exports.handler = async function (event, context) {
       .eq('promotion_code', promotionCode)
       .single();
 
-    if (promotionError || !promotion) {
-      console.error('推广记录不存在:', promotionError);
-      return {
-        statusCode: 404,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ message: "推广记录不存在" }),
-      };
-    }
+    let promotionRecord = promotion;
+    let agentId = null;
 
-    console.log('找到推广记录:', promotion);
+    if (promotionError || !promotion) {
+      console.log('推广记录不存在，尝试通过代理代码查找代理:', agentCode);
+      
+      // 如果推广记录不存在，尝试通过代理代码查找代理
+      const { data: agent, error: agentError } = await supabase
+        .from('agent_profiles')
+        .select('*')
+        .eq('agent_code', agentCode)
+        .single();
+
+      if (agentError || !agent) {
+        console.error('代理不存在:', agentError);
+        return {
+          statusCode: 404,
+          headers: { "Access-Control-Allow-Origin": "*" },
+          body: JSON.stringify({ message: "推广记录和代理都不存在" }),
+        };
+      }
+
+      console.log('找到代理，创建临时推广记录:', agent);
+      agentId = agent.id;
+
+      // 创建临时推广记录
+      const { data: newPromotion, error: createError } = await supabase
+        .from('product_promotions')
+        .insert([{
+          agent_id: agent.id,
+          product_type: productType,
+          promotion_code: promotionCode,
+          commission_rate: 0.15, // 默认15%分佣
+          status: 'active',
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30天后过期
+        }])
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('创建临时推广记录失败:', createError);
+        return {
+          statusCode: 500,
+          headers: { "Access-Control-Allow-Origin": "*" },
+          body: JSON.stringify({ message: "创建推广记录失败" }),
+        };
+      }
+
+      promotionRecord = newPromotion;
+      console.log('临时推广记录创建成功:', promotionRecord);
+    } else {
+      console.log('找到推广记录:', promotion);
+      agentId = promotion.agent_id;
+    }
 
     // 2. 记录点击
     console.log('记录点击到promotion_clicks表');
@@ -82,7 +126,7 @@ exports.handler = async function (event, context) {
       .from('promotion_clicks')
       .insert([{
         promotion_code: promotionCode,
-        agent_id: promotion.agent_id,
+        agent_id: agentId,
         ip_address: event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'unknown',
         user_agent: userAgent,
         referrer: referrer,
@@ -107,10 +151,10 @@ exports.handler = async function (event, context) {
     const { error: updateError } = await supabase
       .from('product_promotions')
       .update({ 
-        clicks_count: promotion.clicks_count + 1,
+        clicks_count: (promotionRecord.clicks_count || 0) + 1,
         updated_at: new Date().toISOString()
       })
-      .eq('id', promotion.id);
+      .eq('id', promotionRecord.id);
 
     if (updateError) {
       console.error('更新点击次数失败:', updateError);

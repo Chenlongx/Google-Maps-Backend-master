@@ -125,10 +125,10 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // 检查是否需要续费（30天内过期）
+    // 检查是否需要续费（7天内过期）
     const daysUntilExpiry = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
     
-    if (daysUntilExpiry > 30) {
+    if (daysUntilExpiry > 7) {
       return {
         statusCode: 200,
         headers,
@@ -138,6 +138,26 @@ exports.handler = async (event, context) => {
           activation_info: {
             expiry_time: activationCode.expiry_date,
             remaining_days: daysUntilExpiry
+          }
+        })
+      };
+    }
+
+    // 检查激活码的总有效期，只有长期激活码才允许续费
+    const startDate = new Date(activationCode.start_date);
+    const totalDuration = Math.ceil((expiryDate - startDate) / (1000 * 60 * 60 * 24));
+    
+    if (totalDuration <= 30) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          message: '短期激活码不支持续费',
+          activation_info: {
+            expiry_time: activationCode.expiry_date,
+            remaining_days: daysUntilExpiry,
+            total_duration: totalDuration
           }
         })
       };

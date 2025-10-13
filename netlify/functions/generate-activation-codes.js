@@ -28,7 +28,13 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { quantity = 1, validDays = 365, notes = '' } = JSON.parse(event.body);
+    const { 
+      quantity = 1, 
+      validDays = 365, 
+      notes = '',
+      startDate = null,
+      endDate = null
+    } = JSON.parse(event.body);
 
     // 验证参数
     if (quantity < 1 || quantity > 100) {
@@ -38,17 +44,60 @@ exports.handler = async (event) => {
       };
     }
 
-    if (validDays < 1 || validDays > 3650) {
+    // 处理时间参数
+    let startTime, endTime;
+    
+    if (startDate && endDate) {
+      // 使用自定义开始和结束时间
+      startTime = new Date(startDate);
+      endTime = new Date(endDate);
+      
+      // 验证时间
+      if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ success: false, message: '无效的时间格式' })
+        };
+      }
+      
+      if (startTime >= endTime) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ success: false, message: '开始时间必须早于结束时间' })
+        };
+      }
+      
+      // 检查时间范围（最多10年）
+      const maxDuration = 10 * 365 * 24 * 60 * 60 * 1000; // 10年
+      if (endTime.getTime() - startTime.getTime() > maxDuration) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ success: false, message: '激活码有效期不能超过10年' })
+        };
+      }
+      
+    } else if (validDays) {
+      // 使用传统的天数计算方式
+      if (validDays < 1 || validDays > 3650) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ success: false, message: '有效期必须在1-3650天之间' })
+        };
+      }
+      
+      const now = new Date();
+      startTime = now;
+      endTime = new Date(now.getTime() + validDays * 24 * 60 * 60 * 1000);
+    } else {
       return {
         statusCode: 400,
-        body: JSON.stringify({ success: false, message: '有效期必须在1-3650天之间' })
+        body: JSON.stringify({ success: false, message: '必须提供有效期天数或开始/结束时间' })
       };
     }
 
     // 生成激活码
     const codes = [];
     const now = new Date();
-    const expiryDate = new Date(now.getTime() + validDays * 24 * 60 * 60 * 1000);
 
     for (let i = 0; i < quantity; i++) {
       const code = generateActivationCode();
@@ -56,7 +105,8 @@ exports.handler = async (event) => {
         code,
         status: 'active',
         created_at: now.toISOString(),
-        expiry_date: expiryDate.toISOString(),
+        start_date: startTime.toISOString(),
+        expiry_date: endTime.toISOString(),
         notes,
         product_type: 'mediamingle_pro'
       });

@@ -53,6 +53,7 @@ exports.handler = async (event) => {
         code: code.code,
         status: code.status,
         created_at: code.created_at,
+        start_date: code.start_date, // 开始时间
         expires_at: code.expiry_date, // 映射字段名
         used_at: code.used_at,
         user_name: code.user_name, // 用户名

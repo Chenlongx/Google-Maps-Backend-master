@@ -70,6 +70,7 @@
                     <th>激活码</th>
                     <th>状态</th>
                     <th>创建时间</th>
+                    <th>开始时间</th>
                     <th>过期时间</th>
                     <th>使用时间</th>
                     <th>用户名</th>
@@ -103,10 +104,42 @@
                 <label for="codeCount">生成数量:</label>
                 <input type="number" id="codeCount" min="1" max="100" value="10" class="form-input">
             </div>
+            
+            <!-- 时间设置方式选择 -->
             <div class="form-group">
+                <label>时间设置方式:</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="timeMode" value="days" checked>
+                        <span>按天数设置</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="timeMode" value="custom">
+                        <span>自定义时间</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 按天数设置 -->
+            <div id="daysMode" class="form-group">
                 <label for="validDays">有效期(天):</label>
                 <input type="number" id="validDays" min="1" max="3650" value="365" class="form-input">
             </div>
+            
+            <!-- 自定义时间设置 -->
+            <div id="customMode" class="form-group" style="display: none;">
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="startDate">开始时间:</label>
+                        <input type="datetime-local" id="startDate" class="form-input">
+                    </div>
+                    <div class="form-col">
+                        <label for="endDate">结束时间:</label>
+                        <input type="datetime-local" id="endDate" class="form-input">
+                    </div>
+                </div>
+            </div>
+            
             <div class="form-group">
                 <label for="codeNotes">备注:</label>
                 <textarea id="codeNotes" class="form-textarea" placeholder="可选备注信息"></textarea>
@@ -314,7 +347,7 @@
             console.log('没有数据需要渲染');
             // 添加一个空行提示
             const emptyRow = document.createElement('tr');
-            emptyRow.innerHTML = '<td colspan="10" style="text-align: center; color: #666;">暂无激活码数据</td>';
+            emptyRow.innerHTML = '<td colspan="11" style="text-align: center; color: #666;">暂无激活码数据</td>';
             tbody.appendChild(emptyRow);
             return;
         }
@@ -327,6 +360,7 @@
                 <td><code class="activation-code">${code.code}</code></td>
                 <td><span class="status-badge status-${code.status}">${getStatusText(code.status)}</span></td>
                 <td>${formatDate(code.created_at)}</td>
+                <td>${formatDate(code.start_date)}</td>
                 <td>${formatDate(code.expires_at)}</td>
                 <td>${formatDate(code.used_at)}</td>
                 <td>${code.user_name || 'N/A'}</td>
@@ -391,17 +425,45 @@
     // 生成激活码
     async function generateCodes() {
         const count = parseInt(document.getElementById('codeCount').value);
-        const validDays = parseInt(document.getElementById('validDays').value);
         const notes = document.getElementById('codeNotes').value;
+        const timeMode = document.querySelector('input[name="timeMode"]:checked').value;
 
         if (count < 1 || count > 100) {
             showTimedAlert('生成数量必须在1-100之间');
             return;
         }
 
-        if (validDays < 1 || validDays > 3650) {
-            showTimedAlert('有效期必须在1-3650天之间');
-            return;
+        let requestData = {
+            quantity: count,
+            notes: notes
+        };
+
+        if (timeMode === 'days') {
+            const validDays = parseInt(document.getElementById('validDays').value);
+            if (validDays < 1 || validDays > 3650) {
+                showTimedAlert('有效期必须在1-3650天之间');
+                return;
+            }
+            requestData.validDays = validDays;
+        } else {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                showTimedAlert('请选择开始时间和结束时间');
+                return;
+            }
+            
+            const startTime = new Date(startDate);
+            const endTime = new Date(endDate);
+            
+            if (startTime >= endTime) {
+                showTimedAlert('开始时间必须早于结束时间');
+                return;
+            }
+            
+            requestData.startDate = startDate;
+            requestData.endDate = endDate;
         }
 
         try {
@@ -412,17 +474,13 @@
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    count,
-                    validDays,
-                    notes
-                })
+                body: JSON.stringify(requestData)
             });
 
             if (!response.ok) throw new Error('生成失败');
 
             const data = await response.json();
-            showTimedAlert(`成功生成 ${data.count} 个激活码`);
+            showTimedAlert(`成功生成 ${data.codes.length} 个激活码`);
             closeGenerateModal();
             fetchActivationCodes();
         } catch (error) {
@@ -562,6 +620,29 @@
             });
         }
 
+        // 时间模式切换事件
+        document.querySelectorAll('input[name="timeMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const daysMode = document.getElementById('daysMode');
+                const customMode = document.getElementById('customMode');
+                
+                if (this.value === 'days') {
+                    daysMode.style.display = 'block';
+                    customMode.style.display = 'none';
+                } else {
+                    daysMode.style.display = 'none';
+                    customMode.style.display = 'block';
+                    
+                    // 设置默认时间
+                    const now = new Date();
+                    const oneYearLater = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+                    
+                    document.getElementById('startDate').value = now.toISOString().slice(0, 16);
+                    document.getElementById('endDate').value = oneYearLater.toISOString().slice(0, 16);
+                }
+            });
+        });
+
         // 点击模态框外部关闭
         window.addEventListener('click', function(e) {
             const modal = document.getElementById('generateModal');
@@ -609,6 +690,43 @@
 .status-expired {
     background-color: #fee2e2;
     color: #991b1b;
+}
+
+/* 表单样式 */
+.radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #374151;
+}
+
+.radio-label input[type="radio"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+.form-col {
+    flex: 1;
+}
+
+.form-col label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #374151;
 }
 
 /* 按钮样式 */
@@ -891,23 +1009,28 @@
     width: 130px;
 }
 
-#activationTable th:nth-child(5), /* 过期时间 */
+#activationTable th:nth-child(5), /* 开始时间 */
 #activationTable td:nth-child(5) {
     width: 130px;
 }
 
-#activationTable th:nth-child(6), /* 使用时间 */
+#activationTable th:nth-child(6), /* 过期时间 */
 #activationTable td:nth-child(6) {
     width: 130px;
 }
 
-#activationTable th:nth-child(7), /* 用户名 */
+#activationTable th:nth-child(7), /* 使用时间 */
 #activationTable td:nth-child(7) {
+    width: 130px;
+}
+
+#activationTable th:nth-child(8), /* 用户名 */
+#activationTable td:nth-child(8) {
     width: 100px;
 }
 
-#activationTable th:nth-child(8), /* 邮箱 */
-#activationTable td:nth-child(8) {
+#activationTable th:nth-child(9), /* 邮箱 */
+#activationTable td:nth-child(9) {
     width: 150px;
     max-width: 150px;
     overflow: hidden;
@@ -915,8 +1038,8 @@
     white-space: nowrap;
 }
 
-#activationTable th:nth-child(9), /* 备注 */
-#activationTable td:nth-child(9) {
+#activationTable th:nth-child(10), /* 备注 */
+#activationTable td:nth-child(10) {
     width: 120px;
     max-width: 120px;
     overflow: hidden;
@@ -924,8 +1047,8 @@
     white-space: nowrap;
 }
 
-#activationTable th:nth-child(10), /* 操作 */
-#activationTable td:nth-child(10) {
+#activationTable th:nth-child(11), /* 操作 */
+#activationTable td:nth-child(11) {
     width: 120px;
     text-align: center;
 }

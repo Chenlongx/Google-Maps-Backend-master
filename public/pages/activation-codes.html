@@ -1,0 +1,998 @@
+<header class="page-header">
+    <h1 class="page-title">ProMail Extractor 激活码管理</h1>
+</header>
+
+<section class="stats-grid">
+    <div class="stat-card stat-card-tokens">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+            </svg>
+        </div>
+        <div class="info">
+            <div class="label">总激活码数</div>
+            <div class="value" id="total-codes-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-users">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+        </div>
+        <div class="info">
+            <div class="label">有效激活码</div>
+            <div class="value" id="active-codes-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-earnings">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+            </svg>
+        </div>
+        <div class="info">
+            <div class="label">已使用数量</div>
+            <div class="value" id="used-codes-display">加载中...</div>
+        </div>
+    </div>
+    <div class="stat-card stat-card-advanced">
+        <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+            </svg>
+        </div>
+        <div class="info">
+            <div class="label">过期数量</div>
+            <div class="value" id="expired-codes-display">加载中...</div>
+        </div>
+    </div>
+</section>
+
+<div class="main-card">
+    <div class="table-controls">
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="搜索激活码...">
+            <button id="clickSearch" class="btn btn-sm">搜索</button>
+        </div>
+        <div class="actions-toolbar">
+            <button id="generateButton" class="btn btn-generate">生成激活码</button>
+            <button id="exportButton" class="btn btn-export">导出</button>
+            <button id="cleanupButton" class="btn btn-cleanup">清理过期</button>
+        </div>
+    </div>
+    
+    <div class="table-wrapper">
+        <table id="activationTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>激活码</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th>过期时间</th>
+                    <th>使用时间</th>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody style="text-align: center;">
+                <!-- 数据将通过JavaScript动态加载 -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="pagination">
+        <button id="prevPage" class="btn btn-sm">上一页</button>
+        <span id="pageInfo">第 1 页，共 1 页</span>
+        <button id="nextPage" class="btn btn-sm">下一页</button>
+    </div>
+</div>
+
+<!-- 生成激活码模态框 -->
+<div id="generateModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>生成激活码</h2>
+            <span class="close" onclick="closeGenerateModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="codeCount">生成数量:</label>
+                <input type="number" id="codeCount" min="1" max="100" value="10" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="validDays">有效期(天):</label>
+                <input type="number" id="validDays" min="1" max="3650" value="365" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="codeNotes">备注:</label>
+                <textarea id="codeNotes" class="form-textarea" placeholder="可选备注信息"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="confirmGenerate" class="btn btn-primary">生成</button>
+            <button id="cancelGenerate" class="btn btn-secondary">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 通用页面清理机制 - 避免重复声明错误
+    (function() {
+        // 清理可能存在的全局变量和函数
+        const variablesToClean = [
+            'userGrowthChartInstance_DASH',
+            'userTypeChartInstance_DASH', 
+            'renderUserTypeChart_DASH',
+            'renderUserGrowthChart_DASH',
+            'allActivationCodes',
+            'currentPage',
+            'itemsPerPage',
+            'updateMetrics',
+            'updateAllCharts',
+            'allLicenses_WhatsAppPage',
+            'allUsers',
+            'allLicenses'
+        ];
+        
+        variablesToClean.forEach(varName => {
+            if (typeof window[varName] !== 'undefined') {
+                // 如果是图表实例，先销毁
+                if (varName.includes('Chart') && window[varName] && typeof window[varName].destroy === 'function') {
+                    window[varName].destroy();
+                }
+                delete window[varName];
+            }
+        });
+        
+        // 添加全局错误处理，防止其他页面的代码影响当前页面
+        if (!window.pageErrorHandlersAdded) {
+            window.addEventListener('error', function(event) {
+                const errorMessage = event.error ? event.error.message : event.message;
+                if (errorMessage && (
+                    errorMessage.includes('getContext') ||
+                    errorMessage.includes('Cannot set properties of null') ||
+                    errorMessage.includes('Cannot read properties of null') ||
+                    errorMessage.includes('updateMetrics') ||
+                    errorMessage.includes('updateAllCharts')
+                )) {
+                    console.warn('检测到页面切换相关的错误，已忽略:', errorMessage);
+                    event.preventDefault();
+                    return false;
+                }
+            });
+            
+            window.addEventListener('unhandledrejection', function(event) {
+                const errorMessage = event.reason ? event.reason.message : '';
+                if (errorMessage && (
+                    errorMessage.includes('getContext') ||
+                    errorMessage.includes('Cannot set properties of null') ||
+                    errorMessage.includes('Cannot read properties of null') ||
+                    errorMessage.includes('updateMetrics') ||
+                    errorMessage.includes('updateAllCharts')
+                )) {
+                    console.warn('检测到页面切换相关的Promise错误，已忽略:', errorMessage);
+                    event.preventDefault();
+                }
+            });
+            window.pageErrorHandlersAdded = true;
+        }
+    })();
+    
+    // 重新声明变量
+    window.allActivationCodes = [];
+    window.currentPage = 1;
+    window.itemsPerPage = 20;
+
+    // 显示提示信息
+    function showTimedAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.textContent = message;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.padding = '12px 16px';
+        alertDiv.style.borderRadius = '4px';
+        alertDiv.style.color = 'white';
+        alertDiv.style.fontWeight = '500';
+        
+        if (type === 'success') {
+            alertDiv.style.backgroundColor = '#10b981';
+        } else if (type === 'error') {
+            alertDiv.style.backgroundColor = '#ef4444';
+        } else if (type === 'warning') {
+            alertDiv.style.backgroundColor = '#f59e0b';
+        } else {
+            alertDiv.style.backgroundColor = '#3b82f6';
+        }
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.parentNode.removeChild(alertDiv);
+            }
+        }, 3000);
+    }
+
+    // 获取激活码列表
+    async function fetchActivationCodes() {
+        try {
+            console.log('=== 开始获取激活码列表 ===');
+            const token = localStorage.getItem('authToken');
+            console.log('Token:', token ? '存在' : '不存在');
+            
+            const response = await fetch('/api/get-activation-codes', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response error:', errorText);
+                throw new Error(`获取激活码失败: ${response.status} ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('Response data:', data);
+            console.log('Codes array:', data.codes);
+            console.log('Codes length:', data.codes ? data.codes.length : 0);
+            
+            window.allActivationCodes = data.codes || [];
+            console.log('allActivationCodes:', window.allActivationCodes);
+            console.log('allActivationCodes length:', window.allActivationCodes.length);
+            
+            renderTable();
+            fetchStats();
+            console.log('=== 获取激活码列表完成 ===');
+        } catch (error) {
+            console.error('获取激活码失败:', error);
+            showTimedAlert('获取激活码失败: ' + error.message);
+        }
+    }
+
+    // 获取统计信息
+    async function fetchStats() {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/get-activation-stats', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!response.ok) throw new Error('获取统计信息失败');
+            
+            const data = await response.json();
+            updateStatsDisplay(data);
+        } catch (error) {
+            console.error('获取统计信息失败:', error);
+            showTimedAlert('获取统计信息失败: ' + error.message);
+        }
+    }
+
+    // 更新统计显示
+    function updateStatsDisplay(data) {
+        const stats = data.stats || data; // 兼容两种数据结构
+        document.getElementById('total-codes-display').textContent = stats.total || 0;
+        document.getElementById('active-codes-display').textContent = stats.active || 0;
+        document.getElementById('used-codes-display').textContent = stats.used || 0;
+        document.getElementById('expired-codes-display').textContent = stats.expired || 0;
+    }
+
+    // 渲染表格
+    function renderTable() {
+        console.log('=== 开始渲染表格 ===');
+        console.log('allActivationCodes in renderTable:', window.allActivationCodes);
+        console.log('allActivationCodes length in renderTable:', window.allActivationCodes.length);
+        
+        const tbody = document.querySelector('#activationTable tbody');
+        console.log('tbody element:', tbody);
+        
+        if (!tbody) {
+            console.error('找不到表格tbody元素');
+            return;
+        }
+        
+        tbody.innerHTML = '';
+
+        const startIndex = (window.currentPage - 1) * window.itemsPerPage;
+        const endIndex = startIndex + window.itemsPerPage;
+        const pageData = window.allActivationCodes.slice(startIndex, endIndex);
+        
+        console.log('startIndex:', startIndex);
+        console.log('endIndex:', endIndex);
+        console.log('pageData:', pageData);
+        console.log('pageData length:', pageData.length);
+
+        if (pageData.length === 0) {
+            console.log('没有数据需要渲染');
+            // 添加一个空行提示
+            const emptyRow = document.createElement('tr');
+            emptyRow.innerHTML = '<td colspan="10" style="text-align: center; color: #666;">暂无激活码数据</td>';
+            tbody.appendChild(emptyRow);
+            return;
+        }
+
+        pageData.forEach((code, index) => {
+            console.log(`渲染第${index + 1}行数据:`, code);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${code.id}</td>
+                <td><code class="activation-code">${code.code}</code></td>
+                <td><span class="status-badge status-${code.status}">${getStatusText(code.status)}</span></td>
+                <td>${formatDate(code.created_at)}</td>
+                <td>${formatDate(code.expires_at)}</td>
+                <td>${formatDate(code.used_at)}</td>
+                <td>${code.user_name || 'N/A'}</td>
+                <td>${code.user_email || 'N/A'}</td>
+                <td>${code.notes || 'N/A'}</td>
+                <td>
+                    <button class="btn btn-sm btn-copy" onclick="copyCode('${code.code}')">复制</button>
+                    <button class="btn btn-sm btn-delete" onclick="deleteCode('${code.id}')">删除</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            console.log(`第${index + 1}行已添加到表格`);
+        });
+        
+        console.log('=== 表格渲染完成 ===');
+    }
+
+    // 获取状态文本
+    function getStatusText(status) {
+        const statusMap = {
+            'active': '有效',
+            'used': '已使用',
+            'expired': '已过期'
+        };
+        return statusMap[status] || status;
+    }
+
+    // 复制激活码
+    function copyCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            showTimedAlert('激活码已复制到剪贴板');
+        }).catch(() => {
+            showTimedAlert('复制失败');
+        });
+    }
+
+    // 删除激活码
+    async function deleteCode(id) {
+        if (!confirm('确定要删除这个激活码吗？')) return;
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/delete-activation-code', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+
+            if (!response.ok) throw new Error('删除失败');
+
+            showTimedAlert('激活码删除成功');
+            fetchActivationCodes();
+        } catch (error) {
+            console.error('删除激活码失败:', error);
+            showTimedAlert('删除失败: ' + error.message);
+        }
+    }
+
+    // 生成激活码
+    async function generateCodes() {
+        const count = parseInt(document.getElementById('codeCount').value);
+        const validDays = parseInt(document.getElementById('validDays').value);
+        const notes = document.getElementById('codeNotes').value;
+
+        if (count < 1 || count > 100) {
+            showTimedAlert('生成数量必须在1-100之间');
+            return;
+        }
+
+        if (validDays < 1 || validDays > 3650) {
+            showTimedAlert('有效期必须在1-3650天之间');
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/generate-activation-codes', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    count,
+                    validDays,
+                    notes
+                })
+            });
+
+            if (!response.ok) throw new Error('生成失败');
+
+            const data = await response.json();
+            showTimedAlert(`成功生成 ${data.count} 个激活码`);
+            closeGenerateModal();
+            fetchActivationCodes();
+        } catch (error) {
+            console.error('生成激活码失败:', error);
+            showTimedAlert('生成失败: ' + error.message);
+        }
+    }
+
+    // 删除过期激活码
+    async function deleteExpiredCodes() {
+        if (!confirm('确定要删除所有过期的激活码吗？')) return;
+
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch('/api/delete-expired-codes', {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) throw new Error('删除失败');
+
+            const data = await response.json();
+            showTimedAlert(`成功删除 ${data.deletedCount} 个过期激活码`);
+            fetchActivationCodes();
+        } catch (error) {
+            console.error('删除过期激活码失败:', error);
+            showTimedAlert('删除失败: ' + error.message);
+        }
+    }
+
+    // 搜索激活码
+    function searchCodes() {
+        const searchTerm = document.querySelector('.search-input').value.toLowerCase();
+        if (!searchTerm) {
+            renderTable();
+            return;
+        }
+
+        const filteredCodes = window.allActivationCodes.filter(code => 
+            code.code.toLowerCase().includes(searchTerm) ||
+            (code.notes && code.notes.toLowerCase().includes(searchTerm)) ||
+            (code.used_by && code.used_by.toLowerCase().includes(searchTerm))
+        );
+
+        // 临时替换数据
+        const originalCodes = window.allActivationCodes;
+        window.allActivationCodes = filteredCodes;
+        window.currentPage = 1;
+        renderTable();
+        window.allActivationCodes = originalCodes;
+    }
+
+    // 导出激活码
+    function exportCodes() {
+        if (window.allActivationCodes.length === 0) {
+            showTimedAlert('没有数据可导出');
+            return;
+        }
+
+        const csvContent = [
+            ['ID', '激活码', '状态', '创建时间', '过期时间', '使用时间', '使用者', '备注'],
+            ...window.allActivationCodes.map(code => [
+                code.id,
+                code.code,
+                getStatusText(code.status),
+                formatDate(code.created_at),
+                formatDate(code.expires_at),
+                formatDate(code.used_at),
+                code.used_by || '',
+                code.notes || ''
+            ])
+        ].map(row => row.join(',')).join('\n');
+
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `activation-codes-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    }
+
+    // 格式化日期
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleString('zh-CN');
+    }
+
+    // 显示生成模态框
+    function showGenerateModal() {
+        document.getElementById('generateModal').style.display = 'block';
+    }
+
+    // 关闭生成模态框
+    function closeGenerateModal() {
+        document.getElementById('generateModal').style.display = 'none';
+        document.getElementById('codeCount').value = '10';
+        document.getElementById('validDays').value = '365';
+        document.getElementById('codeNotes').value = '';
+    }
+
+    // 更新分页信息
+    function updatePagination() {
+        const totalPages = Math.ceil(window.allActivationCodes.length / window.itemsPerPage);
+        document.getElementById('pageInfo').textContent = `第 ${window.currentPage} 页，共 ${totalPages} 页`;
+        document.getElementById('prevPage').disabled = window.currentPage === 1;
+        document.getElementById('nextPage').disabled = window.currentPage === totalPages;
+    }
+
+    // 页面初始化函数
+    function initializeActivationCodesPage() {
+        console.log('=== activation-codes页面初始化开始 ===');
+        
+        // 获取数据
+        fetchActivationCodes();
+        fetchStats();
+
+        // 绑定事件
+        const generateButton = document.getElementById('generateButton');
+        const exportButton = document.getElementById('exportButton');
+        const cleanupButton = document.getElementById('cleanupButton');
+        const cancelGenerate = document.getElementById('cancelGenerate');
+        const confirmGenerate = document.getElementById('confirmGenerate');
+        const clickSearch = document.getElementById('clickSearch');
+        const searchInput = document.querySelector('.search-input');
+
+        if (generateButton) generateButton.addEventListener('click', showGenerateModal);
+        if (exportButton) exportButton.addEventListener('click', exportCodes);
+        if (cleanupButton) cleanupButton.addEventListener('click', deleteExpiredCodes);
+        if (cancelGenerate) cancelGenerate.addEventListener('click', closeGenerateModal);
+        if (confirmGenerate) confirmGenerate.addEventListener('click', generateCodes);
+
+        // 搜索事件
+        if (clickSearch) clickSearch.addEventListener('click', searchCodes);
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchCodes();
+            });
+        }
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('generateModal');
+            if (e.target === modal) {
+                closeGenerateModal();
+            }
+        });
+        
+        console.log('=== activation-codes页面初始化完成 ===');
+    }
+
+    // 立即执行初始化（页面片段被动态加载时）
+    initializeActivationCodesPage();
+</script>
+
+<style>
+/* 激活码样式 */
+.activation-code {
+    font-family: 'Courier New', monospace;
+    background-color: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #e9ecef;
+}
+
+/* 状态徽章 */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-used {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-expired {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* 按钮样式 */
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.btn-primary {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+.btn-copy {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-copy:hover {
+    background-color: #059669;
+}
+
+.btn-delete {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+}
+
+.btn-export {
+    background-color: #8b5cf6;
+    color: white;
+}
+
+.btn-export:hover {
+    background-color: #7c3aed;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 18px;
+}
+
+.close {
+    color: #6b7280;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #374151;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 20px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #374151;
+    font-weight: 500;
+}
+
+.form-input, .form-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-input:focus, .form-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* 表格样式 */
+.main-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.actions-toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-generate {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-generate:hover {
+    background-color: #059669;
+}
+
+.btn-cleanup {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.btn-cleanup:hover {
+    background-color: #d97706;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#activationTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    font-size: 14px;
+}
+
+#activationTable thead {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+#activationTable th {
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+#activationTable td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #6b7280;
+    vertical-align: middle;
+}
+
+#activationTable tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+#activationTable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 表格列宽优化 */
+#activationTable th:nth-child(1), /* ID */
+#activationTable td:nth-child(1) {
+    width: 60px;
+    text-align: center;
+}
+
+#activationTable th:nth-child(2), /* 激活码 */
+#activationTable td:nth-child(2) {
+    width: 180px;
+    font-family: 'Courier New', monospace;
+}
+
+#activationTable th:nth-child(3), /* 状态 */
+#activationTable td:nth-child(3) {
+    width: 80px;
+    text-align: center;
+}
+
+#activationTable th:nth-child(4), /* 创建时间 */
+#activationTable td:nth-child(4) {
+    width: 130px;
+}
+
+#activationTable th:nth-child(5), /* 过期时间 */
+#activationTable td:nth-child(5) {
+    width: 130px;
+}
+
+#activationTable th:nth-child(6), /* 使用时间 */
+#activationTable td:nth-child(6) {
+    width: 130px;
+}
+
+#activationTable th:nth-child(7), /* 用户名 */
+#activationTable td:nth-child(7) {
+    width: 100px;
+}
+
+#activationTable th:nth-child(8), /* 邮箱 */
+#activationTable td:nth-child(8) {
+    width: 150px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#activationTable th:nth-child(9), /* 备注 */
+#activationTable td:nth-child(9) {
+    width: 120px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#activationTable th:nth-child(10), /* 操作 */
+#activationTable td:nth-child(10) {
+    width: 120px;
+    text-align: center;
+}
+
+/* 分页样式 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+#pageInfo {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        justify-content: center;
+    }
+    
+    .actions-toolbar {
+        justify-content: center;
+    }
+    
+    .search-input {
+        min-width: 150px;
+    }
+    
+    .table-wrapper {
+        font-size: 12px;
+    }
+    
+    #activationTable th,
+    #activationTable td {
+        padding: 8px 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-card {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    .table-controls {
+        gap: 10px;
+    }
+    
+    .actions-toolbar {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>

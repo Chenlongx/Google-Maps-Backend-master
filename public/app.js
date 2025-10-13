@@ -104,7 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '/settings': 'pages/settings.html',
         '/addUser': 'pages/addUser.html',
         '/editUser': 'pages/editUser.html',
-        '/whatsapp-licenses': 'pages/whatsapp-licenses.html' 
+        '/whatsapp-licenses': 'pages/whatsapp-licenses.html',
+        '/activation-codes': 'pages/activation-codes.html'
     };
 
     const executeScripts = (container) => {
@@ -131,6 +132,36 @@ document.addEventListener('DOMContentLoaded', () => {
             basePath,
             contentFile,
             availableRoutes: Object.keys(routes)
+        });
+        
+        // 页面切换前清理全局变量和函数，避免冲突
+        const globalVarsToClean = [
+            'userGrowthChartInstance_DASH',
+            'userTypeChartInstance_DASH', 
+            'renderUserTypeChart_DASH',
+            'renderUserGrowthChart_DASH',
+            'allActivationCodes',
+            'currentPage',
+            'itemsPerPage',
+            'updateMetrics',
+            'updateAllCharts',
+            'allLicenses_WhatsAppPage',
+            'allUsers',
+            'allLicenses'
+        ];
+        
+        globalVarsToClean.forEach(varName => {
+            if (typeof window[varName] !== 'undefined') {
+                // 如果是图表实例，先销毁
+                if (varName.includes('Chart') && window[varName] && typeof window[varName].destroy === 'function') {
+                    try {
+                        window[varName].destroy();
+                    } catch (e) {
+                        console.warn('销毁图表实例时出错:', e);
+                    }
+                }
+                delete window[varName];
+            }
         });
         
         navLinks.forEach(link => {

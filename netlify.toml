@@ -41,6 +41,53 @@
   to = "/agent-products.html"
   status = 200
 
+# --- 管理页面访问规则 ---
+# 允许直接访问管理页面
+[[redirects]]
+  from = "/dashboard"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/users"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/licenses"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/whatsapp-licenses"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/activation-codes"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/analytics"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/settings"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/addUser"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/editUser"
+  to = "/shell.html"
+  status = 200
+
 # --- SPA 回退规则 (必须在最后) ---
 # 这个规则会处理所有前端路由，同时避免影响静态资源的加载
 [[redirects]]

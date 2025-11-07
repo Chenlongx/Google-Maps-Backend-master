@@ -315,10 +315,10 @@
 
     function calculateAndDisplayEarnings_UsersPage(users) {
         const pricing = { 
-            monthly: 29.9, 
-            quarterly: 89.7, 
-            yearly: 299.9,
-            standard: 29.9  // standard类型通常是月付用户
+            monthly: 49.9, 
+            quarterly: 149.7, 
+            yearly: 598.8,
+            standard: 49.9  // standard类型通常是月付用户
         };
         let totalEarnings = 0;
         users.forEach(user => {
@@ -327,7 +327,7 @@
             
             // 根据用户类型直接计算收入
             if (user.user_type === 'standard') {
-                // standard类型用户通常是月付，按29.9计算
+                // standard类型用户通常是月付，按49.9计算
                 totalEarnings += pricing.standard;
             } else if (user.user_type === 'regular') {
                 // regular类型用户根据订阅时长计算

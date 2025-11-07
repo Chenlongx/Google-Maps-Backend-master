@@ -11,6 +11,12 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// ⭐ 管理员邮箱白名单
+const ALLOWED_ADMIN_EMAILS = [
+  '2231401652@qq.com',
+  '1491367041@qq.com'
+];
+
 exports.handler = async function (event, context) {
   // CORS 预检请求处理 (保持不变)
   if (event.httpMethod === 'OPTIONS') {
@@ -33,6 +39,15 @@ exports.handler = async function (event, context) {
         statusCode: 400,
         headers: { "Access-Control-Allow-Origin": "*" },
         body: JSON.stringify({ message: "邮箱和密码不能为空" }),
+      };
+    }
+
+    // ⭐ 检查邮箱是否在白名单中
+    if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
+      return {
+        statusCode: 403,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ message: "该邮箱没有管理员权限" }),
       };
     }
 

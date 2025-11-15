@@ -1234,27 +1234,219 @@ body.dark-mode .skeleton-cell span {
 }
 
 @media (max-width: 768px) {
-
-    /* 移动端用户表格优化 */
-    #userTable th,
-    #userTable td {
-        padding: 8px 4px;
+    
+    /* 页面标题优化 */
+    .page-header {
+        padding: 16px;
+        text-align: center;
+    }
+    
+    .page-title {
+        font-size: 20px;
+        margin: 0;
+    }
+    
+    /* 统计卡片网格优化 */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+        min-height: auto;
+    }
+    
+    .stat-card .icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .stat-card .icon-wrapper svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .stat-card .value {
+        font-size: 18px;
+    }
+    
+    .stat-card .label {
         font-size: 12px;
     }
     
-    /* 在移动端进一步调整列宽 */
-    #userTable th:nth-child(5), /* 设备码 */
-    #userTable td:nth-child(5) {
-        width: 15%; /* 移动端给设备码更多空间 */
+    /* 主卡片优化 */
+    .main-card {
+        margin: 16px;
+        padding: 16px;
+        border-radius: 8px;
     }
     
-    #userTable th:nth-child(9), /* 最近导出 */
-    #userTable td:nth-child(9),
-    #userTable th:nth-child(10), /* 创建时间 */
-    #userTable td:nth-child(10),
-    #userTable th:nth-child(11), /* 到期时间 */
-    #userTable td:nth-child(11) {
-        width: 8%; /* 时间列在移动端稍微缩小 */
+    /* 表格控件优化 */
+    .table-controls {
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .search-container {
+        width: 100%;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px; /* 防止iOS缩放 */
+    }
+    
+    .actions-toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+    
+    .action-button {
+        flex: 1;
+        min-width: 100px;
+        padding: 10px 12px;
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    /* 表格容器优化 */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    /* 用户表格移动端卡片化 */
+    #userTable {
+        display: block;
+        width: 100%;
+    }
+    
+    #userTable thead {
+        display: none; /* 隐藏表头 */
+    }
+    
+    #userTable tbody {
+        display: block;
+    }
+    
+    #userTable tr {
+        display: block;
+        margin-bottom: 16px;
+        background: var(--white-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    
+    #userTable tr:has(td[colspan]) {
+        /* 空数据行保持原样 */
+        display: table-row;
+        border: none;
+        box-shadow: none;
+        background: none;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    #userTable td {
+        display: grid;
+        grid-template-columns: minmax(88px, 42%) 1fr;
+        align-items: start;
+        gap: 8px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--light-gray-color);
+        font-size: 14px;
+        text-align: left;
+        position: relative;
+        word-break: break-all;
+        overflow-wrap: anywhere;
+        line-height: 1.4;
+        box-sizing: border-box;
+    }
+    
+    #userTable td:last-child {
+        border-bottom: none;
+    }
+    
+    /* 为每个单元格添加标签 */
+    #userTable td:nth-child(1)::before { content: "选择"; }
+    #userTable td:nth-child(2)::before { content: "序号"; }
+    #userTable td:nth-child(3)::before { content: "账号"; }
+    #userTable td:nth-child(4)::before { content: "密码"; }
+    #userTable td:nth-child(5)::before { content: "设备码"; }
+    #userTable td:nth-child(6)::before { content: "系统"; }
+    #userTable td:nth-child(7)::before { content: "类型"; }
+    #userTable td:nth-child(8)::before { content: "导出次数"; }
+    #userTable td:nth-child(9)::before { content: "最近导出"; }
+    #userTable td:nth-child(10)::before { content: "创建时间"; }
+    #userTable td:nth-child(11)::before { content: "到期时间"; }
+    #userTable td:nth-child(12)::before { content: "状态"; }
+    #userTable td:nth-child(13)::before { content: "AI权限"; }
+    #userTable td:nth-child(14)::before { content: "AI Tokens"; }
+    #userTable td:nth-child(15)::before { content: "操作"; }
+    
+    #userTable td::before {
+        font-weight: 600;
+        color: var(--dark-gray-color);
+        text-align: left;
+        flex-shrink: 0;
+        min-width: 80px;
+        white-space: nowrap;
+        grid-column: 1;
+        align-self: start;
+    }
+
+    #userTable td .cell-value,
+    #userTable td > *:not(input):not(.cell-label) {
+        grid-column: 2;
+    }
+    
+    /* 复选框特殊处理 */
+    #userTable td:nth-child(1) {
+        justify-content: flex-end;
+        padding-top: 0;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border-bottom: none;
+    }
+    
+    #userTable td:nth-child(1)::before {
+        display: none;
+    }
+    
+    /* 序号特殊处理 */
+    #userTable td:nth-child(2) {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--primary-color);
+        border-bottom: 2px solid var(--primary-light-color);
+        margin-bottom: 8px;
+    }
+    
+    /* 操作按钮优化 */
+    #userTable td:nth-child(15) .edit-button {
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 6px;
+        min-width: 60px;
+    }
+    
+    /* 状态徽章优化 */
+    .status-badge {
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 4px;
+        white-space: nowrap;
     }
 
     /* 移动端分页样式优化 */
@@ -1392,12 +1584,18 @@ body.dark-mode .skeleton-cell span {
         margin-right: 10px;
         color: var(--dark-gray-color);
     }
-
     /* 对第一个单元格（复选框）做特殊处理，让它看起来更和谐 */
     #licenseTable td[data-label="选择"] {
         justify-content: flex-end; /* 只需右对齐即可 */
     }
     #licenseTable td[data-label="选择"]::before {
-        display: none; /* 无需显示“选择”二字 */
+        display: none; /* 无需显示"选择"二字 */
+    }
+
+    #userTable th:nth-child(3), #userTable td:nth-child(3) {
+        width: 100%;
+    }
+    #userTable td:nth-child(2), #userTable th:nth-child(4), #userTable td:nth-child(4), #userTable td:nth-child(5), #userTable td:nth-child(6),#userTable td:nth-child(7), #userTable td:nth-child(8), #userTable td:nth-child(9), #userTable td:nth-child(10), #userTable td:nth-child(11), #userTable td:nth-child(12), #userTable td:nth-child(13), #userTable td:nth-child(14), #userTable td:nth-child(15){
+        width: 100%;
     }
 }

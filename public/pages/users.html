@@ -49,6 +49,7 @@
         <div class="actions-toolbar">
             <a href="/addUser" class="action-button btn-add nav-link-internal">添加用户</a>
             <button id="deleteButton" class="action-button btn-delete">删除选中</button>
+            <button id="refreshButton" class="action-button btn-refresh" title="刷新数据">🔄 刷新</button>
         </div>
     </div>
     <div class="table-wrapper">
@@ -81,6 +82,30 @@
             <tbody></tbody>
         </table>
     </div>
+    <!-- 分页控件 -->
+    <div class="pagination-container">
+        <div class="pagination-info">
+            <span id="pagination-info">显示第 1-20 条，共 0 条记录</span>
+        </div>
+        <div class="pagination-controls">
+            <button id="first-page-btn" class="pagination-btn" title="首页">首页</button>
+            <button id="prev-page-btn" class="pagination-btn" title="上一页">上一页</button>
+            <div class="page-numbers" id="page-numbers">
+                <!-- 页码按钮将动态生成 -->
+            </div>
+            <button id="next-page-btn" class="pagination-btn" title="下一页">下一页</button>
+            <button id="last-page-btn" class="pagination-btn" title="尾页">尾页</button>
+        </div>
+        <div class="page-size-selector">
+            <label for="page-size-select">每页显示:</label>
+            <select id="page-size-select">
+                <option value="10">10条</option>
+                <option value="20" selected>20条</option>
+                <option value="50">50条</option>
+                <option value="100">100条</option>
+            </select>
+        </div>
+    </div>
 </div>
 
 <footer class="footer">
@@ -95,9 +120,20 @@
 (function() {
     const TOKENS_PER_AI_REQUEST_UsersPage = 3000;
     let allUsers_UsersPage = []; 
+    let filteredUsers_UsersPage = []; // 过滤后的用户数据
     let createdAtSortState = 'none';
     let expiryAtSortState = 'none';  // 新增：到期时间排序状态
     let exportCountSortState = 'none'; // 新增：导出次数排序状态
+    
+    // 分页相关变量
+    let currentPage_UsersPage = 1;
+    let pageSize_UsersPage = 20;
+    let totalPages_UsersPage = 1;
+    
+    // 数据缓存机制
+    const CACHE_KEY = 'usersPageCache';
+    const CACHE_EXPIRY_TIME = 5 * 60 * 1000; // 5分钟缓存过期时间
+    let lastFetchTime = 0;
 
     function formatDate_UsersPage(dateString) {
         if (!dateString) return "N/A";
@@ -114,26 +150,105 @@
         setTimeout(() => { if (alertBox) { alertBox.style.display = 'none'; } if (callback) { callback(); } }, duration);
     }
 
-    async function fetchUsers_UsersPage() {
+    // 缓存管理函数
+    function saveToCache_UsersPage(data) {
+        try {
+            const cacheData = {
+                users: data,
+                timestamp: Date.now(),
+                version: '1.0' // 用于缓存版本控制
+            };
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+            lastFetchTime = Date.now();
+            console.log('用户数据已缓存');
+        } catch (error) {
+            console.warn('缓存保存失败:', error);
+        }
+    }
+
+    function loadFromCache_UsersPage() {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (!cached) return null;
+            
+            const cacheData = JSON.parse(cached);
+            const now = Date.now();
+            
+            // 检查缓存是否过期
+            if (now - cacheData.timestamp > CACHE_EXPIRY_TIME) {
+                localStorage.removeItem(CACHE_KEY);
+                console.log('缓存已过期，已清除');
+                return null;
+            }
+            
+            console.log('从缓存加载用户数据');
+            return cacheData.users;
+        } catch (error) {
+            console.warn('缓存读取失败:', error);
+            localStorage.removeItem(CACHE_KEY);
+            return null;
+        }
+    }
+
+    function clearCache_UsersPage() {
+        localStorage.removeItem(CACHE_KEY);
+        lastFetchTime = 0;
+        console.log('用户数据缓存已清除');
+    }
+
+    function shouldRefreshData_UsersPage() {
+        const now = Date.now();
+        return (now - lastFetchTime) > CACHE_EXPIRY_TIME;
+    }
+
+    async function fetchUsers_UsersPage(forceRefresh = false) {
+        // 首先尝试从缓存加载数据
+        if (!forceRefresh) {
+            const cachedUsers = loadFromCache_UsersPage();
+            if (cachedUsers && cachedUsers.length > 0) {
+                allUsers_UsersPage = cachedUsers;
+                allUsers_UsersPage.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                displayUsers_UsersPage(allUsers_UsersPage);
+                calculateAndDisplayEarnings_UsersPage(allUsers_UsersPage);
+                
+                const totalUsersDisplay = document.getElementById('total-users-display');
+                if(totalUsersDisplay) totalUsersDisplay.textContent = allUsers_UsersPage.length;
+                
+                calculateAndDisplayAdvancedStats_UsersPage(allUsers_UsersPage);
+                console.log('使用缓存数据，跳过网络请求');
+                return;
+            }
+        }
+
+        // 缓存无效或强制刷新，从服务器获取数据
         const loadingContainer = document.getElementById('loadingContainer');
         if(loadingContainer) loadingContainer.style.display = 'flex';
+        
         try {
             const token = localStorage.getItem('authToken');
             if (!token) {
                 showTimedAlert_UsersPage('认证失败，请重新登录。', 3000, () => { window.location.href = 'login.html'; });
                 return;
             }
+            
+            console.log('从服务器获取用户数据...');
             const response = await fetch('/api/getUsers', {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
             });
+            
             if (response.status === 401) {
                 showTimedAlert_UsersPage('会话已过期或未授权，请重新登录。', 3000, () => { window.location.href = 'login.html'; });
                 return;
             }
             if (!response.ok) { throw new Error(`服务器错误: ${response.statusText}`); }
+            
             const data = await response.json();
             allUsers_UsersPage = data.users || [];
+            
+            // 保存到缓存
+            saveToCache_UsersPage(allUsers_UsersPage);
+            
             // 按注册时间降序排序，最新注册的用户在最上面
             allUsers_UsersPage.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             displayUsers_UsersPage(allUsers_UsersPage);
@@ -240,15 +355,84 @@
 
 
 
-    function displayUsers_UsersPage(usersToDisplay) {
+    // 更新分页信息显示
+    function updatePaginationInfo_UsersPage() {
+        const paginationInfo = document.getElementById('pagination-info');
+        if (!paginationInfo) return;
+        
+        const totalUsers = filteredUsers_UsersPage.length;
+        const startIndex = (currentPage_UsersPage - 1) * pageSize_UsersPage + 1;
+        const endIndex = Math.min(currentPage_UsersPage * pageSize_UsersPage, totalUsers);
+        
+        if (totalUsers === 0) {
+            paginationInfo.textContent = '暂无数据';
+        } else {
+            paginationInfo.textContent = `显示第 ${startIndex}-${endIndex} 条，共 ${totalUsers} 条记录`;
+        }
+    }
+
+    // 更新分页按钮状态
+    function updatePaginationButtons_UsersPage() {
+        const firstPageBtn = document.getElementById('first-page-btn');
+        const prevPageBtn = document.getElementById('prev-page-btn');
+        const nextPageBtn = document.getElementById('next-page-btn');
+        const lastPageBtn = document.getElementById('last-page-btn');
+        
+        if (firstPageBtn) firstPageBtn.disabled = currentPage_UsersPage === 1;
+        if (prevPageBtn) prevPageBtn.disabled = currentPage_UsersPage === 1;
+        if (nextPageBtn) nextPageBtn.disabled = currentPage_UsersPage === totalPages_UsersPage;
+        if (lastPageBtn) lastPageBtn.disabled = currentPage_UsersPage === totalPages_UsersPage;
+        
+        // 生成页码按钮
+        const pageNumbers = document.getElementById('page-numbers');
+        if (pageNumbers) {
+            pageNumbers.innerHTML = '';
+            
+            // 计算显示的页码范围
+            let startPage = Math.max(1, currentPage_UsersPage - 2);
+            let endPage = Math.min(totalPages_UsersPage, currentPage_UsersPage + 2);
+            
+            // 如果总页数较少，显示所有页码
+            if (totalPages_UsersPage <= 5) {
+                startPage = 1;
+                endPage = totalPages_UsersPage;
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `pagination-btn page-number ${i === currentPage_UsersPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => goToPage_UsersPage(i);
+                pageNumbers.appendChild(pageBtn);
+            }
+        }
+    }
+
+    // 跳转到指定页面
+    function goToPage_UsersPage(page) {
+        if (page < 1 || page > totalPages_UsersPage) return;
+        currentPage_UsersPage = page;
+        displayCurrentPageUsers_UsersPage();
+        updatePaginationInfo_UsersPage();
+        updatePaginationButtons_UsersPage();
+    }
+
+    // 显示当前页的用户数据
+    function displayCurrentPageUsers_UsersPage() {
+        const startIndex = (currentPage_UsersPage - 1) * pageSize_UsersPage;
+        const endIndex = startIndex + pageSize_UsersPage;
+        const currentPageUsers = filteredUsers_UsersPage.slice(startIndex, endIndex);
+        
         const tableBody = document.querySelector("#userTable tbody");
         if(!tableBody) return;
         tableBody.innerHTML = '';
-        if (usersToDisplay.length === 0) {
+        
+        if (currentPageUsers.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="15" style="text-align: center; padding: 40px; color: #888;">暂无用户数据</td></tr>`;
             return;
         }
-        usersToDisplay.forEach((user, index) => {
+        
+        currentPageUsers.forEach((user, index) => {
             const row = document.createElement('tr');
             let statusBadge = '';
             if (!user.expiry_at || isNaN(new Date(user.expiry_at).getTime())) {
@@ -258,6 +442,7 @@
                 statusBadge = isExpired ? '<span class="status-badge status-expired">已过期</span>' : '<span class="status-badge status-valid">有效</span>';
             }
             const aiStatusBadge = `<span class="status-badge ${user.is_ai_authorized ? 'status-valid' : 'status-pending'}">${user.is_ai_authorized ? '已开通' : '未开通'}</span>`;
+            
             // 用户类型显示逻辑
             let userTypeText;
             if (user.user_type === 'trial') {
@@ -272,11 +457,27 @@
                 userTypeText = '未知类型';
             }
             
-            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${index + 1}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${userTypeText}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
+            // 计算全局序号（考虑分页）
+            const globalIndex = startIndex + index + 1;
+            
+            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${globalIndex}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${userTypeText}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
             tableBody.appendChild(row);
         });
+    }
 
-        // 这段逻辑不需要修改，因为它会被 shell.html 的全局事件监听捕获
+    // 修改原有的displayUsers_UsersPage函数以支持分页
+    function displayUsers_UsersPage(usersToDisplay) {
+        filteredUsers_UsersPage = usersToDisplay;
+        totalPages_UsersPage = Math.ceil(filteredUsers_UsersPage.length / pageSize_UsersPage);
+        
+        // 如果当前页超出范围，重置到第一页
+        if (currentPage_UsersPage > totalPages_UsersPage) {
+            currentPage_UsersPage = 1;
+        }
+        
+        displayCurrentPageUsers_UsersPage();
+        updatePaginationInfo_UsersPage();
+        updatePaginationButtons_UsersPage();
     }
 
     async function deleteSelectedUsers_UsersPage() {
@@ -301,7 +502,9 @@
             const result = await response.json();
             if (response.ok && result.success) {
                 showTimedAlert_UsersPage('用户删除成功！', 3000);
-                fetchUsers_UsersPage();
+                // 删除成功后清除缓存并强制刷新
+                clearCache_UsersPage();
+                fetchUsers_UsersPage(true);
             } else {
                 throw new Error(result.message || '删除失败');
             }
@@ -377,6 +580,7 @@
         const searchInput = document.querySelector('.search-input');
         const searchButton = document.querySelector('#clickSearch');
         const deleteButton = document.getElementById('deleteButton');
+        const refreshButton = document.getElementById('refreshButton');
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const editMasterBalanceBtn = document.getElementById('edit-master-balance-btn');
 
@@ -391,10 +595,33 @@
         if(searchButton) searchButton.addEventListener('click', performSearch);
         if(searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
         if(deleteButton) deleteButton.addEventListener('click', deleteSelectedUsers_UsersPage);
+        if(refreshButton) refreshButton.addEventListener('click', () => {
+            console.log('手动刷新数据...');
+            clearCache_UsersPage();
+            fetchUsers_UsersPage(true);
+        });
         if(selectAllCheckbox) selectAllCheckbox.addEventListener('change', function () {
             document.querySelectorAll('.user-checkbox').forEach(checkbox => { checkbox.checked = this.checked; });
         });
         if(editMasterBalanceBtn) editMasterBalanceBtn.addEventListener('click', updateMasterBalance_UsersPage);
+
+        // --- 分页控件事件监听 ---
+        const firstPageBtn = document.getElementById('first-page-btn');
+        const prevPageBtn = document.getElementById('prev-page-btn');
+        const nextPageBtn = document.getElementById('next-page-btn');
+        const lastPageBtn = document.getElementById('last-page-btn');
+        const pageSizeSelect = document.getElementById('page-size-select');
+
+        if(firstPageBtn) firstPageBtn.addEventListener('click', () => goToPage_UsersPage(1));
+        if(prevPageBtn) prevPageBtn.addEventListener('click', () => goToPage_UsersPage(currentPage_UsersPage - 1));
+        if(nextPageBtn) nextPageBtn.addEventListener('click', () => goToPage_UsersPage(currentPage_UsersPage + 1));
+        if(lastPageBtn) lastPageBtn.addEventListener('click', () => goToPage_UsersPage(totalPages_UsersPage));
+        
+        if(pageSizeSelect) pageSizeSelect.addEventListener('change', (e) => {
+            pageSize_UsersPage = parseInt(e.target.value);
+            currentPage_UsersPage = 1; // 重置到第一页
+            displayUsers_UsersPage(filteredUsers_UsersPage.length > 0 ? filteredUsers_UsersPage : allUsers_UsersPage);
+        });
 
         // --- 新增的排序逻辑 (完整版) ---
         const sortHeaders = {

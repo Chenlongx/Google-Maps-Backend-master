@@ -408,19 +408,33 @@
 
     // 更新关键指标
     function updateMetrics(metrics) {
-        document.getElementById('totalUsers').textContent = metrics.totalUsers.toLocaleString();
-        document.getElementById('totalAgents').textContent = metrics.totalAgents.toLocaleString();
-        document.getElementById('totalRevenue').textContent = `¥${metrics.totalRevenue.toLocaleString()}`;
-        document.getElementById('totalClicks').textContent = metrics.totalClicks.toLocaleString();
-        document.getElementById('totalOrders').textContent = metrics.totalOrders.toLocaleString();
-        document.getElementById('conversionRate').textContent = `${metrics.conversionRate}%`;
+        const totalUsersElement = document.getElementById('totalUsers');
+        const totalAgentsElement = document.getElementById('totalAgents');
+        const totalRevenueElement = document.getElementById('totalRevenue');
+        const totalClicksElement = document.getElementById('totalClicks');
+        const totalOrdersElement = document.getElementById('totalOrders');
+        const conversionRateElement = document.getElementById('conversionRate');
+        
+        if (totalUsersElement) totalUsersElement.textContent = metrics.totalUsers.toLocaleString();
+        if (totalAgentsElement) totalAgentsElement.textContent = metrics.totalAgents.toLocaleString();
+        if (totalRevenueElement) totalRevenueElement.textContent = `¥${metrics.totalRevenue.toLocaleString()}`;
+        if (totalClicksElement) totalClicksElement.textContent = metrics.totalClicks.toLocaleString();
+        if (totalOrdersElement) totalOrdersElement.textContent = metrics.totalOrders.toLocaleString();
+        if (conversionRateElement) conversionRateElement.textContent = `${metrics.conversionRate}%`;
     }
 
-    // 更新数据摘要
+    // 更新摘要信息
     function updateSummary(summary, metrics) {
-        document.getElementById('avgDailyUsers').textContent = summary.avgDailyUsers;
-        document.getElementById('avgDailyRevenue').textContent = `¥${summary.avgDailyRevenue}`;
-        document.getElementById('avgDailyClicks').textContent = summary.avgDailyClicks;
+        const avgDailyUsersElement = document.getElementById('avgDailyUsers');
+        const avgDailyRevenueElement = document.getElementById('avgDailyRevenue');
+        const avgDailyClicksElement = document.getElementById('avgDailyClicks');
+        const topProductElement = document.getElementById('topProduct');
+        const activeAgentsElement = document.getElementById('activeAgents');
+        const totalAgentBalanceElement = document.getElementById('totalAgentBalance');
+        
+        if (avgDailyUsersElement) avgDailyUsersElement.textContent = summary.avgDailyUsers;
+        if (avgDailyRevenueElement) avgDailyRevenueElement.textContent = `¥${summary.avgDailyRevenue}`;
+        if (avgDailyClicksElement) avgDailyClicksElement.textContent = summary.avgDailyClicks;
         
         // 产品名称映射
         const productNames = {
@@ -428,10 +442,10 @@
             'email-filter': '邮件过滤程序',
             'whatsapp-filter': 'WhatsApp过滤程序'
         };
-        document.getElementById('topProduct').textContent = productNames[summary.topProduct] || summary.topProduct;
+        if (topProductElement) topProductElement.textContent = productNames[summary.topProduct] || summary.topProduct;
         
-        document.getElementById('activeAgents').textContent = metrics.activeAgents.toLocaleString();
-        document.getElementById('totalAgentBalance').textContent = `¥${metrics.totalAgentBalance.toLocaleString()}`;
+        if (activeAgentsElement) activeAgentsElement.textContent = metrics.activeAgents.toLocaleString();
+        if (totalAgentBalanceElement) totalAgentBalanceElement.textContent = `¥${metrics.totalAgentBalance.toLocaleString()}`;
     }
 
     // 更新所有图表

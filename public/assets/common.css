@@ -338,6 +338,7 @@ a {
     width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
+    table-layout: fixed; /* 固定表格布局，确保列宽平均分配 */
 }
 #licenseTable {
     width: 100%;
@@ -351,10 +352,96 @@ a {
 
 #userTable th,
 #userTable td {
-    padding: 16px 12px;
+    padding: 12px 8px;
     text-align: left;
     vertical-align: middle;
-    white-space: nowrap;
+    white-space: normal; /* 允许换行 */
+    word-wrap: break-word; /* 长单词自动换行 */
+    overflow: hidden; /* 隐藏溢出内容 */
+}
+
+/* 为用户表格的各列设置合适的宽度 */
+#userTable th:nth-child(1), /* 复选框 */
+#userTable td:nth-child(1) {
+    width: 4%;
+    text-align: center;
+}
+
+#userTable th:nth-child(2), /* ID序号 */
+#userTable td:nth-child(2) {
+    width: 5%;
+    text-align: center;
+}
+
+#userTable th:nth-child(3), /* 账号 */
+#userTable td:nth-child(3) {
+    width: 10%;
+}
+
+#userTable th:nth-child(4), /* 密码 */
+#userTable td:nth-child(4) {
+    width: 8%;
+}
+
+#userTable th:nth-child(5), /* 设备码 */
+#userTable td:nth-child(5) {
+    width: 12%;
+    word-break: break-all; /* 强制断行，防止设备码过长 */
+}
+
+#userTable th:nth-child(6), /* 系统 */
+#userTable td:nth-child(6) {
+    width: 6%;
+}
+
+#userTable th:nth-child(7), /* 类型 */
+#userTable td:nth-child(7) {
+    width: 7%;
+}
+
+#userTable th:nth-child(8), /* 导出次数 */
+#userTable td:nth-child(8) {
+    width: 6%;
+    text-align: center;
+}
+
+#userTable th:nth-child(9), /* 最近导出 */
+#userTable td:nth-child(9) {
+    width: 9%;
+}
+
+#userTable th:nth-child(10), /* 创建时间 */
+#userTable td:nth-child(10) {
+    width: 9%;
+}
+
+#userTable th:nth-child(11), /* 到期时间 */
+#userTable td:nth-child(11) {
+    width: 9%;
+}
+
+#userTable th:nth-child(12), /* 状态 */
+#userTable td:nth-child(12) {
+    width: 6%;
+    text-align: center;
+}
+
+#userTable th:nth-child(13), /* AI权限 */
+#userTable td:nth-child(13) {
+    width: 6%;
+    text-align: center;
+}
+
+#userTable th:nth-child(14), /* AI Tokens */
+#userTable td:nth-child(14) {
+    width: 7%;
+    text-align: right;
+}
+
+#userTable th:nth-child(15), /* 操作 */
+#userTable td:nth-child(15) {
+    width: 6%;
+    text-align: center;
 }
 
 #userTable thead {
@@ -965,20 +1052,42 @@ input:checked+.slider:before {
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
-    background: var(--primary-color); /* 使用主题主色 */
-    color: #fff;
 }
 
 .save-btn:hover {
-    background: var(--primary-hover-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+background: var(--primary-hover-color);
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+}
+
+.save-btn-delete:hover {
+background: var(--danger-hover-color);
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.btn-refresh {
+background: var(--info-color);
+color: var(--white-color);
+}
+
+.btn-refresh:hover {
+background: var(--info-hover-color);
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
 
 /* 通用取消按钮样式 (次要操作) */
 .cancel-btn {
-    padding: 10px 24px;
+padding: 10px 24px;
+border-radius: 8px;
+border: 1px solid var(--medium-gray-color); /* 边框颜色 */
+font-size: 15px;
+font-weight: 500;
+cursor: pointer;
+transition: all 0.2s ease;
+background: var(--white-color); /* 背景为白色 */
+color: var(--text-color);       /* 文字为主题文字颜色 */
     border-radius: 8px;
     border: 1px solid var(--medium-gray-color); /* 边框颜色 */
     font-size: 15px;
@@ -1004,6 +1113,98 @@ input:checked+.slider:before {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite linear;
+}
+
+/* --- 分页样式 --- */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.pagination-info {
+    color: var(--dark-gray-color);
+    font-size: 14px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    background-color: var(--white-color);
+    color: var(--text-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    text-align: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--primary-light-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+    background-color: var(--light-gray-color);
+    color: var(--dark-gray-color);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pagination-btn.active {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+    border-color: var(--primary-color);
+}
+
+.page-numbers {
+    display: flex;
+    gap: 4px;
+}
+
+.page-number {
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--dark-gray-color);
+}
+
+.page-size-selector select {
+    padding: 6px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--white-color);
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.page-size-selector select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 105, 189, 0.2);
 }
 
 /* 深色模式下的骨架屏颜色 */
@@ -1033,6 +1234,64 @@ body.dark-mode .skeleton-cell span {
 }
 
 @media (max-width: 768px) {
+
+    /* 移动端用户表格优化 */
+    #userTable th,
+    #userTable td {
+        padding: 8px 4px;
+        font-size: 12px;
+    }
+    
+    /* 在移动端进一步调整列宽 */
+    #userTable th:nth-child(5), /* 设备码 */
+    #userTable td:nth-child(5) {
+        width: 15%; /* 移动端给设备码更多空间 */
+    }
+    
+    #userTable th:nth-child(9), /* 最近导出 */
+    #userTable td:nth-child(9),
+    #userTable th:nth-child(10), /* 创建时间 */
+    #userTable td:nth-child(10),
+    #userTable th:nth-child(11), /* 到期时间 */
+    #userTable td:nth-child(11) {
+        width: 8%; /* 时间列在移动端稍微缩小 */
+    }
+
+    /* 移动端分页样式优化 */
+    .pagination-container {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px 0;
+    }
+    
+    .pagination-controls {
+        order: 2;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .pagination-info {
+        order: 1;
+        text-align: center;
+        font-size: 13px;
+    }
+    
+    .page-size-selector {
+        order: 3;
+        justify-content: center;
+        font-size: 13px;
+    }
+    
+    .pagination-btn {
+        padding: 6px 10px;
+        font-size: 13px;
+        min-width: 36px;
+    }
+    
+    .page-number {
+        min-width: 32px;
+        height: 32px;
+    }
 
     /* 1. 恢复侧边栏为正常宽度，并通过 transform 将其移出屏幕外 */
     .sidebar {

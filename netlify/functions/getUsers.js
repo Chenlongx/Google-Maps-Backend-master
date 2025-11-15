@@ -62,7 +62,7 @@ exports.handler = async (event, context) => {
     }
 
     // *** 添加这行来输出获取到的表单信息 ***
-    console.log('从 user_accounts 表获取到的用户数据:', users); 
+    // console.log('从 user_accounts 表获取到的用户数据:', users); 
 
     return {
       statusCode: 200,

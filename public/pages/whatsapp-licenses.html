@@ -189,10 +189,15 @@
     }
 
     function updateStats_WhatsAppPage(licenses) {
-        document.getElementById('total-licenses-display').textContent = licenses.length;
-        document.getElementById('available-licenses-display').textContent = licenses.filter(l => l.status === 'available').length;
-        document.getElementById('active-licenses-display').textContent = licenses.filter(l => l.status === 'active').length;
-        document.getElementById('revoked-licenses-display').textContent = licenses.filter(l => l.status === 'revoked' || l.status === 'expired').length;
+        const totalElement = document.getElementById('total-licenses-display');
+        const availableElement = document.getElementById('available-licenses-display');
+        const activeElement = document.getElementById('active-licenses-display');
+        const revokedElement = document.getElementById('revoked-licenses-display');
+        
+        if (totalElement) totalElement.textContent = licenses.length;
+        if (availableElement) availableElement.textContent = licenses.filter(l => l.status === 'available').length;
+        if (activeElement) activeElement.textContent = licenses.filter(l => l.status === 'active').length;
+        if (revokedElement) revokedElement.textContent = licenses.filter(l => l.status === 'revoked' || l.status === 'expired').length;
     }
     
     async function generateLicenseKey_WhatsAppPage() {

@@ -60,18 +60,20 @@
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             min-width: 160px;
-            z-index: 1000;
+            z-index: 1001;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
             transition: all 0.2s ease;
             border: 1px solid #e9ecef;
+            pointer-events: none; /* 默认不可点击 */
         }
         
         .user-menu.show {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
+            pointer-events: auto; /* 显示时可点击 */
         }
         
         .user-menu-item {
@@ -82,9 +84,10 @@
             cursor: pointer;
             transition: background-color 0.2s ease;
             border-bottom: 1px solid #f8f9fa;
-            pointer-events: auto; /* 确保可以点击 */
+            pointer-events: auto !important; /* 强制确保可以点击 */
             position: relative; /* 确保z-index生效 */
-            z-index: 1001; /* 确保在菜单之上 */
+            z-index: 1002; /* 确保在菜单和遮罩层之�?*/
+            user-select: none; /* 防止选中文本 */
         }
         
         .user-menu-item:last-child {
@@ -123,9 +126,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: 999;
+            z-index: 998;
             background: transparent;
         }
+        
     </style>
 </head>
 
@@ -188,7 +192,7 @@
 
         <div class="main-wrapper">
             <header class="top-bar">
-                <button class="hamburger-menu" id="hamburgerMenu"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                <button class="hamburger-menu" id="hamburgerMenu" aria-label="切换侧边栏菜单"><svg xmlns="http://www.w3.org/2000/svg" width="24"
                         height="24" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -196,12 +200,12 @@
                 <div class="top-bar-right">
                     <div class="theme-switcher">
                         <label class="switch">
-                            <input type="checkbox" id="theme-toggle-checkbox">
+                            <input type="checkbox" id="theme-toggle-checkbox" aria-label="切换深色模式">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div class="notification-center" id="notification-center">
-                        <button class="notification-bell" id="notification-bell-btn">
+                        <button class="notification-bell" id="notification-bell-btn" aria-label="查看通知">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -222,11 +226,11 @@
                         <i class="fas fa-chevron-down" id="user-menu-arrow"></i>
                     </div>
                     <div class="user-menu" id="user-menu">
-                        <div class="user-menu-item" id="switch-account-btn" onclick="handleSwitchAccount(event)">
+                        <div class="user-menu-item" id="switch-account-btn" onclick="handleSwitchAccount()">
                             <i class="fas fa-exchange-alt"></i>
                             <span>切换账号</span>
                         </div>
-                        <div class="user-menu-item logout" id="logout-btn" onclick="handleLogout(event)">
+                        <div class="user-menu-item logout" id="logout-btn" onclick="handleLogout()">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>退出登录</span>
                         </div>
@@ -237,7 +241,6 @@
             <main class="main-content" id="main-content"></main>
         </div>
     </div>
-    <script src="app.js"></script>
     <script>
         // 显示真实的用户邮箱
         function displayUserEmail() {
@@ -256,84 +259,36 @@
             }
         }
         
-        // 页面加载时显示用户邮箱和绑定事件
+        // 页面加载时显示用户邮箱
         document.addEventListener('DOMContentLoaded', function() {
             displayUserEmail();
-            bindUserMenuEvents();
         });
         
-        // 绑定用户菜单事件
-        function bindUserMenuEvents() {
-            console.log('=== 开始绑定用户菜单事件 ===');
-            const switchAccountBtn = document.getElementById('switch-account-btn');
-            const logoutBtn = document.getElementById('logout-btn');
-            
-            console.log('切换账号按钮元素:', switchAccountBtn);
-            console.log('退出登录按钮元素:', logoutBtn);
-            
-            if (switchAccountBtn) {
-                console.log('绑定切换账号按钮事件...');
-                
-                // 添加多种事件监听器进行测试
-                switchAccountBtn.addEventListener('click', function(e) {
-                    console.log('=== 切换账号按钮被点击 (click事件) ===');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    console.log('事件已阻止默认行为和冒泡');
-                    switchAccount();
-                }, true);
-                
-                // 添加mousedown事件测试
-                switchAccountBtn.addEventListener('mousedown', function(e) {
-                    console.log('=== 切换账号按钮被点击 (mousedown事件) ===');
-                });
-                
-                // 添加mouseup事件测试
-                switchAccountBtn.addEventListener('mouseup', function(e) {
-                    console.log('=== 切换账号按钮被点击 (mouseup事件) ===');
-                });
-                
-                console.log('切换账号按钮事件绑定完成');
-            } else {
-                console.error('切换账号按钮元素未找到！');
-            }
-            
-            if (logoutBtn) {
-                console.log('绑定退出登录按钮事件...');
-                logoutBtn.addEventListener('click', function(e) {
-                    console.log('=== 退出登录按钮被点击 ===');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation(); // 阻止其他事件监听器
-                    console.log('事件已阻止默认行为和冒泡');
-                    logout();
-                }, true); // 使用捕获阶段，确保优先执行
-                console.log('退出登录按钮事件绑定完成');
-            } else {
-                console.error('退出登录按钮元素未找到！');
-            }
-            
-            console.log('=== 用户菜单事件绑定完成 ===');
-        }
-        
-        // 内联事件处理函数
-        function handleSwitchAccount(event) {
+        // 内联事件处理函数（直接处理）
+        function handleSwitchAccount() {
             console.log('=== handleSwitchAccount 被调用 ===');
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-            console.log('内联事件处理：切换账号');
-            switchAccount();
+            closeUserMenu();
+            
+            if (confirm('确定要切换到其他账号吗？当前会话将被清除。')) {
+                console.log('用户确认切换账号，清除会话数据...');
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('会话数据已清除，跳转到登录页面...');
+                window.location.href = '/login.html';
+            }
         }
         
-        function handleLogout(event) {
+        function handleLogout() {
             console.log('=== handleLogout 被调用 ===');
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-            console.log('内联事件处理：退出登录');
-            logout();
+            closeUserMenu();
+            
+            if (confirm('确定要退出登录吗？')) {
+                console.log('用户确认退出登录，清除会话数据...');
+                localStorage.clear();
+                sessionStorage.clear();
+                console.log('会话数据已清除，跳转到登录页面...');
+                window.location.href = '/login.html';
+            }
         }
         
         // 用户菜单相关功能
@@ -358,11 +313,18 @@
             userMenu.classList.add('show');
             userMenuOpen = true;
             
-            // 创建遮罩层，点击外部关闭菜单
-            const overlay = document.createElement('div');
-            overlay.className = 'user-menu-overlay';
-            overlay.onclick = closeUserMenu;
-            document.body.appendChild(overlay);
+            // 创建遮罩层
+            setTimeout(() => {
+                const existingOverlay = document.querySelector('.user-menu-overlay');
+                if (existingOverlay) {
+                    existingOverlay.remove();
+                }
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'user-menu-overlay';
+                overlay.addEventListener('click', closeUserMenu);
+                document.body.appendChild(overlay);
+            }, 50);
         }
         
         function closeUserMenu() {
@@ -379,87 +341,6 @@
             }
         }
         
-        // 切换账号功能
-        function switchAccount() {
-            console.log('=== switchAccount函数被调用 ===');
-            closeUserMenu();
-            
-            // 显示确认对话框
-            console.log('显示确认对话框...');
-            const confirmed = confirm('确定要切换到其他账号吗？当前会话将被清除。');
-            console.log('确认对话框结果:', confirmed);
-            
-            if (confirmed) {
-                console.log('用户确认切换账号');
-                // 清除当前会话
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userInfo');
-                console.log('会话数据已清除');
-                
-                // 直接跳转，避免被其他代码拦截
-                console.log('准备跳转到登录页面...');
-                try {
-                    // 立即跳转，不使用setTimeout
-                    console.log('执行跳转: window.location.href = "login.html"');
-                    window.location.href = 'login.html';
-                    console.log('跳转命令已执行');
-                } catch (error) {
-                    console.error('跳转失败:', error);
-                    // 备用方案：使用location.replace
-                    try {
-                        console.log('尝试备用跳转方案: location.replace');
-                        location.replace('login.html');
-                    } catch (error2) {
-                        console.error('备用跳转也失败:', error2);
-                        alert('跳转失败，请手动访问登录页面');
-                    }
-                }
-            } else {
-                console.log('用户取消切换账号');
-            }
-        }
-        
-        // 退出登录功能
-        function logout() {
-            console.log('=== logout函数被调用 ===');
-            closeUserMenu();
-            
-            // 显示确认对话框
-            console.log('显示确认对话框...');
-            const confirmed = confirm('确定要退出登录吗？');
-            console.log('确认对话框结果:', confirmed);
-            
-            if (confirmed) {
-                console.log('用户确认退出登录');
-                // 清除所有本地存储
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userInfo');
-                localStorage.removeItem('userType');
-                localStorage.removeItem('agentInfo');
-                console.log('所有会话数据已清除');
-                
-                // 直接跳转，避免被其他代码拦截
-                console.log('准备跳转到登录页面...');
-                try {
-                    // 立即跳转，不使用setTimeout
-                    console.log('执行跳转: window.location.href = "login.html"');
-                    window.location.href = 'login.html';
-                    console.log('跳转命令已执行');
-                } catch (error) {
-                    console.error('跳转失败:', error);
-                    // 备用方案：使用location.replace
-                    try {
-                        console.log('尝试备用跳转方案: location.replace');
-                        location.replace('login.html');
-                    } catch (error2) {
-                        console.error('备用跳转也失败:', error2);
-                        alert('跳转失败，请手动访问登录页面');
-                    }
-                }
-            } else {
-                console.log('用户取消退出登录');
-            }
-        }
         
         // 键盘事件处理（ESC键关闭菜单）
         document.addEventListener('keydown', function(event) {
@@ -467,7 +348,15 @@
                 closeUserMenu();
             }
         });
+
+        // 将函数暴露到全局作用域，使动态加载的页面可以访问
+        window.handleSwitchAccount = handleSwitchAccount;
+        window.handleLogout = handleLogout;
+        window.toggleUserMenu = toggleUserMenu;
+        window.openUserMenu = openUserMenu;
+        window.closeUserMenu = closeUserMenu;
     </script>
+    <script src="app.js"></script>
 </body>
 
 </html>

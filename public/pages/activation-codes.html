@@ -295,16 +295,33 @@
     async function fetchStats() {
         try {
             const token = localStorage.getItem('authToken');
+            if (!token) {
+                console.warn('未找到认证令牌，跳过统计信息获取');
+                return;
+            }
+            
             const response = await fetch('/api/get-activation-stats', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
-            if (!response.ok) throw new Error('获取统计信息失败');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
             
             const data = await response.json();
+            console.log('获取到的统计数据:', data);
             updateStatsDisplay(data);
         } catch (error) {
             console.error('获取统计信息失败:', error);
+            
+            // 设置默认值，避免显示"加载中..."
+            updateStatsDisplay({
+                total: 0,
+                active: 0,
+                used: 0,
+                expired: 0
+            });
+            
             showTimedAlert('获取统计信息失败: ' + error.message);
         }
     }
@@ -312,10 +329,27 @@
     // 更新统计显示
     function updateStatsDisplay(data) {
         const stats = data.stats || data; // 兼容两种数据结构
-        document.getElementById('total-codes-display').textContent = stats.total || 0;
-        document.getElementById('active-codes-display').textContent = stats.active || 0;
-        document.getElementById('used-codes-display').textContent = stats.used || 0;
-        document.getElementById('expired-codes-display').textContent = stats.expired || 0;
+        
+        // 安全地更新每个统计元素
+        const totalElement = document.getElementById('total-codes-display');
+        const activeElement = document.getElementById('active-codes-display');
+        const usedElement = document.getElementById('used-codes-display');
+        const expiredElement = document.getElementById('expired-codes-display');
+        
+        if (totalElement) totalElement.textContent = stats.total || 0;
+        if (activeElement) activeElement.textContent = stats.active || 0;
+        if (usedElement) usedElement.textContent = stats.used || 0;
+        if (expiredElement) expiredElement.textContent = stats.expired || 0;
+        
+        // 如果有元素不存在，记录警告
+        if (!totalElement || !activeElement || !usedElement || !expiredElement) {
+            console.warn('部分统计显示元素未找到:', {
+                totalElement: !!totalElement,
+                activeElement: !!activeElement,
+                usedElement: !!usedElement,
+                expiredElement: !!expiredElement
+            });
+        }
     }
 
     // 渲染表格
@@ -584,9 +618,20 @@
     // 更新分页信息
     function updatePagination() {
         const totalPages = Math.ceil(window.allActivationCodes.length / window.itemsPerPage);
-        document.getElementById('pageInfo').textContent = `第 ${window.currentPage} 页，共 ${totalPages} 页`;
-        document.getElementById('prevPage').disabled = window.currentPage === 1;
-        document.getElementById('nextPage').disabled = window.currentPage === totalPages;
+        
+        const pageInfoElement = document.getElementById('pageInfo');
+        const prevPageElement = document.getElementById('prevPage');
+        const nextPageElement = document.getElementById('nextPage');
+        
+        if (pageInfoElement) {
+            pageInfoElement.textContent = `第 ${window.currentPage} 页，共 ${totalPages} 页`;
+        }
+        if (prevPageElement) {
+            prevPageElement.disabled = window.currentPage === 1;
+        }
+        if (nextPageElement) {
+            nextPageElement.disabled = window.currentPage === totalPages;
+        }
     }
 
     // 页面初始化函数
@@ -654,8 +699,13 @@
         console.log('=== activation-codes页面初始化完成 ===');
     }
 
-    // 立即执行初始化（页面片段被动态加载时）
-    initializeActivationCodesPage();
+    // 确保DOM加载完成后再初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeActivationCodesPage);
+    } else {
+        // DOM已经加载完成，立即执行
+        initializeActivationCodesPage();
+    }
 </script>
 
 <style>

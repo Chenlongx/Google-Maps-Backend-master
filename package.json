@@ -9,11 +9,17 @@
     "build": "echo \"Build completed\"",
     "deploy": "netlify deploy --prod"
   },
-  "keywords": ["google-maps", "agent-system", "commission", "withdrawal"],
+  "keywords": [
+    "google-maps",
+    "agent-system",
+    "commission",
+    "withdrawal"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@google/genai": "^1.14.0",
+    "@react-email/render": "^1.4.0",
     "@supabase/supabase-js": "^2.56.0",
     "alipay-sdk": "^4.14.0",
     "bcrypt": "^5.1.1",
@@ -23,10 +29,8 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.11.0",
+    "react": "^19.2.0",
     "resend": "^6.0.1",
     "serverless-http": "^3.2.0"
-  },
-  "devDependencies": {
-    "netlify-cli": "^17.0.0"
   }
 }

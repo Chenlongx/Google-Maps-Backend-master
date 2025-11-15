@@ -182,6 +182,13 @@
             // 销毁旧的图表实例 (如果存在)
             if (userGrowthChartInstance_DASH) {
                 userGrowthChartInstance_DASH.destroy();
+                userGrowthChartInstance_DASH = null;
+            }
+
+            // 额外检查：销毁 Canvas 上可能存在的任何 Chart 实例
+            const existingChart = Chart.getChart(chartCanvas);
+            if (existingChart) {
+                existingChart.destroy();
             }
 
             // 获取绘图上下文
@@ -231,10 +238,25 @@
 
     
     function renderUserTypeChart_DASH(users) {
+        const chartCanvas = document.getElementById('userTypeChart');
+        
+        if (!chartCanvas) {
+            return;
+        }
+
+        // 销毁旧的图表实例
         if (userTypeChartInstance_DASH) {
             userTypeChartInstance_DASH.destroy();
+            userTypeChartInstance_DASH = null;
         }
-        const ctx = document.getElementById('userTypeChart').getContext('2d');
+
+        // 额外检查：销毁 Canvas 上可能存在的任何 Chart 实例
+        const existingChart = Chart.getChart(chartCanvas);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        const ctx = chartCanvas.getContext('2d');
         let trial = 0, standard = 0, regular = 0, permanent = 0;
         users.forEach(user => {
             if (user.user_type === 'trial') trial++;

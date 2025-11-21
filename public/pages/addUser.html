@@ -1,169 +1,377 @@
-<header class="page-header">
-    <h1 class="page-title">添加新用户</h1>
-</header>
-<div class="main-card" style="max-width: 100%; margin: 0 auto;">
-    <form id="createUserForm" autocomplete="off">
-        <div class="form-group">
-            <label for="account">账号 (仅限字母和数字)</label>
-            <div style="display:flex;align-items:center;">
-                <input id="account" type="text" pattern="^[a-zA-Z0-9]+$" 
-                    placeholder="请输入或点击右侧按钮生成" required
-                    style="flex:1;padding:8px;border:1px solid #ccc;border-right:none;
-                            border-radius:6px 0 0 6px;outline:none;font-size:14px;">
-                <button type="button" onclick="generateAccount_AddUser()" 
-                        style="padding:8px 14px;background-color:#409eff;color:#fff;
-                            border:1px solid #409eff;border-radius:0 6px 6px 0;
-                            cursor:pointer;transition:background-color 0.2s;">
-                    生成
-                </button>
-            </div>
-        </div>
+<style>
+    /* 页面整体容器 */
+    .add-user-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #333;
+    }
 
-        <div class="form-group">
-            <label for="password">密码 (仅限字母和数字)</label>
-            <div style="display:flex;align-items:center;">
-                <input id="password" type="password" pattern="^[a-zA-Z0-9]+$" 
-                    placeholder="请输入或点击右侧按钮生成" required
-                    style="flex:1;padding:8px;border:1px solid #ccc;border-right:none;
-                            border-radius:6px 0 0 6px;outline:none;font-size:14px;">
-                <button type="button" onclick="generatePassword_AddUser()" 
-                        style="padding:8px 14px;background-color:#409eff;color:#fff;
-                            border:1px solid #409eff;border-radius:0 6px 6px 0;
-                            cursor:pointer;transition:background-color 0.2s;">
-                    生成
-                </button>
+    /* 标题样式 */
+    .page-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    /* 卡片样式 */
+    .main-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .main-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    }
+
+    /* 表单元素样式 */
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+        font-size: 14px;
+    }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+        border: 1px solid #dcdfe6;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+
+    .input-group:focus-within {
+        border-color: #409eff;
+        box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+    }
+
+    .input-group input {
+        flex: 1;
+        padding: 12px 16px;
+        border: none;
+        outline: none;
+        font-size: 14px;
+        color: #606266;
+    }
+
+    .input-group button {
+        padding: 0 20px;
+        background-color: #f5f7fa;
+        color: #909399;
+        border: none;
+        border-left: 1px solid #dcdfe6;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s;
+        height: 42px;
+        /* Match input height roughly */
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group button:hover {
+        background-color: #e6e8eb;
+        color: #409eff;
+    }
+
+    select,
+    input[type="datetime-local"] {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #dcdfe6;
+        border-radius: 8px;
+        outline: none;
+        font-size: 14px;
+        color: #606266;
+        background-color: #fff;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    select:focus,
+    input[type="datetime-local"]:focus {
+        border-color: #409eff;
+        box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+    }
+
+    /* 按钮样式 */
+    .btn-row {
+        display: flex;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #ebeef5;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        text-align: center;
+    }
+
+    .btn-secondary {
+        background: #f4f4f5;
+        color: #606266;
+    }
+
+    .btn-secondary:hover {
+        background: #e9e9eb;
+        color: #303133;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #409eff 0%, #3a8ee6 100%);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #66b1ff 0%, #409eff 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* Alert 样式 */
+    #customAlert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: none;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    #customAlert.error {
+        background: #fef0f0;
+        color: #f56c6c;
+        border: 1px solid #fde2e2;
+    }
+
+    #customAlert.success {
+        background: #f0f9eb;
+        color: #67c23a;
+        border: 1px solid #e1f3d8;
+    }
+
+    @keyframes slideDown {
+        from {
+            top: -50px;
+            opacity: 0;
+        }
+
+        to {
+            top: 20px;
+            opacity: 1;
+        }
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 480px) {
+        .main-card {
+            padding: 24px;
+        }
+
+        .btn-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="add-user-container">
+    <header class="page-header">
+        <h1 class="page-title">添加新用户</h1>
+    </header>
+
+    <div class="main-card">
+        <form id="createUserForm" autocomplete="off">
+            <div class="form-group">
+                <label for="account">账号 (仅限字母和数字)</label>
+                <div class="input-group">
+                    <input id="account" type="text" pattern="^[a-zA-Z0-9]+$" placeholder="请输入或点击生成" required>
+                    <button type="button" onclick="generateAccount_AddUser()">
+                        生成账号
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label for="userType">用户类型</label>
-            <select id="userType">
-                <option value="trial">试用用户</option>
-                <option value="regular">正式用户</option>
-                <option value="permanent">永久用户</option>
-            </select>
-        </div>
-        <div id="timeLimitContainer" class="form-group" style="display:none;">
-            <label for="timeLimit">时间限制（自动计算）</label>
-            <select id="timeLimit">
-                <option value="">（不使用）</option>
-                <option value="1day">1 天</option>
-                <option value="1week">7 天</option>
-                <option value="1month">1 个月</option>
-                <option value="1year">1 年</option>
-            </select>
-        </div>
-        <div id="dateRangeContainer" class="form-group" style="display:none;">
-            <label>自定义开始 / 到期时间</label>
-            <div class="row" style="display: flex; gap: 20px;">
-                <input id="startDate" type="datetime-local" style="flex: 1;">
-                <input id="expiryDate" type="datetime-local" style="flex: 1;">
+
+            <div class="form-group">
+                <label for="password">密码 (仅限字母和数字)</label>
+                <div class="input-group">
+                    <input id="password" type="password" pattern="^[a-zA-Z0-9]+$" placeholder="请输入或点击生成" required>
+                    <button type="button" onclick="generatePassword_AddUser()">
+                        生成密码
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="btn-row" style="display: flex; gap: 12px; margin-top: 16px; padding-top: 24px; border-top: 1px solid #e9ecef;">
-             <button type="button" class="btn-secondary" id="back-to-list-btn" style="flex: 1; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; background: #f1f1f1; color: #343a40; border: 1px solid #dee2e6;">返回列表</button>
-            <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 15px; font-weight: 500; cursor: pointer;">创建用户</button>
-        </div>
-    </form>
+
+            <div class="form-group">
+                <label for="userType">用户类型</label>
+                <select id="userType">
+                    <option value="trial">试用用户</option>
+                    <option value="regular">正式用户</option>
+                    <option value="permanent">永久用户</option>
+                </select>
+            </div>
+
+            <div id="timeLimitContainer" class="form-group" style="display:none;">
+                <label for="timeLimit">时间限制（自动计算）</label>
+                <select id="timeLimit">
+                    <option value="">（不使用）</option>
+                    <option value="1day">1 天</option>
+                    <option value="1week">7 天</option>
+                    <option value="1month">1 个月</option>
+                    <option value="2months">2 个月</option>
+                    <option value="3months">3 个月</option>
+                    <option value="1year">1 年</option>
+                </select>
+            </div>
+
+            <div id="dateRangeContainer" class="form-group" style="display:none;">
+                <label>自定义开始 / 到期时间</label>
+                <div class="row" style="display: flex; gap: 16px;">
+                    <input id="startDate" type="datetime-local" style="flex: 1;">
+                    <input id="expiryDate" type="datetime-local" style="flex: 1;">
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn btn-secondary" id="back-to-list-btn">返回列表</button>
+                <button type="submit" class="btn btn-primary">创建用户</button>
+            </div>
+        </form>
+    </div>
 </div>
+
 <div id="customAlert"></div>
 
 <script>
     // --- 页面专属脚本 ---
 
     function generateAccount_AddUser() {
-        // 生成更像真实账号的格式
+        // 生成更像真实用户的账号 (去除邮箱格式)
         const formats = [
-            // 邮箱格式
+            // 常见英文名+数字
             () => {
-                const usernames = ['user', 'admin', 'test', 'demo', 'guest', 'member', 'client', 'customer'];
-                const domains = ['gmail.com', 'qq.com', '163.com', 'foxmail.com', 'outlook.com', 'hotmail.com'];
-                const username = usernames[Math.floor(Math.random() * usernames.length)];
-                const randomNum = Math.floor(Math.random() * 9999) + 1;
-                const domain = domains[Math.floor(Math.random() * domains.length)];
-                return `${username}${randomNum}@${domain}`;
+                const names = ['alex', 'sam', 'jordan', 'taylor', 'morgan', 'casey', 'jamie', 'riley', 'avery', 'quinn', 'user', 'vip', 'member'];
+                const name = names[Math.floor(Math.random() * names.length)];
+                const num = Math.floor(Math.random() * 9999) + 100;
+                return `${name}${num}`;
             },
-            // 纯字母数字组合（较长）
-            () => {
-                const length = Math.floor(Math.random() * 4) + 8; // 8-11位
-                let result = '';
-                const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
-                for (let i = 0; i < length; i++) {
-                    result += characters.charAt(Math.floor(Math.random() * characters.length));
-                }
-                return result;
-            },
-            // 字母开头+数字
+            // 纯字母 (较短好记)
             () => {
                 const length = Math.floor(Math.random() * 3) + 6; // 6-8位
-                let result = '';
-                const letters = 'abcdefghijklmnopqrstuvwxyz';
-                const numbers = '0123456789';
-                result += letters.charAt(Math.floor(Math.random() * letters.length));
-                for (let i = 1; i < length; i++) {
-                    result += numbers.charAt(Math.floor(Math.random() * numbers.length));
-                }
-                return result;
+                const chars = 'abcdefghijklmnopqrstuvwxyz';
+                let res = '';
+                for (let i = 0; i < length; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+                return res;
+            },
+            // 字母+数字混合
+            () => {
+                const prefix = 'abcdefghijklmnopqrstuvwxyz';
+                const suffix = '0123456789';
+                let res = prefix.charAt(Math.floor(Math.random() * prefix.length)); // 首字母
+                const len = Math.floor(Math.random() * 3) + 5; // 剩余5-7位
+                const all = prefix + suffix;
+                for (let i = 0; i < len; i++) res += all.charAt(Math.floor(Math.random() * all.length));
+                return res;
             }
         ];
-        
+
         const selectedFormat = formats[Math.floor(Math.random() * formats.length)];
         const account = selectedFormat();
         document.getElementById('account').value = account;
     }
 
     function generatePassword_AddUser() {
-        // 生成更合理的密码长度（6-10位）
-        const length = Math.floor(Math.random() * 5) + 6; // 6-10位
+        // 生成更合理的密码长度（8-12位）
+        const length = Math.floor(Math.random() * 5) + 8;
         let result = '';
-        
-        // 确保密码包含至少一个大写字母、一个小写字母和一个数字
+
         const lowercase = 'abcdefghijklmnopqrstuvwxyz';
         const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const numbers = '0123456789';
         const allChars = lowercase + uppercase + numbers;
-        
-        // 确保至少包含一个大写字母
+
+        // 确保包含各类字符
         result += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
-        // 确保至少包含一个小写字母
         result += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
-        // 确保至少包含一个数字
         result += numbers.charAt(Math.floor(Math.random() * numbers.length));
-        
-        // 填充剩余长度
+
+        // 填充
         for (let i = 3; i < length; i++) {
             result += allChars.charAt(Math.floor(Math.random() * allChars.length));
         }
-        
-        // 打乱字符顺序
+
+        // 打乱
         result = result.split('').sort(() => Math.random() - 0.5).join('');
-        
+
         const passwordInput = document.getElementById('password');
         passwordInput.value = result;
-        passwordInput.type = 'text'; 
-        setTimeout(() => { if(passwordInput) passwordInput.type = 'password'; }, 2000);
+        passwordInput.type = 'text';
+        setTimeout(() => { if (passwordInput) passwordInput.type = 'password'; }, 2000);
     }
 
-    function showTimedAlert_AddUser(msg, type = 'success', ms = 3000){
+    function showTimedAlert_AddUser(msg, type = 'success', ms = 3000) {
         const a = document.getElementById('customAlert');
         if (!a) { alert(msg); return; }
         a.textContent = msg;
-        a.className = type === 'error' ? 'error' : '';
+        a.className = type === 'error' ? 'error' : 'success';
         a.style.display = 'block';
         setTimeout(() => a.style.display = 'none', ms);
     }
 
-    function checkAuthToken_AddUser(){
+    function checkAuthToken_AddUser() {
         const token = localStorage.getItem('authToken');
-        if(!token){
+        if (!token) {
             showTimedAlert_AddUser('请先登录', 'error', 3000);
-            setTimeout(() => window.location.href='login.html', 800);
+            setTimeout(() => window.location.href = 'login.html', 800);
             return false;
         }
         return true;
     }
 
-    function initializeAddUserPage(){
-        if(!checkAuthToken_AddUser()) return;
+    function initializeAddUserPage() {
+        if (!checkAuthToken_AddUser()) return;
 
         const form = document.getElementById('createUserForm');
         const userTypeSel = document.getElementById('userType');
@@ -171,7 +379,7 @@
         const dateRangeContainer = document.getElementById('dateRangeContainer');
         const backBtn = document.getElementById('back-to-list-btn');
 
-        function updateVisibility(){
+        function updateVisibility() {
             const userType = userTypeSel.value;
             timeLimitContainer.style.display = 'block';
             dateRangeContainer.style.display = (userType === 'trial') ? 'none' : 'block';
@@ -182,6 +390,7 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
             submitButton.textContent = '创建中...';
             submitButton.disabled = true;
 
@@ -192,9 +401,9 @@
             const startDateRaw = document.getElementById('startDate').value;
             const expiryDateRaw = document.getElementById('expiryDate').value;
 
-            if(!account || !password || !userType){
+            if (!account || !password || !userType) {
                 showTimedAlert_AddUser('账号/密码/用户类型为必填项', 'error', 3000);
-                submitButton.textContent = '创建用户';
+                submitButton.textContent = originalText;
                 submitButton.disabled = false;
                 return;
             }
@@ -207,13 +416,13 @@
                 const token = localStorage.getItem('authToken') || '';
                 const resp = await fetch('/.netlify/functions/createUser', {
                     method: 'POST',
-                    headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${token}`},
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify(payload)
                 });
                 const resJson = await resp.json();
-                if(resp.ok && resJson.success){
+                if (resp.ok && resJson.success) {
                     showTimedAlert_AddUser('用户添加成功', 'success', 2000);
-                    setTimeout(()=> {
+                    setTimeout(() => {
                         form.reset();
                         updateVisibility();
                     }, 800);
@@ -225,7 +434,7 @@
                 console.error(err);
                 showTimedAlert_AddUser('网络错误或服务器错误', 'error', 4000);
             } finally {
-                submitButton.textContent = '创建用户';
+                submitButton.textContent = originalText;
                 submitButton.disabled = false;
             }
         });
@@ -233,7 +442,7 @@
         backBtn.addEventListener('click', (e) => {
             e.preventDefault();
             // 派发自定义导航事件，通知shell.html切换页面
-            const navigateEvent = new CustomEvent('navigate', { 
+            const navigateEvent = new CustomEvent('navigate', {
                 detail: { path: '/users' }, // 跳转回用户列表页
                 bubbles: true,
                 cancelable: true

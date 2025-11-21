@@ -19,6 +19,10 @@ function timeLimitToDate(timeLimit) {
       now.setDate(now.getDate() + 7); break;
     case '1month':
       now.setMonth(now.getMonth() + 1); break;
+    case '2months':
+      now.setMonth(now.getMonth() + 2); break;
+    case '3months':
+      now.setMonth(now.getMonth() + 3); break;
     case '1year':
       now.setFullYear(now.getFullYear() + 1); break;
     default:
@@ -34,7 +38,7 @@ function permanentExpiryDate() {
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ success:false, message: '只支持 POST' }) };
+    return { statusCode: 405, body: JSON.stringify({ success: false, message: '只支持 POST' }) };
   }
 
   try {
@@ -48,7 +52,7 @@ exports.handler = async (event) => {
     const expiryDateRaw = body.expiryDate || body.expiry_date || null;
 
     if (!account || !password || !userType) {
-      return { statusCode: 400, body: JSON.stringify({ success:false, message:'账号、密码和用户类型不能为空' }) };
+      return { statusCode: 400, body: JSON.stringify({ success: false, message: '账号、密码和用户类型不能为空' }) };
     }
 
     // 1) 检查账号是否已存在
@@ -61,10 +65,10 @@ exports.handler = async (event) => {
 
     if (fetchErr) {
       console.error('Supabase select error:', fetchErr);
-      return { statusCode: 500, body: JSON.stringify({ success:false, message: '查询账号失败', error: fetchErr.message }) };
+      return { statusCode: 500, body: JSON.stringify({ success: false, message: '查询账号失败', error: fetchErr.message }) };
     }
     if (exists) {
-      return { statusCode: 409, body: JSON.stringify({ success:false, message: '账号已存在' }) };
+      return { statusCode: 409, body: JSON.stringify({ success: false, message: '账号已存在' }) };
     }
 
     // 2) 计算 expiry_at（优先级：前端 expiryDate > timeLimit 算出 > userType 默认 > permanent）
@@ -124,16 +128,16 @@ exports.handler = async (event) => {
 
     if (insertErr) {
       console.error('Supabase insert error:', insertErr);
-      return { statusCode: 500, body: JSON.stringify({ success:false, message: '插入用户失败', error: insertErr.message }) };
+      return { statusCode: 500, body: JSON.stringify({ success: false, message: '插入用户失败', error: insertErr.message }) };
     }
 
     return {
       statusCode: 201,
-      body: JSON.stringify({ success:true, message: '用户添加成功', data: insertData })
+      body: JSON.stringify({ success: true, message: '用户添加成功', data: insertData })
     };
 
   } catch (err) {
     console.error('createUser handler error:', err);
-    return { statusCode: 500, body: JSON.stringify({ success:false, message: '服务器内部错误', error: err.message }) };
+    return { statusCode: 500, body: JSON.stringify({ success: false, message: '服务器内部错误', error: err.message }) };
   }
 };

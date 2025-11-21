@@ -1,51 +1,312 @@
-<div class="loading-container" id="loadingContainer">
-    <div class="loading-message">加载中，请稍候...</div>
-</div>
-<div id="contentContainer" style="display:none;">
+<style>
+    /* 页面整体容器 */
+    .edit-user-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #333;
+    }
+
+    /* 标题样式 */
+    .page-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    /* 卡片样式 */
+    .main-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        padding: 40px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        min-height: 400px;
+        /* 保证加载时有高度 */
+    }
+
+    /* 表单元素样式 */
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    input[type="datetime-local"],
+    select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #dcdfe6;
+        border-radius: 8px;
+        outline: none;
+        font-size: 14px;
+        color: #606266;
+        background-color: #fff;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #409eff;
+        box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+    }
+
+    input[readonly] {
+        background-color: #f5f7fa;
+        color: #909399;
+        cursor: not-allowed;
+    }
+
+    /* 按钮样式 */
+    .btn-row {
+        display: flex;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid #ebeef5;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        text-align: center;
+    }
+
+    .btn-secondary {
+        background: #f4f4f5;
+        color: #606266;
+    }
+
+    .btn-secondary:hover {
+        background: #e9e9eb;
+        color: #303133;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #409eff 0%, #3a8ee6 100%);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #66b1ff 0%, #409eff 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(64, 158, 255, 0.4);
+    }
+
+    /* Loading Spinner */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        border-radius: 12px;
+        transition: opacity 0.3s ease;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #409eff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Alert 样式 */
+    #customAlert {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        display: none;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    #customAlert.error {
+        background: #fef0f0;
+        color: #f56c6c;
+        border: 1px solid #fde2e2;
+    }
+
+    #customAlert.success {
+        background: #f0f9eb;
+        color: #67c23a;
+        border: 1px solid #e1f3d8;
+    }
+
+    @keyframes slideDown {
+        from {
+            top: -50px;
+            opacity: 0;
+        }
+
+        to {
+            top: 20px;
+            opacity: 1;
+        }
+    }
+
+    /* 响应式 */
+    @media (max-width: 480px) {
+        .main-card {
+            padding: 24px;
+        }
+
+        .btn-row {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="edit-user-container">
     <header class="page-header">
         <h1 class="page-title">编辑用户</h1>
     </header>
+
     <div class="main-card">
-        <div class="form-container">
-            <div class="form-group"><label for="userId">用户ID</label><input type="text" id="userId" name="userId" readonly /></div>
-            <div class="form-group"><label for="account">账号</label><input type="text" id="account" name="account" placeholder="请输入账号" /></div>
-            <div class="form-group"><label for="password">密码</label><input type="password" id="password" name="password" placeholder="留空则不修改密码" /></div>
-            <div class="form-group"><label for="deviceCode">绑定设备码</label><input type="text" id="deviceCode" name="deviceCode" placeholder="此为用户设备唯一标识码" /></div>
-            <div class="form-group"><label for="userType">类型</label><select id="userType" name="userType"><option value="regular">正式用户</option><option value="trial">试用用户</option></select></div>
-            <div class="form-group"><label for="createdAt">创建时间</label><input type="datetime-local" id="createdAt" name="createdAt" /></div>
-            <div class="form-group"><label for="expiresAt">到期时间</label><input type="datetime-local" id="expiresAt" name="expiresAt" /></div>
-            <div class="form-group"><label for="aiAuthorized">AI深度获客权限</label><select id="aiAuthorized" name="aiAuthorized"><option value="false">关闭</option><option value="true">开启</option></select></div>
-            <div class="form-group"><label for="aiTokens">AI Tokens 数量 (点数)</label><input type="number" id="aiTokens" name="aiTokens" placeholder="请输入用户剩余的点数" min="0" /></div>
-            <div class="button-group">
-                <button class="cancel-btn" id="cancel-edit-btn">取消</button>
-                <button class="save-btn" id="save-user-btn">保存更改</button>
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Form Content -->
+        <div id="formContent" style="opacity: 0; transition: opacity 0.3s ease;">
+            <div class="form-group">
+                <label for="userId">用户ID</label>
+                <input type="text" id="userId" readonly />
+            </div>
+
+            <div class="form-group">
+                <label for="account">账号</label>
+                <input type="text" id="account" placeholder="请输入账号" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="留空则不修改密码" />
+            </div>
+
+            <div class="form-group">
+                <label for="deviceCode">绑定设备码</label>
+                <input type="text" id="deviceCode" placeholder="此为用户设备唯一标识码" />
+            </div>
+
+            <div class="form-group">
+                <label for="userType">类型</label>
+                <select id="userType">
+                    <option value="regular">正式用户</option>
+                    <option value="standard">试用用户</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="createdAt">创建时间</label>
+                <input type="datetime-local" id="createdAt" />
+            </div>
+
+            <div class="form-group">
+                <label for="expiresAt">到期时间</label>
+                <input type="datetime-local" id="expiresAt" />
+            </div>
+
+            <div class="form-group">
+                <label for="aiAuthorized">AI深度获客权限</label>
+                <select id="aiAuthorized">
+                    <option value="false">关闭</option>
+                    <option value="true">开启</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="aiTokens">AI Tokens 数量 (点数)</label>
+                <input type="number" id="aiTokens" placeholder="请输入用户剩余的点数" min="0" />
+            </div>
+
+            <div class="btn-row">
+                <button class="btn btn-secondary" id="cancel-edit-btn">取消</button>
+                <button class="btn btn-primary" id="save-user-btn">保存更改</button>
             </div>
         </div>
     </div>
 </div>
+
 <div id="customAlert"></div>
 
 <script>
-    // 由于此脚本是被动态加载和执行的，我们直接定义函数并调用，而不是等待DOMContentLoaded
-    
-    // --- 定义此页面所需的全部函数 ---
-    function showTimedAlert(message, duration, callback = null) {
-        const alertBox = document.getElementById('customAlert');
-        if (!alertBox) { alert(message); if (callback) callback(); return; }
-        alertBox.textContent = message;
-        alertBox.style.display = 'block';
-        setTimeout(() => { alertBox.style.display = 'none'; if (callback) { callback(); } }, duration);
+    // --- 页面专属脚本 ---
+
+    function showTimedAlert(msg, type = 'success', ms = 3000, callback = null) {
+        const a = document.getElementById('customAlert');
+        if (!a) { alert(msg); if (callback) callback(); return; }
+        a.textContent = msg;
+        a.className = type === 'error' ? 'error' : 'success';
+        a.style.display = 'block';
+        setTimeout(() => {
+            a.style.display = 'none';
+            if (callback) callback();
+        }, ms);
     }
-    
-    function getQueryParam(param) { 
-        return new URLSearchParams(window.location.search).get(param); 
+
+    function getQueryParam(param) {
+        return new URLSearchParams(window.location.search).get(param);
     }
 
     function formatDateTimeLocal(dateTimeStr) {
         if (!dateTimeStr) return '';
         const date = new Date(dateTimeStr);
         if (isNaN(date.getTime())) return '';
-        return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        // 转换为本地时间字符串格式 yyyy-MM-ddThh:mm
+        const offset = date.getTimezoneOffset() * 60000;
+        const localDate = new Date(date.getTime() - offset);
+        return localDate.toISOString().slice(0, 16);
     }
 
     function toISOStringFromLocal(dateTimeLocal) {
@@ -56,38 +317,71 @@
 
     async function fetchUserById(userId) {
         const token = localStorage.getItem('authToken');
-        if (!token) { showTimedAlert('请先登录', 3000, () => window.location.href = 'login.html'); return null; }
+        if (!token) { showTimedAlert('请先登录', 'error', 3000, () => window.location.href = 'login.html'); return null; }
         try {
             const response = await fetch(`/.netlify/functions/getUserById?id=${encodeURIComponent(userId)}`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) { throw new Error(`获取用户失败: ${response.status}`); }
             const data = await response.json();
-            return data.user; 
+            return data.user;
         } catch (error) {
             console.error('获取用户信息时出错:', error);
-            showTimedAlert('加载用户信息失败，请重试', 3000);
+            showTimedAlert('加载用户信息失败，请重试', 'error', 3000);
             return null;
         }
     }
+
 
     function fillUserForm(user) {
         document.getElementById('userId').value = user.id || '';
         document.getElementById('account').value = user.account || '';
         document.getElementById('password').value = '';
-        document.getElementById('userType').value = user.user_type || 'trial';
+
+        // =========== 修改开始：方案二 ===========
+        // 1. 获取后端返回的原始类型，如果为空默认给 'trial'
+        let rawUserType = user.user_type || 'trial';
+
+        // 2. 进行映射转换：如果后端是 'trial'，则强制转换为前端下拉框对应的 'standard'
+        if (rawUserType === 'trial') {
+            rawUserType = 'standard';
+        }
+
+        // 3. 将转换后的值赋给下拉框
+        document.getElementById('userType').value = rawUserType;
+        // =========== 修改结束 ===========
+
         document.getElementById('createdAt').value = formatDateTimeLocal(user.created_at);
         document.getElementById('expiresAt').value = formatDateTimeLocal(user.expiry_at);
-        document.getElementById('deviceCode').value = user.device_id || '未绑定'; 
+        document.getElementById('deviceCode').value = user.device_id || '';
         document.getElementById('aiAuthorized').value = user.is_ai_authorized ? 'true' : 'false';
         document.getElementById('aiTokens').value = user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining : 0;
-        document.getElementById('loadingContainer').style.display = 'none';
-        document.getElementById('contentContainer').style.display = 'block';
+
+        // 隐藏 Loading，显示表单
+        const loading = document.getElementById('loadingOverlay');
+        const content = document.getElementById('formContent');
+
+        loading.style.opacity = '0';
+        setTimeout(() => {
+            loading.style.display = 'none';
+            content.style.opacity = '1';
+        }, 300);
     }
 
+    
     async function saveUser() {
+        const btn = document.getElementById('save-user-btn');
+        const originalText = btn.textContent;
+        btn.textContent = '保存中...';
+        btn.disabled = true;
+
         const userId = document.getElementById('userId').value;
         const account = document.getElementById('account').value.trim();
-        if (!account) { showTimedAlert('账号不能为空', 3000); return; }
-        
+        if (!account) {
+            showTimedAlert('账号不能为空', 'error', 3000);
+            btn.textContent = originalText;
+            btn.disabled = false;
+            return;
+        }
+
         const updatedUser = {
             id: userId,
             account: account,
@@ -103,7 +397,7 @@
 
         try {
             const token = localStorage.getItem('authToken');
-            if (!token) { showTimedAlert('请先登录', 3000, () => window.location.href = 'login.html'); return; }
+            if (!token) { showTimedAlert('请先登录', 'error', 3000, () => window.location.href = 'login.html'); return; }
             const response = await fetch('/.netlify/functions/updateUser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -111,41 +405,46 @@
             });
             const result = await response.json();
             if (response.ok) {
-                showTimedAlert('用户信息已成功保存！', 2000, () => {
-                    // 使用JS导航而不是刷新页面
+                showTimedAlert('用户信息已成功保存！', 'success', 2000, () => {
                     window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/users' } }));
                 });
             } else {
-                showTimedAlert('保存失败: ' + (result.message || '未知错误'), 3000);
+                showTimedAlert('保存失败: ' + (result.message || '未知错误'), 'error', 3000);
             }
         } catch (error) {
             console.error('保存用户时出错:', error);
-            showTimedAlert('保存用户信息时发生网络错误或服务器异常', 3000);
+            showTimedAlert('保存用户信息时发生网络错误或服务器异常', 'error', 3000);
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
         }
     }
-    
+
     // 页面初始化函数
     async function initializeEditUserPage() {
         const userId = getQueryParam('userId');
-        if (!userId) { 
-            showTimedAlert('未指定用户ID', 3000, () => {
+        if (!userId) {
+            showTimedAlert('未指定用户ID', 'error', 3000, () => {
                 window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/users' } }));
-            }); 
-            return; 
+            });
+            return;
         }
         const user = await fetchUserById(userId);
-        if (!user) { 
-            showTimedAlert('无法找到该用户的信息', 3000, () => {
+
+        console.log("【调试】获取到的用户信息:", user);     
+
+        if (!user) {
+            showTimedAlert('无法找到该用户的信息', 'error', 3000, () => {
                 window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/users' } }));
-            }); 
-            return; 
+            });
+            return;
         }
         fillUserForm(user);
 
         // 绑定事件监听器
         document.getElementById('save-user-btn').onclick = saveUser;
         document.getElementById('cancel-edit-btn').onclick = () => {
-             window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/users' } }));
+            window.dispatchEvent(new CustomEvent('navigate', { detail: { path: '/users' } }));
         };
     }
 

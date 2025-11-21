@@ -445,10 +445,8 @@
             
             // 用户类型显示逻辑
             let userTypeText;
-            if (user.user_type === 'trial') {
+            if (user.user_type === 'trial' || user.user_type === 'standard') {
                 userTypeText = '试用用户';
-            } else if (user.user_type === 'standard') {
-                userTypeText = '标准用户';
             } else if (user.user_type === 'permanent') {
                 userTypeText = '永久用户';
             } else if (user.user_type === 'regular') {

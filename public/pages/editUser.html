@@ -255,6 +255,18 @@
             <div class="form-group">
                 <label for="expiresAt">到期时间</label>
                 <input type="datetime-local" id="expiresAt" />
+                
+                <!-- 续费快捷按钮 -->
+                <div style="margin-top: 16px; padding: 16px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 8px; border: 1px solid #dee2e6;">
+                    <span style="display: block; margin-bottom: 12px; font-weight: 600; color: #495057; font-size: 14px;">⚡ 一键续费</span>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" onclick="renewSubscription(1)" style="flex: 1; min-width: 90px; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid #67c23a; background: linear-gradient(135deg, #67c23a 0%, #5daf34 100%); color: #fff; box-shadow: 0 2px 8px rgba(103, 194, 58, 0.25);">续费1个月</button>
+                        <button type="button" onclick="renewSubscription(2)" style="flex: 1; min-width: 90px; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid #67c23a; background: linear-gradient(135deg, #67c23a 0%, #5daf34 100%); color: #fff; box-shadow: 0 2px 8px rgba(103, 194, 58, 0.25);">续费2个月</button>
+                        <button type="button" onclick="renewSubscription(3)" style="flex: 1; min-width: 90px; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid #67c23a; background: linear-gradient(135deg, #67c23a 0%, #5daf34 100%); color: #fff; box-shadow: 0 2px 8px rgba(103, 194, 58, 0.25);">续费3个月</button>
+                        <button type="button" onclick="renewSubscription(6)" style="flex: 1; min-width: 90px; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid #67c23a; background: linear-gradient(135deg, #67c23a 0%, #5daf34 100%); color: #fff; box-shadow: 0 2px 8px rgba(103, 194, 58, 0.25);">续费半年</button>
+                        <button type="button" onclick="renewSubscription(12)" style="flex: 1; min-width: 90px; padding: 10px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 2px solid #67c23a; background: linear-gradient(135deg, #67c23a 0%, #5daf34 100%); color: #fff; box-shadow: 0 2px 8px rgba(103, 194, 58, 0.25);">续费1年</button>
+                    </div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -417,6 +429,52 @@
         } finally {
             btn.textContent = originalText;
             btn.disabled = false;
+        }
+    }
+
+    // 续费功能
+    async function renewSubscription(months) {
+        const userId = document.getElementById('userId').value;
+        if (!userId) {
+            showTimedAlert('用户ID不存在', 'error', 3000);
+            return;
+        }
+        // 确认续费操作
+        const monthsText = months === 1 ? '1个月' : months === 2 ? '2个月' : months === 3 ? '3个月' : months === 6 ? '半年' : '1年';
+        if (!confirm(`确定要为该用户续费${monthsText}吗?`)) {
+            return;
+        }
+        try {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showTimedAlert('请先登录', 'error', 3000, () => window.location.href = 'login.html');
+                return;
+            }
+            const response = await fetch('/.netlify/functions/renewUserSubscription', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    months: months
+                })
+            });
+            const result = await response.json();
+            
+            if (response.ok) {
+                // 更新页面上的到期时间显示
+                if (result.user && result.user.expiry_at) {
+                    document.getElementById('expiresAt').value = formatDateTimeLocal(result.user.expiry_at);
+                }
+                showTimedAlert(result.message || '续费成功!', 'success', 2000);
+            } else {
+                showTimedAlert('续费失败: ' + (result.message || '未知错误'), 'error', 3000);
+            }
+        } catch (error) {
+            console.error('续费时出错:', error);
+            showTimedAlert('续费操作失败,请重试', 'error', 3000);
         }
     }
 

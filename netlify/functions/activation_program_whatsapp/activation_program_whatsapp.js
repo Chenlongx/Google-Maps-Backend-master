@@ -6,12 +6,12 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  auth: {
-    persistSession: false
-  }
+    auth: {
+        persistSession: false
+    }
 });
 
-exports.handler = async function(event, context) {
+exports.handler = async function (event, context) {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: JSON.stringify({ message: 'Method Not Allowed' }) };
     }
@@ -35,11 +35,33 @@ exports.handler = async function(event, context) {
             return { statusCode: 200, body: JSON.stringify({ status: 'failed', message: '激活码不存在。' }) };
         }
 
-        // 2. 检查激活码的状态
+        // 2. 检查激活码是否已过期
+        if (license.expiry_date && new Date(license.expiry_date) < new Date()) {
+            return { statusCode: 200, body: JSON.stringify({ status: 'expired', message: '此激活码已过期。' }) };
+        }
+
+        // 3. 检查激活码的状态
         if (license.status === 'active') {
             // 如果已经激活，检查机器码是否匹配
             if (license.machine_id === machine_id) {
-                return { statusCode: 200, body: JSON.stringify({ status: 'valid', message: '此激活码已在本机激活。' }) };
+                // 计算剩余天数
+                const daysLeft = license.expiry_date
+                    ? Math.ceil((new Date(license.expiry_date) - new Date()) / (1000 * 60 * 60 * 24))
+                    : -1; // -1 表示永久
+
+                // 根据 notes 字段判断许可证类型
+                const licenseType = license.notes?.includes('试用') ? 'trial'
+                    : (license.notes?.includes('高级') ? 'premium' : 'standard');
+
+                return {
+                    statusCode: 200, body: JSON.stringify({
+                        status: 'valid',
+                        message: '此激活码已在本机激活。',
+                        license_type: licenseType,
+                        days_left: daysLeft,
+                        expiry_date: license.expiry_date
+                    })
+                };
             } else {
                 return { statusCode: 200, body: JSON.stringify({ status: 'failed', message: '此激活码已被其他机器使用。' }) };
             }
@@ -49,7 +71,7 @@ exports.handler = async function(event, context) {
             return { statusCode: 200, body: JSON.stringify({ status: 'failed', message: `激活码状态异常 (${license.status})，请联系管理员。` }) };
         }
 
-        // 3. 激活码可用，执行绑定操作
+        // 4. 激活码可用，执行绑定操作
         const { error: updateError } = await supabase
             .from('whatsapp_activation_code')
             .update({
@@ -64,7 +86,24 @@ exports.handler = async function(event, context) {
             return { statusCode: 500, body: JSON.stringify({ status: 'failed', message: '激活失败，服务器数据库错误。' }) };
         }
 
-        return { statusCode: 200, body: JSON.stringify({ status: 'valid', message: '软件激活成功！' }) };
+        // 计算剩余天数
+        const daysLeft = license.expiry_date
+            ? Math.ceil((new Date(license.expiry_date) - new Date()) / (1000 * 60 * 60 * 24))
+            : -1;
+
+        // 根据 notes 字段判断许可证类型
+        const licenseType = license.notes?.includes('试用') ? 'trial'
+            : (license.notes?.includes('高级') ? 'premium' : 'standard');
+
+        return {
+            statusCode: 200, body: JSON.stringify({
+                status: 'valid',
+                message: '软件激活成功！',
+                license_type: licenseType,
+                days_left: daysLeft,
+                expiry_date: license.expiry_date
+            })
+        };
 
     } catch (err) {
         console.error('激活函数出错:', err);

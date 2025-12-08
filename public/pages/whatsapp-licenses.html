@@ -201,37 +201,108 @@
     }
     
     async function generateLicenseKey_WhatsAppPage() {
-        const countStr = prompt("请输入要生成的激活码数量:", "1");
-        if (countStr === null) return;
-        const count = parseInt(countStr, 10);
-        if (isNaN(count) || count <= 0 || count > 100) {
-            showTimedAlert_WhatsAppPage('请输入一个1到100之间的有效数字。');
-            return;
-        }
+        // 创建自定义对话框 HTML
+        const dialogHtml = `
+            <div id="generateDialog" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+                <div style="background: #1f2937; border-radius: 12px; padding: 24px; width: 360px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+                    <h3 style="color: #fff; margin: 0 0 20px 0; font-size: 18px;">生成激活码</h3>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="color: #9ca3af; font-size: 14px; display: block; margin-bottom: 6px;">激活码类型</label>
+                        <select id="licenseTypeSelect" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #374151; background: #111827; color: #fff; font-size: 14px;">
+                            <option value="trial">🎁 试用 (3天)</option>
+                            <option value="standard" selected>📦 标准版</option>
+                            <option value="premium">⭐ 高级版</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 16px;">
+                        <label style="color: #9ca3af; font-size: 14px; display: block; margin-bottom: 6px;">有效期</label>
+                        <select id="expirySelect" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #374151; background: #111827; color: #fff; font-size: 14px;">
+                            <option value="0">♾️ 永久有效</option>
+                            <option value="365" selected>📅 1 年</option>
+                            <option value="730">📅 2 年</option>
+                            <option value="1095">📅 3 年</option>
+                        </select>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #9ca3af; font-size: 14px; display: block; margin-bottom: 6px;">生成数量</label>
+                        <input type="number" id="countInput" value="1" min="1" max="100" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #374151; background: #111827; color: #fff; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 12px;">
+                        <button id="cancelBtn" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #374151; background: transparent; color: #9ca3af; cursor: pointer; font-size: 14px;">取消</button>
+                        <button id="confirmBtn" style="flex: 1; padding: 10px; border-radius: 6px; border: none; background: #3b82f6; color: #fff; cursor: pointer; font-size: 14px; font-weight: 600;">生成</button>
+                    </div>
+                </div>
+            </div>
+        `;
         
-        document.getElementById('loadingContainer').style.display = 'flex';
-        try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch('/api/generateWhatsAppLicense', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ count })
-            });
-            const result = await response.json();
-            if (response.ok && result.success) {
-                showTimedAlert_WhatsAppPage(`成功生成 ${count} 个新的激活码！`);
-                fetchWhatsAppLicenses(); 
+        document.body.insertAdjacentHTML('beforeend', dialogHtml);
+        
+        const dialog = document.getElementById('generateDialog');
+        const licenseTypeSelect = document.getElementById('licenseTypeSelect');
+        const expirySelect = document.getElementById('expirySelect');
+        const countInput = document.getElementById('countInput');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        
+        // 试用类型时禁用有效期选择
+        licenseTypeSelect.addEventListener('change', function() {
+            if (this.value === 'trial') {
+                expirySelect.value = '3';
+                expirySelect.disabled = true;
+                expirySelect.innerHTML = '<option value="3">🎁 3 天 (试用固定)</option>';
             } else {
-                throw new Error(result.message || '生成失败');
+                expirySelect.disabled = false;
+                expirySelect.innerHTML = `
+                    <option value="0">♾️ 永久有效</option>
+                    <option value="365" selected>📅 1 年</option>
+                    <option value="730">📅 2 年</option>
+                    <option value="1095">📅 3 年</option>
+                `;
             }
-        } catch (error) {
-            showTimedAlert_WhatsAppPage(`操作失败: ${error.message}`);
-        } finally {
-             document.getElementById('loadingContainer').style.display = 'none';
-        }
+        });
+        
+        cancelBtn.addEventListener('click', () => dialog.remove());
+        
+        confirmBtn.addEventListener('click', async () => {
+            const count = parseInt(countInput.value, 10);
+            const licenseType = licenseTypeSelect.value;
+            const expiryDays = parseInt(expirySelect.value, 10);
+            
+            if (isNaN(count) || count <= 0 || count > 100) {
+                showTimedAlert_WhatsAppPage('请输入1到100之间的有效数字。');
+                return;
+            }
+            
+            dialog.remove();
+            document.getElementById('loadingContainer').style.display = 'flex';
+            
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('/api/generateWhatsAppLicense', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ count, licenseType, expiryDays: expiryDays || null })
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showTimedAlert_WhatsAppPage(result.message);
+                    fetchWhatsAppLicenses(); 
+                } else {
+                    throw new Error(result.message || '生成失败');
+                }
+            } catch (error) {
+                showTimedAlert_WhatsAppPage(`操作失败: ${error.message}`);
+            } finally {
+                document.getElementById('loadingContainer').style.display = 'none';
+            }
+        });
     }
 
     async function deleteSelectedLicenses_WhatsAppPage() {

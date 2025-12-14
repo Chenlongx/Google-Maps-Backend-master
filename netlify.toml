@@ -7,6 +7,10 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# 定时任务 - 每5分钟聚合追踪日志
+[functions."aggregate-tracking-logs"]
+  schedule = "*/5 * * * *"
+
 # --- API 重定向规则 ---
 # 将所有 /api/ 开头的请求转发到对应的 Netlify Function
 [[redirects]]

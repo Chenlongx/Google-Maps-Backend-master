@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationBellBtn = document.getElementById('notification-bell-btn');
     const notificationPanel = document.getElementById('notification-panel');
     const notificationDot = document.getElementById('notification-dot');
-    
+
     // --- 深色模式逻辑 ---
     const themeToggle = document.getElementById('theme-toggle-checkbox');
     const currentTheme = localStorage.getItem('theme');
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化主题
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-mode');
-        if(themeToggle) themeToggle.checked = true;
+        if (themeToggle) themeToggle.checked = true;
     }
 
 
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 模拟获取通知
     function fetchNotifications() {
         // 在这里，您应该发起一个API请求到后端获取真实通知
-        const mockNotifications = [ /* ... */ ]; 
+        const mockNotifications = [ /* ... */];
         if (mockNotifications.length > 0) {
             notificationDot.style.display = 'block';
             // ... 渲染通知列表 ...
@@ -79,16 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (hamburgerMenu) {
         hamburgerMenu.addEventListener('click', (e) => {
-        // 关键：调用 stopPropagation() 来阻止事件冒泡到父元素
-            e.stopPropagation(); 
+            // 关键：调用 stopPropagation() 来阻止事件冒泡到父元素
+            e.stopPropagation();
             handleSidebarToggle();
         });
     }
-    
+
     if (window.innerWidth > 768 && localStorage.getItem('sidebarState') === 'collapsed') {
         if (layout) layout.classList.add('sidebar-collapsed');
     }
-    
+
     document.querySelector('.main-wrapper').addEventListener('click', () => {
         if (window.innerWidth <= 768 && sidebar.classList.contains('is-open')) {
             sidebar.classList.remove('is-open');
@@ -100,12 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
         '/dashboard': 'pages/dashboard.html',
         '/users': 'pages/users.html',
         '/licenses': 'pages/licenses.html',
-        '/analytics': 'pages/analytics.html', 
+        '/analytics': 'pages/analytics.html',
         '/settings': 'pages/settings.html',
         '/addUser': 'pages/addUser.html',
         '/editUser': 'pages/editUser.html',
         '/whatsapp-licenses': 'pages/whatsapp-licenses.html',
-        '/activation-codes': 'pages/activation-codes.html'
+        '/activation-codes': 'pages/activation-codes.html',
+        '/email-marketing-users': 'pages/email-marketing-users.html'
     };
 
     const executeScripts = (container) => {
@@ -126,18 +127,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadContent = async (pathWithQuery) => {
         const basePath = pathWithQuery.split('?')[0];
         const contentFile = routes[basePath] || routes['/dashboard'];
-        
+
         console.log('loadContent调用:', {
             pathWithQuery,
             basePath,
             contentFile,
             availableRoutes: Object.keys(routes)
         });
-        
+
         // 页面切换前清理全局变量和函数，避免冲突
         const globalVarsToClean = [
             'userGrowthChartInstance_DASH',
-            'userTypeChartInstance_DASH', 
+            'userTypeChartInstance_DASH',
             'renderUserTypeChart_DASH',
             'renderUserGrowthChart_DASH',
             'allActivationCodes',
@@ -149,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'allUsers',
             'allLicenses'
         ];
-        
+
         globalVarsToClean.forEach(varName => {
             if (typeof window[varName] !== 'undefined') {
                 // 如果是图表实例，先销毁
@@ -163,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 delete window[varName];
             }
         });
-        
+
         navLinks.forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('href') === basePath) {
@@ -185,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mainContent.innerHTML = `<div class="main-card" style="color: #ef4444; text-align:center;"><h1>加载页面失败</h1><p>${error.message}</p></div>`;
         }
     };
-    
+
     const navigate = (path) => {
         if (window.location.pathname + window.location.search !== path) {
             history.pushState({ path }, '', path);
@@ -197,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('click', e => {
         // 查找被点击元素或其父元素中符合条件的导航链接/按钮
         const navTrigger = e.target.closest('a.nav-link, a.nav-link-internal, .edit-button, .cancel-btn');
-        
+
         if (navTrigger) {
             e.preventDefault(); // 阻止默认行为
 
@@ -207,13 +208,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const userId = navTrigger.getAttribute('data-user-id');
                 path = `/editUser?userId=${encodeURIComponent(userId)}`;
             } else if (navTrigger.classList.contains('cancel-btn')) {
-                 path = '/users'; // 取消编辑，返回用户列表
+                path = '/users'; // 取消编辑，返回用户列表
             }
             else {
                 // 对于普通的 a 标签链接
                 path = navTrigger.getAttribute('href');
             }
-            
+
             if (path) {
                 navigate(path);
             }

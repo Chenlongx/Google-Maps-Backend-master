@@ -288,67 +288,30 @@
     // --- 页面专属脚本 ---
 
     function generateAccount_AddUser() {
-        // 生成更像真实用户的账号 (去除邮箱格式)
-        const formats = [
-            // 常见英文名+数字
-            () => {
-                const names = ['alex', 'sam', 'jordan', 'taylor', 'morgan', 'casey', 'jamie', 'riley', 'avery', 'quinn', 'user', 'vip', 'member'];
-                const name = names[Math.floor(Math.random() * names.length)];
-                const num = Math.floor(Math.random() * 9999) + 100;
-                return `${name}${num}`;
-            },
-            // 纯字母 (较短好记)
-            () => {
-                const length = Math.floor(Math.random() * 3) + 6; // 6-8位
-                const chars = 'abcdefghijklmnopqrstuvwxyz';
-                let res = '';
-                for (let i = 0; i < length; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
-                return res;
-            },
-            // 字母+数字混合
-            () => {
-                const prefix = 'abcdefghijklmnopqrstuvwxyz';
-                const suffix = '0123456789';
-                let res = prefix.charAt(Math.floor(Math.random() * prefix.length)); // 首字母
-                const len = Math.floor(Math.random() * 3) + 5; // 剩余5-7位
-                const all = prefix + suffix;
-                for (let i = 0; i < len; i++) res += all.charAt(Math.floor(Math.random() * all.length));
-                return res;
-            }
-        ];
-
-        const selectedFormat = formats[Math.floor(Math.random() * formats.length)];
-        const account = selectedFormat();
-        document.getElementById('account').value = account;
+        // 生成简单的账号: user + 4位随机数字
+        const prefixes = ['user', 'vip', 'demo', 'test'];
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const num = Math.floor(1000 + Math.random() * 9000); // 1000-9999
+        document.getElementById('account').value = prefix + num;
     }
 
     function generatePassword_AddUser() {
-        // 生成更合理的密码长度（8-12位）
-        const length = Math.floor(Math.random() * 5) + 8;
+        // 生成简单的6位密码 (字母+数字)
+        const length = 6;
         let result = '';
 
-        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const numbers = '0123456789';
-        const allChars = lowercase + uppercase + numbers;
+        const lowercase = 'abcdefghjkmnpqrstuvwxyz'; // 去除易混淆字符 i,l,o
+        const numbers = '23456789'; // 去除 0,1 避免混淆
+        const allChars = lowercase + numbers;
 
-        // 确保包含各类字符
-        result += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
-        result += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
-        result += numbers.charAt(Math.floor(Math.random() * numbers.length));
-
-        // 填充
-        for (let i = 3; i < length; i++) {
+        for (let i = 0; i < length; i++) {
             result += allChars.charAt(Math.floor(Math.random() * allChars.length));
         }
 
-        // 打乱
-        result = result.split('').sort(() => Math.random() - 0.5).join('');
-
         const passwordInput = document.getElementById('password');
         passwordInput.value = result;
-        passwordInput.type = 'text';
-        setTimeout(() => { if (passwordInput) passwordInput.type = 'password'; }, 2000);
+        passwordInput.type = 'text'; // 显示生成的密码
+        setTimeout(() => { if (passwordInput) passwordInput.type = 'password'; }, 3000);
     }
 
     function showTimedAlert_AddUser(msg, type = 'success', ms = 3000) {

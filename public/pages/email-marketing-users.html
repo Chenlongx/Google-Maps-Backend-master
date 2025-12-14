@@ -1,0 +1,336 @@
+<link rel="stylesheet" href="/assets/email-marketing.css">
+
+<div class="em-container">
+    <header class="em-header">
+        <div>
+            <h1 class="em-title">邮件营销用户管理</h1>
+            <p class="em-subtitle">监控用户许可证状态及邮件追踪功能使用情况</p>
+        </div>
+    </header>
+
+    <section class="em-stats-grid">
+        <div class="em-stat-card stat-indigo">
+            <div class="em-stat-icon-wrapper"><i class="fas fa-key"></i></div>
+            <div class="em-stat-label">总许可证</div>
+            <div class="em-stat-value" id="total-licenses-display">--</div>
+        </div>
+        <div class="em-stat-card stat-green">
+            <div class="em-stat-icon-wrapper"><i class="fas fa-check-circle"></i></div>
+            <div class="em-stat-label">有效许可</div>
+            <div class="em-stat-value" id="active-licenses-display">--</div>
+        </div>
+        <div class="em-stat-card stat-blue">
+            <div class="em-stat-icon-wrapper"><i class="fas fa-envelope-open-text"></i></div>
+            <div class="em-stat-label">启用追踪</div>
+            <div class="em-stat-value" id="tracking-enabled-display">--</div>
+        </div>
+        <div class="em-stat-card stat-purple">
+            <div class="em-stat-icon-wrapper"><i class="fas fa-chart-line"></i></div>
+            <div class="em-stat-label">今日追踪量</div>
+            <div class="em-stat-value" id="today-tracking-display">--</div>
+        </div>
+    </section>
+
+    <div class="em-main-card">
+        <div class="em-toolbar">
+            <div class="em-search-box">
+                <i class="fas fa-search em-search-icon"></i>
+                <input type="text" class="em-search-input" id="searchInput" placeholder="搜索许可证密钥或邮箱...">
+            </div>
+            <div class="em-actions">
+                <button id="generateBtn" class="em-btn em-btn-primary"><i class="fas fa-plus"></i> 生成激活码</button>
+                <button id="refreshBtn" class="em-btn em-btn-secondary"><i class="fas fa-sync-alt"></i> 刷新</button>
+                <button id="exportBtn" class="em-btn em-btn-secondary"><i class="fas fa-download"></i> 导出</button>
+            </div>
+        </div>
+
+        <div class="em-table-wrapper">
+            <table class="em-table" id="licensesTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>许可证密钥</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>激活时间</th>
+                        <th>过期时间</th>
+                        <th>今日/累计</th>
+                        <th>邮箱</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="licensesTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="em-pagination">
+            <span class="em-page-info" id="pageInfo">第 1 页</span>
+            <div class="em-actions" style="gap: 8px;">
+                <button id="prevPage" class="em-btn em-btn-secondary" disabled>上一页</button>
+                <button id="nextPage" class="em-btn em-btn-secondary" disabled>下一页</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 生成激活码模态框 -->
+<div id="generateModal" class="em-modal" style="display:none;">
+    <div class="em-modal-content">
+        <div class="em-modal-header">
+            <h3>生成激活码</h3>
+            <button class="em-modal-close" onclick="closeGenerateModal()">&times;</button>
+        </div>
+        <div class="em-modal-body">
+            <div class="em-form-group">
+                <label for="genCount">生成数量:</label>
+                <input type="number" id="genCount" min="1" max="100" value="10" class="em-search-input"
+                    style="width: 100%;">
+            </div>
+            <div class="em-form-group">
+                <label for="adminPassword">管理员密码:</label>
+                <input type="password" id="adminPassword" class="em-search-input" style="width: 100%;"
+                    placeholder="请输入管理员密码">
+            </div>
+        </div>
+        <div class="em-modal-footer">
+            <button class="em-btn em-btn-secondary" onclick="closeGenerateModal()">取消</button>
+            <button class="em-btn em-btn-primary" id="confirmGenBtn">确认生成</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Modal Styles */
+    .em-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .em-modal-content {
+        background: var(--em-card-bg);
+        border-radius: var(--em-radius);
+        width: 100%;
+        max-width: 420px;
+        box-shadow: var(--em-shadow-lg);
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .em-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--em-border);
+    }
+
+    .em-modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .em-modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: var(--em-text-sub);
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .em-modal-body {
+        padding: 20px;
+    }
+
+    .em-form-group {
+        margin-bottom: 16px;
+    }
+
+    .em-form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 13px;
+        color: var(--em-text-sub);
+    }
+
+    .em-modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid var(--em-border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    /* Delete button */
+    .em-btn-danger {
+        background: #ef4444;
+        color: white;
+        border: none;
+    }
+
+    .em-btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .em-btn-sm {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+</style>
+
+<script>
+    (function () {
+        const state = { licenses: [], currentPage: 1, itemsPerPage: 12 };
+        const $ = id => document.getElementById(id);
+
+        function showNotification(msg, type = 'info') {
+            const d = document.createElement('div');
+            d.style.cssText = `position:fixed;top:20px;right:20px;z-index:10000;padding:12px 20px;border-radius:8px;color:#fff;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.15);background:${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};animation:fadeIn .2s`;
+            d.textContent = msg;
+            document.body.appendChild(d);
+            setTimeout(() => d.remove(), 3000);
+        }
+
+        async function fetchData() {
+            $('licensesTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--em-text-sub)">加载中...</td></tr>';
+            try {
+                const token = localStorage.getItem('authToken');
+                const res = await fetch('/api/get-email-tracking-usage', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    state.licenses = data.licenses || [];
+                    updateStats(data.summary);
+                    renderTable();
+                } else throw new Error(data.error);
+            } catch (e) {
+                showNotification(e.message, 'error');
+                $('licensesTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:#ef4444">加载失败</td></tr>';
+            }
+        }
+
+        function updateStats(s) {
+            $('total-licenses-display').textContent = s.total_licenses || 0;
+            $('active-licenses-display').textContent = s.total_enabled || 0;
+            $('tracking-enabled-display').textContent = s.total_enabled || 0;
+            $('today-tracking-display').textContent = (s.today_total_opens || 0).toLocaleString();
+        }
+
+        function fmtDate(d) { return d ? new Date(d).toLocaleDateString('zh-CN') : '-'; }
+
+        function renderTable() {
+            const tbody = $('licensesTableBody');
+            tbody.innerHTML = '';
+            const term = $('searchInput').value.toLowerCase();
+            const filtered = state.licenses.filter(l => (l.key || '').toLowerCase().includes(term) || (l.customer_email || '').toLowerCase().includes(term));
+            const totalPages = Math.ceil(filtered.length / state.itemsPerPage) || 1;
+            const start = (state.currentPage - 1) * state.itemsPerPage;
+            const page = filtered.slice(start, start + state.itemsPerPage);
+
+            if (!page.length) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--em-text-sub)">无数据</td></tr>';
+            } else {
+                page.forEach(l => {
+                    const tr = document.createElement('tr');
+                    const statusBadge = l.status === 'active' ? '<span class="em-badge em-badge-success">有效</span>' : '<span class="em-badge em-badge-neutral">无效</span>';
+                    const usageText = l.is_paid ? `<span style="color:#a855f7;font-weight:600">${l.today_opens}/${l.total_opens}</span>` : `${l.today_opens}/${l.total_opens}`;
+                    tr.innerHTML = `
+                    <td>${l.id}</td>
+                    <td><div class="em-code">${l.key ? l.key.substring(0, 16) + '...' : 'N/A'}</div></td>
+                    <td>${statusBadge}</td>
+                    <td>${fmtDate(l.created_at)}</td>
+                    <td>${fmtDate(l.activation_date)}</td>
+                    <td>${fmtDate(l.expiry_date)}</td>
+                    <td>${usageText}</td>
+                    <td>${l.customer_email || '-'}</td>
+                    <td>
+                        <button class="em-btn em-btn-secondary em-btn-sm" onclick="copyKey('${l.key}')" title="复制密钥"><i class="fas fa-copy"></i></button>
+                        <button class="em-btn em-btn-danger em-btn-sm" onclick="deleteLicense('${l.id}')" title="删除"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                    tbody.appendChild(tr);
+                });
+            }
+            $('pageInfo').textContent = `第 ${state.currentPage} / ${totalPages} 页`;
+            $('prevPage').disabled = state.currentPage === 1;
+            $('nextPage').disabled = state.currentPage >= totalPages;
+        }
+
+        // Generate Modal
+        window.openGenerateModal = () => $('generateModal').style.display = 'flex';
+        window.closeGenerateModal = () => $('generateModal').style.display = 'none';
+
+        async function generateLicenses() {
+            const count = parseInt($('genCount').value);
+            const password = $('adminPassword').value;
+            if (!password) return showNotification('请输入管理员密码', 'error');
+            if (count < 1 || count > 100) return showNotification('数量需在1-100之间', 'error');
+
+            try {
+                const res = await fetch('/api/generateLicense', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password, count })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    closeGenerateModal();
+                    fetchData();
+                } else throw new Error(data.message);
+            } catch (e) { showNotification(e.message, 'error'); }
+        }
+
+        // Delete
+        window.deleteLicense = async (id) => {
+            if (!confirm('确定要删除此许可证吗？')) return;
+            try {
+                const res = await fetch('/api/deleteLicense', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: 'skip', licenseIds: [id] })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showNotification('删除成功', 'success');
+                    fetchData();
+                } else throw new Error(data.message);
+            } catch (e) { showNotification(e.message, 'error'); }
+        };
+
+        // Copy Key
+        window.copyKey = (key) => {
+            navigator.clipboard.writeText(key).then(() => {
+                showNotification('许可证密钥已复制', 'success');
+            }).catch(() => {
+                showNotification('复制失败', 'error');
+            });
+        };
+
+        // Events
+        $('generateBtn').onclick = openGenerateModal;
+        $('confirmGenBtn').onclick = generateLicenses;
+        $('refreshBtn').onclick = fetchData;
+        $('searchInput').oninput = () => { state.currentPage = 1; renderTable(); };
+        $('prevPage').onclick = () => { if (state.currentPage > 1) { state.currentPage--; renderTable(); } };
+        $('nextPage').onclick = () => { state.currentPage++; renderTable(); };
+        $('exportBtn').onclick = () => {
+            const csv = [['ID', 'Key', 'Status', 'Created', 'Activated', 'Expires', 'TodayOpens', 'TotalOpens', 'Email'], ...state.licenses.map(l => [l.id, l.key, l.status, l.created_at, l.activation_date, l.expiry_date, l.today_opens, l.total_opens, l.customer_email])].map(r => r.join(',')).join('\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv' }));
+            a.download = `licenses_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+        };
+
+        // Init
+        fetchData();
+    })();
+</script>

@@ -12,7 +12,7 @@
 //     if (event.httpMethod !== 'POST') {
 //         return { statusCode: 405, body: 'Method Not Allowed' };
 //     }
-    
+
 //     // 身份验证
 //     const { password, licenseIds } = JSON.parse(event.body);
 //     if (password !== process.env.ADMIN_PASSWORD) {
@@ -57,21 +57,18 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // --- 修改点：在创建客户端时传入 service_role 密钥 ---
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  auth: {
-    persistSession: false
-  }
+    auth: {
+        persistSession: false
+    }
 });
 
-exports.handler = async function(event, context) {
+exports.handler = async function (event, context) {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
-    
-    // 身份验证
-    const { password, licenseIds } = JSON.parse(event.body);
-    if (password !== process.env.ADMIN_PASSWORD) {
-        return { statusCode: 401, body: JSON.stringify({ success: false, message: '未授权' }) };
-    }
+
+    // 解析请求体
+    const { licenseIds } = JSON.parse(event.body);
 
     if (!licenseIds || !Array.isArray(licenseIds) || licenseIds.length === 0) {
         return { statusCode: 400, body: JSON.stringify({ success: false, message: '未提供有效的激活码ID列表。' }) };

@@ -151,6 +151,72 @@ exports.handler = async function (event, context) {
 
         console.log(`[Aggregate] 完成: 处理 ${processedCount} 条, 错误 ${errorCount} 条`);
 
+        // === 清理逻辑 ===
+        let deletedLogs = 0;
+        let deletedTokens = 0;
+        let deletedStats = 0;
+
+        // 1. 删除已处理的日志（保持日志表轻量）
+        try {
+            const { count } = await supabase
+                .from('email_tracking_logs')
+                .delete()
+                .eq('processed', true)
+                .select('*', { count: 'exact', head: true });
+            
+            const { error: deleteLogsError } = await supabase
+                .from('email_tracking_logs')
+                .delete()
+                .eq('processed', true);
+            
+            if (!deleteLogsError) {
+                deletedLogs = count || 0;
+                console.log(`[Cleanup] 删除已处理日志: ${deletedLogs} 条`);
+            }
+        } catch (e) {
+            console.error('[Cleanup] 删除日志失败:', e);
+        }
+
+        // 2. 删除过期令牌（超过7天）
+        try {
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            const { error: deleteTokensError } = await supabase
+                .from('email_tracking_tokens')
+                .delete()
+                .lt('expires_at', sevenDaysAgo);
+            
+            if (!deleteTokensError) {
+                console.log('[Cleanup] 已删除过期令牌');
+            }
+        } catch (e) {
+            console.error('[Cleanup] 删除令牌失败:', e);
+        }
+
+        // 3. 检查总行数，超过3万则清理已同步的旧数据
+        try {
+            const { count: totalRows } = await supabase
+                .from('email_tracking_stats')
+                .select('*', { count: 'exact', head: true });
+            
+            console.log(`[Cleanup] 当前 email_tracking_stats 行数: ${totalRows}`);
+            
+            if (totalRows > 30000) {
+                console.log('[Cleanup] 行数超过3万，开始清理已同步数据...');
+                
+                // 删除已同步的旧数据（synced = true）
+                const { error: deleteStatsError } = await supabase
+                    .from('email_tracking_stats')
+                    .delete()
+                    .eq('synced', true);
+                
+                if (!deleteStatsError) {
+                    console.log('[Cleanup] 已删除已同步的统计数据');
+                }
+            }
+        } catch (e) {
+            console.error('[Cleanup] 行数检查失败:', e);
+        }
+
         return {
             statusCode: 200,
             headers,
@@ -158,7 +224,8 @@ exports.handler = async function (event, context) {
                 success: true,
                 processed: processedCount,
                 errors: errorCount,
-                tokens: Object.keys(tokenGroups).length
+                tokens: Object.keys(tokenGroups).length,
+                cleanup: { deletedLogs, deletedTokens, deletedStats }
             })
         };
 

@@ -49,7 +49,7 @@ exports.handler = async function (event, context) {
     }
 
     try {
-        const { campaign_id, recipient_email, user_id } = JSON.parse(event.body || '{}');
+        const { campaign_id, recipient_email, user_id, custom_domain } = JSON.parse(event.body || '{}');
 
         if (!campaign_id || !recipient_email || !user_id) {
             return {
@@ -107,10 +107,12 @@ exports.handler = async function (event, context) {
             }
         }
 
-        // 构建追踪URL
-        const baseUrl = process.env.URL || 'https://your-site.netlify.app';
-        const pixelUrl = `${baseUrl}/api/track-open?t=${finalToken}`;
-        const clickBaseUrl = `${baseUrl}/api/track-click?t=${finalToken}&url=`;
+        // 构建追踪URL（支持用户自定义域名）
+        const defaultUrl = process.env.URL || 'https://your-site.netlify.app';
+        // 如果用户提供了自定义域名，使用它；否则使用默认域名
+        const trackingDomain = custom_domain ? `https://${custom_domain.replace(/^https?:\/\//, '')}` : defaultUrl;
+        const pixelUrl = `${trackingDomain}/api/track-open?t=${finalToken}`;
+        const clickBaseUrl = `${trackingDomain}/api/track-click?t=${finalToken}&url=`;
 
         return {
             statusCode: 200,

@@ -44,6 +44,25 @@ exports.handler = async function (event, context) {
             };
         }
 
+        // 1. 先获取该用户/活动的所有追踪令牌总数（真实收件人数）
+        let totalRecipientsQuery = supabase
+            .from('email_tracking_tokens')
+            .select('id, campaign_id', { count: 'exact' });
+
+        if (campaignId) {
+            totalRecipientsQuery = totalRecipientsQuery.eq('campaign_id', parseInt(campaignId));
+        }
+        if (userId) {
+            totalRecipientsQuery = totalRecipientsQuery.eq('user_id', userId);
+        }
+
+        const { count: totalRecipients, error: tokensError } = await totalRecipientsQuery;
+
+        if (tokensError) {
+            console.error('[GetStats] 查询令牌总数失败:', tokensError);
+        }
+
+        // 2. 获取追踪统计数据（有打开/点击记录的）
         let query = supabase
             .from('email_tracking_stats')
             .select('*')
@@ -68,18 +87,22 @@ exports.handler = async function (event, context) {
             };
         }
 
-        // 计算汇总统计
+        // 3. 计算汇总统计 - 使用真实收件人总数作为分母
+        const actualTotalRecipients = totalRecipients || stats.length || 1;
+        const uniqueOpens = stats.filter(s => s.open_count > 0).length;
+        const uniqueClicks = stats.filter(s => s.click_count > 0).length;
+
         const summary = {
-            total_recipients: stats.length,
+            total_recipients: actualTotalRecipients,
             total_opens: stats.reduce((sum, s) => sum + (s.open_count || 0), 0),
             total_clicks: stats.reduce((sum, s) => sum + (s.click_count || 0), 0),
-            unique_opens: stats.filter(s => s.open_count > 0).length,
-            unique_clicks: stats.filter(s => s.click_count > 0).length,
-            open_rate: stats.length > 0
-                ? (stats.filter(s => s.open_count > 0).length / stats.length * 100).toFixed(2) + '%'
+            unique_opens: uniqueOpens,
+            unique_clicks: uniqueClicks,
+            open_rate: actualTotalRecipients > 0
+                ? (uniqueOpens / actualTotalRecipients * 100).toFixed(2) + '%'
                 : '0%',
-            click_rate: stats.length > 0
-                ? (stats.filter(s => s.click_count > 0).length / stats.length * 100).toFixed(2) + '%'
+            click_rate: actualTotalRecipients > 0
+                ? (uniqueClicks / actualTotalRecipients * 100).toFixed(2) + '%'
                 : '0%'
         };
 

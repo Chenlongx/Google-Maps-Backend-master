@@ -121,7 +121,7 @@ exports.handler = async function (event, context) {
                     token: finalToken,
                     pixel_url: pixelUrl,
                     click_base_url: clickBaseUrl,
-                    pixel_html: `<img src="${pixelUrl}" width="1" height="1" style="display:none;" alt="" />`,
+                    pixel_html: `<img src="${pixelUrl}" width="1" height="1" alt="" style="opacity:0.01;border:0;margin:0;padding:0;" />`,
                     expires_at: expiresAt
                 }
             })

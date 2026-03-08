@@ -253,17 +253,35 @@
         }, 3000);
     }
 
+    function redirectToLogin(message = '认证已过期，请重新登录。') {
+        if (window.__appAuth?.redirectToLogin) {
+            window.__appAuth.redirectToLogin(message);
+            return;
+        }
+
+        localStorage.removeItem('authToken');
+        window.location.href = '/login.html';
+    }
+
     // 获取激活码列表
     async function fetchActivationCodes() {
         try {
             console.log('=== 开始获取激活码列表 ===');
             const token = localStorage.getItem('authToken');
             console.log('Token:', token ? '存在' : '不存在');
-            
+            if (!token) {
+                redirectToLogin('请先登录。');
+                return;
+            }
+
             const response = await fetch('/api/get-activation-codes', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin();
+                return;
+            }
+
             console.log('Response status:', response.status);
             console.log('Response ok:', response.ok);
             
@@ -296,14 +314,18 @@
         try {
             const token = localStorage.getItem('authToken');
             if (!token) {
-                console.warn('未找到认证令牌，跳过统计信息获取');
+                redirectToLogin('请先登录。');
                 return;
             }
-            
+
             const response = await fetch('/api/get-activation-stats', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin();
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
@@ -437,6 +459,11 @@
 
         try {
             const token = localStorage.getItem('authToken');
+            if (!token) {
+                redirectToLogin('请先登录。');
+                return;
+            }
+
             const response = await fetch('/api/delete-activation-code', {
                 method: 'DELETE',
                 headers: {
@@ -445,6 +472,10 @@
                 },
                 body: JSON.stringify({ id })
             });
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin();
+                return;
+            }
 
             if (!response.ok) throw new Error('删除失败');
 
@@ -502,6 +533,11 @@
 
         try {
             const token = localStorage.getItem('authToken');
+            if (!token) {
+                redirectToLogin('请先登录。');
+                return;
+            }
+
             const response = await fetch('/api/generate-activation-codes', {
                 method: 'POST',
                 headers: {
@@ -510,6 +546,10 @@
                 },
                 body: JSON.stringify(requestData)
             });
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin();
+                return;
+            }
 
             if (!response.ok) throw new Error('生成失败');
 
@@ -529,10 +569,19 @@
 
         try {
             const token = localStorage.getItem('authToken');
+            if (!token) {
+                redirectToLogin('请先登录。');
+                return;
+            }
+
             const response = await fetch('/api/delete-expired-codes', {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin();
+                return;
+            }
 
             if (!response.ok) throw new Error('删除失败');
 

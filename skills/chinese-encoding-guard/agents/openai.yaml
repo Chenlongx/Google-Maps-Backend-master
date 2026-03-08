@@ -1,0 +1,4 @@
+interface:
+  display_name: "Chinese Encoding Guard"
+  short_description: "识别和处理项目中的中文乱码与错误解码。"
+  default_prompt: "Use $chinese-encoding-guard to diagnose and verify Chinese mojibake before editing files in this project."

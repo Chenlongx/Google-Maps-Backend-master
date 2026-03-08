@@ -99,6 +99,43 @@
     </div>
 </div>
 
+<div id="editModal" class="em-modal" style="display:none;">
+    <div class="em-modal-content">
+        <div class="em-modal-header">
+            <h3>编辑许可证</h3>
+            <button class="em-modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <div class="em-modal-body">
+            <div class="em-form-group">
+                <label for="editLicenseKey">许可证密钥</label>
+                <input type="text" id="editLicenseKey" class="em-search-input" style="width: 100%;" readonly>
+            </div>
+            <div class="em-form-group">
+                <label for="editLicenseStatus">状态</label>
+                <select id="editLicenseStatus" class="em-search-input" style="width: 100%;">
+                    <option value="available">未激活</option>
+                    <option value="active">有效</option>
+                    <option value="revoked">已吊销</option>
+                    <option value="expired">已过期</option>
+                </select>
+            </div>
+            <div class="em-form-group">
+                <label for="editCustomerEmail">邮箱</label>
+                <input type="email" id="editCustomerEmail" class="em-search-input" style="width: 100%;"
+                    placeholder="请输入用户邮箱">
+            </div>
+            <div class="em-form-group">
+                <label for="editExpiryDate">过期时间</label>
+                <input type="datetime-local" id="editExpiryDate" class="em-search-input" style="width: 100%;">
+            </div>
+        </div>
+        <div class="em-modal-footer">
+            <button class="em-btn em-btn-secondary" onclick="closeEditModal()">取消</button>
+            <button class="em-btn em-btn-primary" id="confirmEditBtn">保存修改</button>
+        </div>
+    </div>
+</div>
+
 <style>
     /* Modal Styles */
     .em-modal {
@@ -189,8 +226,14 @@
 
 <script>
     (function () {
-        const state = { licenses: [], currentPage: 1, itemsPerPage: 12 };
+        const state = { licenses: [], currentPage: 1, itemsPerPage: 12, editingLicenseId: null };
         const $ = id => document.getElementById(id);
+        const statusMap = {
+            available: { text: '未激活', className: 'em-badge-neutral' },
+            active: { text: '有效', className: 'em-badge-success' },
+            revoked: { text: '已吊销', className: 'em-badge-danger' },
+            expired: { text: '已过期', className: 'em-badge-danger' }
+        };
 
         function showNotification(msg, type = 'info') {
             const d = document.createElement('div');
@@ -200,11 +243,30 @@
             setTimeout(() => d.remove(), 3000);
         }
 
+        function redirectToLogin_EmailMarketing(message = '认证已过期，请重新登录。') {
+            if (window.__appAuth?.redirectToLogin) {
+                window.__appAuth.redirectToLogin(message);
+                return;
+            }
+
+            localStorage.removeItem('authToken');
+            window.location.href = '/login.html';
+        }
+
         async function fetchData() {
             $('licensesTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--em-text-sub)">加载中...</td></tr>';
             try {
                 const token = localStorage.getItem('authToken');
+                if (!token) {
+                    redirectToLogin_EmailMarketing('请先登录。');
+                    return;
+                }
+
                 const res = await fetch('/api/get-email-tracking-usage', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.status === 401 || res.status === 403) {
+                    redirectToLogin_EmailMarketing();
+                    return;
+                }
                 const data = await res.json();
                 if (data.success) {
                     state.licenses = data.licenses || [];
@@ -225,6 +287,19 @@
         }
 
         function fmtDate(d) { return d ? new Date(d).toLocaleDateString('zh-CN') : '-'; }
+        function toDateTimeLocalValue(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            if (Number.isNaN(date.getTime())) return '';
+
+            const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+            return localDate.toISOString().slice(0, 16);
+        }
+
+        function renderStatusBadge(status) {
+            const config = statusMap[status] || { text: status || '未知', className: 'em-badge-neutral' };
+            return `<span class="em-badge ${config.className}">${config.text}</span>`;
+        }
 
         function renderTable() {
             const tbody = $('licensesTableBody');
@@ -240,7 +315,7 @@
             } else {
                 page.forEach(l => {
                     const tr = document.createElement('tr');
-                    const statusBadge = l.status === 'active' ? '<span class="em-badge em-badge-success">有效</span>' : '<span class="em-badge em-badge-neutral">无效</span>';
+                    const statusBadge = renderStatusBadge(l.status);
                     const usageText = l.is_paid ? `<span style="color:#a855f7;font-weight:600">${l.today_opens}/${l.total_opens}</span>` : `${l.today_opens}/${l.total_opens}`;
                     tr.innerHTML = `
                     <td>${l.id}</td>
@@ -253,6 +328,7 @@
                     <td>${l.customer_email || '-'}</td>
                     <td>
                         <button class="em-btn em-btn-secondary em-btn-sm" onclick="copyKey('${l.key}')" title="复制密钥"><i class="fas fa-copy"></i></button>
+                        <button class="em-btn em-btn-secondary em-btn-sm" onclick="openEditModal('${l.id}')" title="编辑"><i class="fas fa-pen"></i></button>
                         <button class="em-btn em-btn-danger em-btn-sm" onclick="deleteLicense('${l.id}')" title="删除"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
@@ -267,6 +343,24 @@
         // Generate Modal
         window.openGenerateModal = () => $('generateModal').style.display = 'flex';
         window.closeGenerateModal = () => $('generateModal').style.display = 'none';
+        window.closeEditModal = () => {
+            state.editingLicenseId = null;
+            $('editModal').style.display = 'none';
+        };
+        window.openEditModal = (id) => {
+            const license = state.licenses.find(item => String(item.id) === String(id));
+            if (!license) {
+                showNotification('未找到许可证数据', 'error');
+                return;
+            }
+
+            state.editingLicenseId = license.id;
+            $('editLicenseKey').value = license.key || '';
+            $('editLicenseStatus').value = ['available', 'active', 'revoked', 'expired'].includes(license.status) ? license.status : 'available';
+            $('editCustomerEmail').value = license.customer_email || '';
+            $('editExpiryDate').value = toDateTimeLocalValue(license.expiry_date);
+            $('editModal').style.display = 'flex';
+        };
 
         async function generateLicenses() {
             const count = parseInt($('genCount').value);
@@ -280,6 +374,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password, count })
                 });
+                if (res.status === 401 || res.status === 403) {
+                    redirectToLogin_EmailMarketing();
+                    return;
+                }
                 const data = await res.json();
                 if (data.success) {
                     showNotification(data.message, 'success');
@@ -287,6 +385,53 @@
                     fetchData();
                 } else throw new Error(data.message);
             } catch (e) { showNotification(e.message, 'error'); }
+        }
+
+        async function updateLicense() {
+            if (!state.editingLicenseId) {
+                showNotification('未选择要编辑的许可证', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('authToken');
+                if (!token) {
+                    redirectToLogin_EmailMarketing('请先登录。');
+                    return;
+                }
+
+                const payload = {
+                    id: state.editingLicenseId,
+                    status: $('editLicenseStatus').value,
+                    customer_email: $('editCustomerEmail').value.trim(),
+                    expiry_date: $('editExpiryDate').value || null
+                };
+
+                const res = await fetch('/api/updateLicense', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.status === 401 || res.status === 403) {
+                    redirectToLogin_EmailMarketing();
+                    return;
+                }
+
+                const data = await res.json();
+                if (!data.success) {
+                    throw new Error(data.message || '更新失败');
+                }
+
+                showNotification('许可证已更新', 'success');
+                closeEditModal();
+                fetchData();
+            } catch (e) {
+                showNotification(e.message, 'error');
+            }
         }
 
         // Delete
@@ -298,6 +443,10 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password: 'skip', licenseIds: [id] })
                 });
+                if (res.status === 401 || res.status === 403) {
+                    redirectToLogin_EmailMarketing();
+                    return;
+                }
                 const data = await res.json();
                 if (data.success) {
                     showNotification('删除成功', 'success');
@@ -318,6 +467,7 @@
         // Events
         $('generateBtn').onclick = openGenerateModal;
         $('confirmGenBtn').onclick = generateLicenses;
+        $('confirmEditBtn').onclick = updateLicense;
         $('refreshBtn').onclick = fetchData;
         $('searchInput').oninput = () => { state.currentPage = 1; renderTable(); };
         $('prevPage').onclick = () => { if (state.currentPage > 1) { state.currentPage--; renderTable(); } };

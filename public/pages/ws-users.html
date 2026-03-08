@@ -1,0 +1,1248 @@
+<div class="ws-page">
+    <section class="ws-hero">
+        <div class="ws-hero-copy">
+            <span class="ws-kicker">WS Marketing Ops</span>
+            <h1 class="ws-title">WS营销系统用户</h1>
+            <p class="ws-subtitle">聚合查看用户资料、开通时间、到期时间、订单时间与 AI 使用情况。</p>
+        </div>
+        <div class="ws-hero-meta">
+            <div class="ws-hero-chip">显示开通时间</div>
+            <div class="ws-hero-chip">显示到期时间</div>
+            <div class="ws-hero-chip">显示订单时间</div>
+        </div>
+    </section>
+
+    <section class="ws-metrics">
+        <article class="ws-metric-card accent-cyan">
+            <div class="ws-metric-label">总用户数</div>
+            <div class="ws-metric-value" id="metricTotalUsers">--</div>
+            <div class="ws-metric-note">whatsapp.profiles</div>
+        </article>
+        <article class="ws-metric-card accent-emerald">
+            <div class="ws-metric-label">有效订阅</div>
+            <div class="ws-metric-value" id="metricActiveUsers">--</div>
+            <div class="ws-metric-note">当前仍处于有效期</div>
+        </article>
+        <article class="ws-metric-card accent-gold">
+            <div class="ws-metric-label">7天内到期</div>
+            <div class="ws-metric-value" id="metricExpiringSoon">--</div>
+            <div class="ws-metric-note">便于续费跟进</div>
+        </article>
+        <article class="ws-metric-card accent-indigo">
+            <div class="ws-metric-label">本月 AI Tokens</div>
+            <div class="ws-metric-value" id="metricMonthTokens">--</div>
+            <div class="ws-metric-note">当前月累计</div>
+        </article>
+        <article class="ws-metric-card accent-rose">
+            <div class="ws-metric-label">付费用户数</div>
+            <div class="ws-metric-value" id="metricPaidUsers">--</div>
+            <div class="ws-metric-note">有最近支付成功订单</div>
+        </article>
+    </section>
+
+    <section class="ws-toolbar-card">
+        <div class="ws-toolbar">
+            <label class="ws-search">
+                <span>搜索用户</span>
+                <input id="wsSearchInput" type="text" placeholder="邮箱 / 昵称 / UUID">
+            </label>
+            <label class="ws-filter">
+                <span>订阅状态</span>
+                <select id="wsStatusFilter">
+                    <option value="all">全部状态</option>
+                    <option value="active">有效订阅</option>
+                    <option value="expired">已过期</option>
+                    <option value="none">未开通</option>
+                </select>
+            </label>
+            <label class="ws-filter">
+                <span>套餐</span>
+                <select id="wsPlanFilter">
+                    <option value="all">全部套餐</option>
+                    <option value="basic">Basic</option>
+                    <option value="pro">Pro</option>
+                    <option value="enterprise">Enterprise</option>
+                    <option value="trial">Trial</option>
+                </select>
+            </label>
+            <label class="ws-filter">
+                <span>排序方式</span>
+                <select id="wsSortMode">
+                    <option value="order">最近订单时间</option>
+                    <option value="expiry">最近到期时间</option>
+                    <option value="usage">本月 Tokens</option>
+                    <option value="created">注册时间</option>
+                </select>
+            </label>
+            <button class="ws-refresh-btn" id="wsRefreshBtn" type="button">刷新数据</button>
+        </div>
+    </section>
+
+    <section class="ws-content-grid" id="wsContentGrid">
+        <article class="ws-table-card">
+            <div class="ws-section-head">
+                <div>
+                    <h2>用户总览</h2>
+                    <p id="wsResultCount">正在加载...</p>
+                </div>
+            </div>
+            <div class="ws-table-shell">
+                <table class="ws-table">
+                    <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>当前状态</th>
+                            <th>开通时间</th>
+                            <th>到期时间</th>
+                            <th>订单时间</th>
+                            <th>AI余额</th>
+                            <th>本月 Tokens</th>
+                            <th>账户余额</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wsUsersTableBody">
+                        <tr>
+                            <td colspan="9">
+                                <div class="ws-loading-inline">正在加载 WS 用户数据...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="ws-pagination" id="wsPagination">
+                <div class="ws-pagination-info" id="wsPaginationInfo">第 1 页</div>
+                <div class="ws-pagination-actions">
+                    <button class="ws-page-btn" id="wsPrevPageBtn" type="button">上一页</button>
+                    <button class="ws-page-btn" id="wsNextPageBtn" type="button">下一页</button>
+                </div>
+            </div>
+        </article>
+
+        <aside class="ws-detail-card" id="wsDetailCard" hidden>
+            <div class="ws-detail" id="wsDetailContent" hidden>
+                <div class="ws-detail-header">
+                    <div class="ws-detail-avatar" id="wsDetailAvatar"></div>
+                    <div>
+                        <h3 id="wsDetailName">--</h3>
+                        <p id="wsDetailEmail">--</p>
+                    </div>
+                    <div class="ws-detail-header-actions">
+                        <button class="ws-detail-edit-btn" id="wsDetailEditBtn" type="button">编辑用户</button>
+                        <button class="ws-detail-close-btn" id="wsDetailCloseBtn" type="button" aria-label="关闭详情">&times;</button>
+                    </div>
+                </div>
+
+                <section class="ws-detail-block">
+                    <div class="ws-block-title">用户基础信息</div>
+                    <div class="ws-info-grid">
+                        <div class="ws-info-item"><span>UUID</span><strong id="wsDetailId">--</strong></div>
+                        <div class="ws-info-item"><span>角色</span><strong id="wsDetailRole">--</strong></div>
+                        <div class="ws-info-item"><span>注册时间</span><strong id="wsDetailCreatedAt">--</strong></div>
+                        <div class="ws-info-item"><span>最近更新</span><strong id="wsDetailUpdatedAt">--</strong></div>
+                    </div>
+                </section>
+
+                <section class="ws-detail-block">
+                    <div class="ws-block-title">订阅与订单时间</div>
+                    <div class="ws-timeline">
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">开通时间</span><strong id="wsDetailActivationTime">--</strong></div>
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">到期时间</span><strong id="wsDetailExpiryTime">--</strong></div>
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">最近订单创建时间</span><strong id="wsDetailOrderCreatedAt">--</strong></div>
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">最近支付完成时间</span><strong id="wsDetailPaidOrderAt">--</strong></div>
+                    </div>
+                    <div class="ws-inline-pills" id="wsDetailRiskFlags"></div>
+                </section>
+
+                <section class="ws-detail-block">
+                    <div class="ws-block-title">AI 使用概览</div>
+                    <div class="ws-info-grid">
+                        <div class="ws-info-item"><span>本月输入 Tokens</span><strong id="wsDetailMonthInput">--</strong></div>
+                        <div class="ws-info-item"><span>本月输出 Tokens</span><strong id="wsDetailMonthOutput">--</strong></div>
+                        <div class="ws-info-item"><span>本月总 Tokens</span><strong id="wsDetailMonthTotal">--</strong></div>
+                        <div class="ws-info-item"><span>最近 7 天 Tokens</span><strong id="wsDetailWeekTotal">--</strong></div>
+                        <div class="ws-info-item"><span>常用模型</span><strong id="wsDetailTopModel">--</strong></div>
+                        <div class="ws-info-item"><span>常用能力</span><strong id="wsDetailTopFeature">--</strong></div>
+                    </div>
+                </section>
+
+                <section class="ws-detail-block">
+                    <div class="ws-block-title">经营指标</div>
+                    <div class="ws-info-grid">
+                        <div class="ws-info-item"><span>AI 余额</span><strong id="wsDetailAiBalance">--</strong></div>
+                        <div class="ws-info-item"><span>现金余额</span><strong id="wsDetailBalance">--</strong></div>
+                        <div class="ws-info-item"><span>订单数</span><strong id="wsDetailOrderCount">--</strong></div>
+                        <div class="ws-info-item"><span>订阅记录数</span><strong id="wsDetailSubscriptionCount">--</strong></div>
+                        <div class="ws-info-item"><span>最近订单状态</span><strong id="wsDetailOrderStatus">--</strong></div>
+                        <div class="ws-info-item"><span>最近 AI 调用</span><strong id="wsDetailLastAiUsedAt">--</strong></div>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </section>
+</div>
+<div class="ws-modal-backdrop" id="wsEditModal" hidden>
+    <div class="ws-modal-card">
+        <div class="ws-modal-header">
+            <div>
+                <h3>编辑 WS 用户</h3>
+                <p>修改基础资料与当前订阅信息。</p>
+            </div>
+            <button class="ws-modal-close" id="wsCloseEditModal" type="button">&times;</button>
+        </div>
+        <div class="ws-modal-body">
+            <div class="ws-edit-grid">
+                <label class="ws-edit-field">
+                    <span>邮箱</span>
+                    <input id="wsEditEmail" type="email" placeholder="请输入邮箱">
+                </label>
+                <label class="ws-edit-field">
+                    <span>昵称</span>
+                    <input id="wsEditNickname" type="text" placeholder="请输入昵称">
+                </label>
+                <label class="ws-edit-field">
+                    <span>头像地址</span>
+                    <input id="wsEditAvatarUrl" type="url" placeholder="https://example.com/avatar.png">
+                </label>
+                <label class="ws-edit-field">
+                    <span>用户类型</span>
+                    <select id="wsEditUserType">
+                        <option value="free">Free 用户</option>
+                        <option value="basic">Basic 用户</option>
+                        <option value="pro">Pro 用户</option>
+                        <option value="enterprise">Enterprise / VIP 用户</option>
+                    </select>
+                </label>
+                <label class="ws-edit-field">
+                    <span>账户余额</span>
+                    <input id="wsEditBalance" type="number" step="0.01" placeholder="0.00">
+                </label>
+                <label class="ws-edit-field">
+                    <span>AI 余额</span>
+                    <input id="wsEditAiBalance" type="number" step="1" min="0" placeholder="0">
+                </label>
+                <label class="ws-edit-field">
+                    <span>套餐 Key</span>
+                    <input id="wsEditPlanKey" type="text" placeholder="basic / pro / enterprise">
+                </label>
+                <label class="ws-edit-field">
+                    <span>订阅状态</span>
+                    <select id="wsEditSubscriptionStatus">
+                        <option value="">留空则不改</option>
+                        <option value="active">active</option>
+                        <option value="pending">pending</option>
+                        <option value="paused">paused</option>
+                        <option value="cancelled">cancelled</option>
+                        <option value="expired">expired</option>
+                    </select>
+                </label>
+                <label class="ws-edit-field">
+                    <span>开通时间</span>
+                    <input id="wsEditActivationTime" type="datetime-local">
+                </label>
+                <label class="ws-edit-field">
+                    <span>到期时间</span>
+                    <input id="wsEditExpiryTime" type="datetime-local">
+                </label>
+            </div>
+            <p class="ws-modal-tip" id="wsEditSubscriptionTip">当前没有订阅时，填写套餐或订阅状态后会自动创建一条新订阅。</p>
+        </div>
+        <div class="ws-modal-footer">
+            <button class="ws-page-btn" id="wsCancelEditBtn" type="button">取消</button>
+            <button class="ws-refresh-btn" id="wsSaveEditBtn" type="button">保存修改</button>
+        </div>
+    </div>
+</div>
+<style>
+    .ws-page { display: flex; flex-direction: column; gap: 24px; color: #102133; }
+    .ws-hero {
+        position: relative; overflow: hidden; display: flex; justify-content: space-between; gap: 24px; padding: 28px;
+        border-radius: 28px;
+        background:
+            radial-gradient(circle at top left, rgba(52, 211, 153, 0.18), transparent 34%),
+            radial-gradient(circle at top right, rgba(14, 165, 233, 0.20), transparent 38%),
+            linear-gradient(135deg, #0f172a 0%, #13263f 48%, #14314f 100%);
+        color: #f8fbff;
+        box-shadow: 0 24px 44px rgba(6, 23, 40, 0.26);
+    }
+    .ws-hero::after {
+        content: ""; position: absolute; inset: auto -100px -110px auto; width: 280px; height: 280px; border-radius: 50%;
+        background: rgba(148, 163, 184, 0.10); filter: blur(8px);
+    }
+    .ws-hero-copy, .ws-hero-meta { position: relative; z-index: 1; }
+    .ws-kicker {
+        display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12); color: #c6f6ff; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .ws-title { margin-top: 14px; font-size: 34px; line-height: 1.1; }
+    .ws-subtitle { margin-top: 12px; max-width: 620px; color: rgba(240, 247, 255, 0.82); font-size: 15px; line-height: 1.7; }
+    .ws-hero-meta {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 12px;
+        max-width: none;
+        margin-left: auto;
+    }
+    .ws-hero-chip {
+        padding: 10px 14px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 16px; background: rgba(15, 23, 42, 0.26);
+        color: #ecfeff; backdrop-filter: blur(10px); font-size: 13px; white-space: nowrap;
+    }
+    .ws-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+    .ws-metric-card, .ws-toolbar-card, .ws-table-card, .ws-detail-card {
+        background: rgba(255, 255, 255, 0.88); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 24px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08); backdrop-filter: blur(10px);
+    }
+    .ws-metric-card { position: relative; overflow: hidden; padding: 20px 20px 18px; min-height: 132px; }
+    .ws-metric-card::before {
+        content: ""; position: absolute; inset: -30% auto auto 72%; width: 110px; height: 110px; border-radius: 50%;
+        background: currentColor; opacity: 0.08; filter: blur(3px);
+    }
+    .accent-cyan { color: #0891b2; } .accent-emerald { color: #059669; } .accent-gold { color: #d97706; }
+    .accent-indigo { color: #4f46e5; } .accent-rose { color: #e11d48; }
+    .ws-metric-label { font-size: 13px; color: #4b5563; }
+    .ws-metric-value { margin-top: 12px; font-size: 30px; font-weight: 700; color: #0f172a; }
+    .ws-metric-note { margin-top: 10px; color: #64748b; font-size: 12px; }
+    .ws-toolbar-card { padding: 18px; }
+    .ws-toolbar { display: grid; grid-template-columns: minmax(260px, 1.4fr) repeat(3, minmax(140px, 0.7fr)) auto; gap: 14px; align-items: end; }
+    .ws-search, .ws-filter { display: flex; flex-direction: column; gap: 8px; }
+    .ws-search span, .ws-filter span {
+        font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #475569; text-transform: uppercase;
+    }
+    .ws-search input, .ws-filter select {
+        width: 100%; height: 46px; padding: 0 14px; border: 1px solid #d7e1ea; border-radius: 14px; background: #f8fbff;
+        color: #102133; font-size: 14px; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ws-search input:focus, .ws-filter select:focus { border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14); }
+    .ws-refresh-btn {
+        height: 46px; padding: 0 18px; border: none; border-radius: 14px; background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+        color: #f8fafc; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ws-refresh-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 18px rgba(29, 78, 216, 0.24); }
+    .ws-content-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+    .ws-content-grid.has-detail { grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr); }
+    .ws-table-card, .ws-detail-card { padding: 20px; }
+    .ws-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+    .ws-section-head h2 { font-size: 22px; margin-bottom: 6px; }
+    .ws-section-head p { color: #64748b; font-size: 13px; }
+    .ws-table-shell { overflow-x: auto; }
+    .ws-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid #e6edf4;
+    }
+    .ws-pagination-info {
+        color: #64748b;
+        font-size: 13px;
+    }
+    .ws-pagination-actions {
+        display: flex;
+        gap: 10px;
+    }
+    .ws-page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 88px;
+        height: 38px;
+        padding: 0 14px;
+        border: 1px solid #d7e1ea;
+        border-radius: 12px;
+        background: #fff;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+    }
+    .ws-page-btn:hover:not(:disabled) {
+        border-color: #0ea5e9;
+        transform: translateY(-1px);
+    }
+    .ws-page-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+    .ws-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1080px; }
+    .ws-table thead th {
+        position: sticky; top: 0; z-index: 1; padding: 14px 12px; background: #f2f7fb; color: #475569; font-size: 12px;
+        font-weight: 700; text-align: left; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .ws-table thead th:first-child { border-top-left-radius: 16px; } .ws-table thead th:last-child { border-top-right-radius: 16px; }
+    .ws-table tbody tr { transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease; cursor: pointer; }
+    .ws-table tbody tr:hover { background: rgba(14, 165, 233, 0.05); transform: translateY(-1px); }
+    .ws-table tbody tr.is-selected { background: rgba(14, 165, 233, 0.08); box-shadow: inset 3px 0 0 #0ea5e9; }
+    .ws-table tbody td { padding: 16px 12px; border-bottom: 1px solid #ebf1f6; vertical-align: top; }
+    .ws-user-cell { display: flex; align-items: center; gap: 12px; }
+    .ws-avatar, .ws-detail-avatar {
+        display: inline-flex; align-items: center; justify-content: center; overflow: hidden; color: #fff; font-weight: 700;
+        background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
+    }
+    .ws-avatar { width: 42px; height: 42px; border-radius: 14px; font-size: 15px; flex: 0 0 auto; }
+    .ws-detail-avatar { width: 58px; height: 58px; border-radius: 18px; font-size: 20px; }
+    .ws-avatar img, .ws-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .ws-user-meta strong, .ws-user-meta span { display: block; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ws-user-meta strong { font-size: 14px; color: #0f172a; }
+    .ws-user-meta span { margin-top: 4px; color: #64748b; font-size: 12px; }
+    .ws-plan-badge, .ws-status-badge, .ws-risk-badge {
+        display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .ws-user-type-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    .ws-user-type-badge.free { background: rgba(148, 163, 184, 0.16); color: #475569; }
+    .ws-user-type-badge.basic { background: rgba(100, 116, 139, 0.12); color: #475569; }
+    .ws-user-type-badge.pro { background: rgba(20, 184, 166, 0.12); color: #0f766e; }
+    .ws-user-type-badge.enterprise { background: rgba(217, 119, 6, 0.14); color: #b45309; }
+    .ws-status-badge.active { background: rgba(16, 185, 129, 0.12); color: #047857; }
+    .ws-status-badge.expired { background: rgba(239, 68, 68, 0.12); color: #b91c1c; }
+    .ws-status-badge.none { background: rgba(148, 163, 184, 0.16); color: #475569; }
+    .ws-status-badge.pending { background: rgba(245, 158, 11, 0.14); color: #b45309; }
+    .ws-plan-badge.basic { background: rgba(100, 116, 139, 0.12); color: #475569; }
+    .ws-plan-badge.pro { background: rgba(20, 184, 166, 0.12); color: #0f766e; }
+    .ws-plan-badge.enterprise { background: rgba(217, 119, 6, 0.14); color: #b45309; }
+    .ws-plan-badge.trial { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
+    .ws-plan-badge.none { background: rgba(148, 163, 184, 0.14); color: #64748b; }
+    .ws-risk-stack, .ws-inline-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ws-risk-stack { margin-top: 8px; }
+    .ws-risk-badge { background: rgba(15, 23, 42, 0.06); color: #334155; }
+    .ws-risk-badge.warn { background: rgba(245, 158, 11, 0.14); color: #b45309; }
+    .ws-risk-badge.danger { background: rgba(239, 68, 68, 0.14); color: #b91c1c; }
+    .ws-risk-badge.info { background: rgba(14, 165, 233, 0.12); color: #0369a1; }
+    .ws-date { display: flex; flex-direction: column; gap: 4px; min-width: 116px; }
+    .ws-date strong { font-size: 13px; color: #0f172a; } .ws-date span { font-size: 11px; color: #64748b; }
+    .ws-mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 12px; }
+    .ws-view-btn {
+        display: inline-flex; align-items: center; justify-content: center; min-width: 74px; height: 36px; padding: 0 14px;
+        border: 1px solid #d7e1ea; border-radius: 12px; background: #fff; color: #0f172a; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .ws-loading-inline, .ws-empty-inline { padding: 42px 16px; color: #64748b; text-align: center; font-size: 14px; }
+    .ws-detail-card {
+        position: sticky; top: 92px; min-height: 560px;
+        background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 32%), linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
+    }
+    .ws-detail-card[hidden],
+    .ws-detail[hidden] {
+        display: none !important;
+    }
+    .ws-detail { display: flex; flex-direction: column; gap: 16px; }
+    .ws-detail-header { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid #e6edf4; }
+    .ws-detail-header h3 { margin: 0 0 4px; font-size: 22px; } .ws-detail-header p { margin: 0; color: #64748b; font-size: 13px; word-break: break-word; }
+    .ws-detail-header-actions {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .ws-detail-edit-btn {
+        height: 38px;
+        padding: 0 16px;
+        border: 1px solid #d7e1ea;
+        border-radius: 12px;
+        background: #fff;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .ws-detail-close-btn {
+        width: 38px;
+        height: 38px;
+        border: 1px solid #d7e1ea;
+        border-radius: 12px;
+        background: #fff;
+        color: #334155;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+    }
+    .ws-detail-block { padding: 16px; border: 1px solid #e8eef5; border-radius: 18px; background: rgba(255, 255, 255, 0.82); }
+    .ws-block-title {
+        margin-bottom: 14px; font-size: 13px; font-weight: 700; color: #475569; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .ws-info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .ws-info-item, .ws-timeline-item { padding: 12px 14px; border-radius: 14px; background: #f8fbff; border: 1px solid #e5edf5; }
+    .ws-info-item span, .ws-timeline-label { display: block; color: #64748b; font-size: 12px; }
+    .ws-info-item span { margin-bottom: 8px; }
+    .ws-info-item strong { display: block; color: #0f172a; font-size: 13px; word-break: break-word; }
+    .ws-timeline { display: flex; flex-direction: column; gap: 10px; }
+    .ws-timeline-item { display: flex; justify-content: space-between; gap: 16px; }
+    .ws-inline-pills { margin-top: 14px; }
+    .ws-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.48);
+        z-index: 1400;
+    }
+    .ws-modal-backdrop[hidden] {
+        display: none !important;
+    }
+    .ws-modal-card {
+        width: min(880px, 100%);
+        max-height: calc(100vh - 40px);
+        overflow: auto;
+        background: #fff;
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);
+    }
+    .ws-modal-header,
+    .ws-modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 20px;
+    }
+    .ws-modal-header {
+        border-bottom: 1px solid #e8eef5;
+    }
+    .ws-modal-header h3 {
+        margin: 0 0 6px;
+        font-size: 20px;
+    }
+    .ws-modal-header p,
+    .ws-modal-tip {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .ws-modal-close {
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #0f172a;
+        font-size: 24px;
+        line-height: 1;
+        cursor: pointer;
+    }
+    .ws-modal-body {
+        padding: 20px;
+    }
+    .ws-edit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+    .ws-edit-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .ws-edit-field span {
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+    .ws-edit-field input,
+    .ws-edit-field select {
+        width: 100%;
+        height: 44px;
+        padding: 0 14px;
+        border: 1px solid #d7e1ea;
+        border-radius: 14px;
+        background: #f8fbff;
+        color: #102133;
+        font-size: 14px;
+        outline: none;
+    }
+    .ws-edit-field input:focus,
+    .ws-edit-field select:focus {
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+    }
+    .ws-modal-tip {
+        margin-top: 14px;
+    }
+    .ws-modal-footer {
+        border-top: 1px solid #e8eef5;
+        justify-content: flex-end;
+    }
+    @media (max-width: 1440px) { .ws-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 1200px) { .ws-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ws-content-grid, .ws-content-grid.has-detail { grid-template-columns: 1fr; } .ws-detail-card { position: static; } }
+    @media (max-width: 900px) {
+        .ws-metrics, .ws-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ws-hero { flex-direction: column; }
+        .ws-hero-meta { justify-content: flex-start; max-width: none; }
+    }
+    @media (max-width: 768px) {
+        .ws-content-grid { gap: 16px; }
+        .ws-table-shell { overflow: visible; }
+        .ws-table, .ws-table tbody, .ws-table tr, .ws-table td { display: block; width: 100%; }
+        .ws-table { min-width: 0; }
+        .ws-table thead { display: none; }
+        .ws-table tbody { display: grid; gap: 14px; }
+        .ws-table tbody tr {
+            background: #fff;
+            border: 1px solid #dbe7f0;
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        }
+        .ws-table tbody tr.is-selected {
+            box-shadow: inset 3px 0 0 #0ea5e9, 0 12px 26px rgba(14, 165, 233, 0.12);
+        }
+        .ws-table tbody td {
+            border-bottom: none;
+            padding: 10px 0;
+        }
+        .ws-table tbody td + td {
+            border-top: 1px solid #eef4f8;
+        }
+        .ws-table tbody td::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 8px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .ws-table tbody td[data-label="用户"]::before,
+        .ws-table tbody td[data-label="操作"]::before {
+            display: none;
+        }
+        .ws-user-meta strong, .ws-user-meta span {
+            max-width: none;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: initial;
+            word-break: break-word;
+        }
+        .ws-date {
+            min-width: 0;
+        }
+        .ws-view-btn {
+            width: 100%;
+            min-width: 0;
+            height: 40px;
+        }
+        .ws-detail-card {
+            min-height: auto;
+        }
+        .ws-edit-grid {
+            grid-template-columns: 1fr;
+        }
+        .ws-pagination {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .ws-pagination-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .ws-page-btn {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+    @media (max-width: 640px) {
+        .ws-page { gap: 18px; } .ws-hero, .ws-toolbar-card, .ws-table-card, .ws-detail-card { padding: 16px; border-radius: 18px; }
+        .ws-title { font-size: 28px; } .ws-metrics, .ws-info-grid, .ws-toolbar { grid-template-columns: 1fr; } .ws-timeline-item { flex-direction: column; }
+        .ws-section-head {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .ws-detail-header {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .ws-detail-header-actions {
+            width: 100%;
+            margin-left: 0;
+        }
+        .ws-detail-edit-btn {
+            width: auto;
+            flex: 1;
+        }
+        .ws-detail-close-btn {
+            flex: 0 0 38px;
+        }
+        .ws-user-cell {
+            align-items: flex-start;
+        }
+        .ws-modal-header,
+        .ws-modal-footer,
+        .ws-modal-body {
+            padding: 16px;
+        }
+        .ws-modal-card {
+            border-radius: 18px;
+        }
+    }
+</style>
+<script>
+    (function () {
+        const state = {
+            users: [],
+            filteredUsers: [],
+            selectedUserId: null,
+            currentPage: 1,
+            itemsPerPage: 10,
+            editingUserId: null
+        };
+        const $ = id => document.getElementById(id);
+        const numberFormatter = new Intl.NumberFormat('zh-CN');
+        const currencyFormatter = new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY', minimumFractionDigits: 2 });
+        const statusConfig = {
+            active: { label: '有效订阅', className: 'active' },
+            expired: { label: '已过期', className: 'expired' },
+            none: { label: '未开通', className: 'none' },
+            cancelled: { label: '已取消', className: 'expired' },
+            pending: { label: '待生效', className: 'pending' }
+        };
+
+        function getAuthToken() {
+            return window.__appAuth?.getToken?.() || localStorage.getItem('authToken');
+        }
+
+        function redirectToLogin(message = '认证已过期，请重新登录。') {
+            if (window.__appAuth?.redirectToLogin) {
+                window.__appAuth.redirectToLogin(message);
+                return;
+            }
+            localStorage.removeItem('authToken');
+            window.location.href = '/login.html';
+        }
+
+        function notify(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed; top: 22px; right: 22px; z-index: 12000; max-width: 360px; padding: 12px 16px;
+                border-radius: 14px; background: ${type === 'error' ? '#dc2626' : type === 'success' ? '#059669' : '#0f172a'};
+                color: #fff; box-shadow: 0 18px 30px rgba(15, 23, 42, 0.22); font-size: 13px;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2800);
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatNumber(value) { return numberFormatter.format(Number(value || 0)); }
+        function formatCurrency(value) { return currencyFormatter.format(Number(value || 0)); }
+        function formatDateTime(value) {
+            if (!value) return '--';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '--';
+            return date.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function toDateTimeLocalValue(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const offset = date.getTimezoneOffset();
+            const normalized = new Date(date.getTime() - offset * 60 * 1000);
+            return normalized.toISOString().slice(0, 16);
+        }
+
+        function getAvatarMarkup(user) {
+            const initials = (user.nickname || user.email || 'WS').trim().slice(0, 2).toUpperCase();
+            return user.avatar_url
+                ? `<img src="${escapeHtml(user.avatar_url)}" alt="${escapeHtml(user.nickname || user.email || 'User')}">`
+                : escapeHtml(initials);
+        }
+
+        function getPlanClass(planKey) {
+            const value = String(planKey || '').toLowerCase();
+            if (value.includes('enterprise')) return 'enterprise';
+            if (value.includes('premium') || value.includes('pro')) return 'pro';
+            if (value.includes('trial')) return 'trial';
+            if (value.includes('basic') || value.includes('standard') || value.includes('monthly')) return 'basic';
+            return value && value !== 'none' ? 'pro' : 'none';
+        }
+
+        function getPlanLabel(planKey) {
+            if (!planKey || planKey === 'none') return '未开通';
+            return String(planKey).trim().replace(/[_-]/g, ' ');
+        }
+
+        function getUserTypeFromUser(user) {
+            const subscriptionStatus = String(user?.subscription_status || '').toLowerCase();
+            if (subscriptionStatus !== 'active') return 'free';
+            if (String(user?.role || '').toLowerCase() === 'vip') return 'enterprise';
+            const planKey = String(user?.current_plan_key || '').toLowerCase();
+            if (planKey.startsWith('pro')) return 'pro';
+            if (planKey.startsWith('basic')) return 'basic';
+            return 'free';
+        }
+
+        function getUserTypePreset(userType) {
+            switch (String(userType || '').toLowerCase()) {
+                case 'basic':
+                    return { role: 'user', planKey: 'basic_monthly', status: 'active' };
+                case 'pro':
+                    return { role: 'user', planKey: 'pro_monthly', status: 'active' };
+                case 'enterprise':
+                    return { role: 'vip', planKey: 'enterprise_monthly', status: 'active' };
+                default:
+                    return { role: 'user', planKey: '', status: '' };
+            }
+        }
+
+        function getUserTypeLabel(userType) {
+            switch (String(userType || '').toLowerCase()) {
+                case 'basic':
+                    return 'Basic 用户';
+                case 'pro':
+                    return 'Pro用户';
+                case 'enterprise':
+                    return 'Enterprise/VIP用户';
+                default:
+                    return 'Free 用户';
+            }
+        }
+
+        function getStatusMeta(status) {
+            return statusConfig[status] || { label: status || '未知状态', className: status === 'active' ? 'active' : 'none' };
+        }
+
+        function getRiskBadgeClass(flag) {
+            if (flag.includes('过期')) return 'danger';
+            if (flag.includes('到期') || flag.includes('余额')) return 'warn';
+            return 'info';
+        }
+
+        function setLoadingState() {
+            $('wsUsersTableBody').innerHTML = `
+                <tr><td colspan="9"><div class="ws-loading-inline">正在同步 WS 用户、订阅、订单与 AI 使用数据...</div></td></tr>
+            `;
+            $('wsResultCount').textContent = '正在加载...';
+            renderDetail(null);
+        }
+
+        function renderMetrics(metrics) {
+            $('metricTotalUsers').textContent = formatNumber(metrics.total_users);
+            $('metricActiveUsers').textContent = formatNumber(metrics.active_subscriptions);
+            $('metricExpiringSoon').textContent = formatNumber(metrics.expiring_soon);
+            $('metricMonthTokens').textContent = formatNumber(metrics.total_month_tokens);
+            $('metricPaidUsers').textContent = formatNumber(metrics.paid_users);
+        }
+
+        function getPageCount() {
+            return Math.max(1, Math.ceil(state.filteredUsers.length / state.itemsPerPage));
+        }
+
+        function getCurrentPageUsers() {
+            const start = (state.currentPage - 1) * state.itemsPerPage;
+            return state.filteredUsers.slice(start, start + state.itemsPerPage);
+        }
+
+        function ensureCurrentPageInRange() {
+            const totalPages = getPageCount();
+            if (state.currentPage > totalPages) {
+                state.currentPage = totalPages;
+            }
+            if (state.currentPage < 1) {
+                state.currentPage = 1;
+            }
+        }
+
+        function ensureSelectedUserVisible() {
+            if (!state.selectedUserId) {
+                return;
+            }
+            const pageUsers = getCurrentPageUsers();
+            if (pageUsers.some(user => user.id === state.selectedUserId)) {
+                return;
+            }
+            state.selectedUserId = null;
+        }
+
+        function renderPagination() {
+            const totalUsers = state.filteredUsers.length;
+            const totalPages = getPageCount();
+            const start = totalUsers ? ((state.currentPage - 1) * state.itemsPerPage) + 1 : 0;
+            const end = Math.min(state.currentPage * state.itemsPerPage, totalUsers);
+
+            $('wsPaginationInfo').textContent = totalUsers
+                ? `第 ${state.currentPage} / ${totalPages} 页，显示 ${start}-${end} 位，共 ${formatNumber(totalUsers)} 位用户`
+                : '第 1 / 1 页';
+
+            $('wsPrevPageBtn').disabled = state.currentPage <= 1;
+            $('wsNextPageBtn').disabled = state.currentPage >= totalPages || totalUsers === 0;
+        }
+
+        function renderUsers() {
+            const tbody = $('wsUsersTableBody');
+            const users = getCurrentPageUsers();
+            $('wsResultCount').textContent = `共 ${formatNumber(state.filteredUsers.length)} 位用户，每页 ${state.itemsPerPage} 位`;
+            renderPagination();
+
+            if (!state.filteredUsers.length) {
+                tbody.innerHTML = `<tr><td colspan="9"><div class="ws-empty-inline">当前筛选条件下没有匹配用户。</div></td></tr>`;
+                renderDetail(null);
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => {
+                const userType = getUserTypeFromUser(user);
+                const userTypeLabel = escapeHtml(getUserTypeLabel(userType));
+                const safeNickname = escapeHtml(user.nickname || '未命名用户');
+                const safeEmail = escapeHtml(user.email || user.id || '');
+                const safeId = escapeHtml(user.id || '');
+
+                return `
+                    <tr class="${user.id === state.selectedUserId ? 'is-selected' : ''}" data-user-id="${user.id}">
+                        <td data-label="用户">
+                            <div class="ws-user-cell">
+                                <div class="ws-avatar">${getAvatarMarkup(user)}</div>
+                                <div class="ws-user-meta">
+                                    <strong>${safeNickname}</strong>
+                                    <span>${safeEmail}</span>
+                                    <span class="ws-mono">${safeId}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td data-label="当前状态">
+                            <span class="ws-user-type-badge ${userType}">${userTypeLabel}</span>
+                        </td>
+                        <td data-label="开通时间"><div class="ws-date"><strong>${formatDateTime(user.activation_time)}</strong><span>订阅开始</span></div></td>
+                        <td data-label="到期时间"><div class="ws-date"><strong>${formatDateTime(user.expiry_time)}</strong><span>订阅截止</span></div></td>
+                        <td data-label="订单时间"><div class="ws-date"><strong>${formatDateTime(user.order_time)}</strong><span>优先取支付成功时间</span></div></td>
+                        <td data-label="AI余额">${formatNumber(user.ai_balance)}</td>
+                        <td data-label="本月 Tokens">${formatNumber(user.month_total_tokens)}</td>
+                        <td data-label="账户余额">${formatCurrency(user.balance)}</td>
+                        <td data-label="操作"><button class="ws-view-btn" type="button" data-edit-user="${user.id}">编辑</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderDetail(user) {
+            $('wsDetailCard').hidden = !user;
+            $('wsDetailContent').hidden = !user;
+            $('wsContentGrid').classList.toggle('has-detail', Boolean(user));
+            if (!user) return;
+
+            $('wsDetailAvatar').innerHTML = getAvatarMarkup(user);
+            $('wsDetailName').textContent = user.nickname || '未命名用户';
+            $('wsDetailEmail').textContent = user.email || '无邮箱';
+            $('wsDetailEditBtn').dataset.userId = user.id || '';
+            $('wsDetailId').textContent = user.id || '--';
+            $('wsDetailRole').textContent = user.role || 'user';
+            $('wsDetailCreatedAt').textContent = formatDateTime(user.created_at);
+            $('wsDetailUpdatedAt').textContent = formatDateTime(user.updated_at);
+            $('wsDetailActivationTime').textContent = formatDateTime(user.activation_time);
+            $('wsDetailExpiryTime').textContent = formatDateTime(user.expiry_time);
+            $('wsDetailOrderCreatedAt').textContent = formatDateTime(user.latest_order_created_at);
+            $('wsDetailPaidOrderAt').textContent = formatDateTime(user.latest_paid_order_time);
+            $('wsDetailMonthInput').textContent = formatNumber(user.month_input_tokens);
+            $('wsDetailMonthOutput').textContent = formatNumber(user.month_output_tokens);
+            $('wsDetailMonthTotal').textContent = formatNumber(user.month_total_tokens);
+            $('wsDetailWeekTotal').textContent = formatNumber(user.week_total_tokens);
+            $('wsDetailTopModel').textContent = user.top_model || '--';
+            $('wsDetailTopFeature').textContent = user.top_feature_type || '--';
+            $('wsDetailAiBalance').textContent = formatNumber(user.ai_balance);
+            $('wsDetailBalance').textContent = formatCurrency(user.balance);
+            $('wsDetailOrderCount').textContent = formatNumber(user.order_count);
+            $('wsDetailSubscriptionCount').textContent = formatNumber(user.subscription_count);
+            $('wsDetailOrderStatus').textContent = user.latest_order_status || '--';
+            $('wsDetailLastAiUsedAt').textContent = formatDateTime(user.last_ai_used_at);
+
+            const statusMeta = getStatusMeta(user.subscription_status);
+            const planClass = getPlanClass(user.current_plan_key);
+            $('wsDetailRiskFlags').innerHTML = [
+                `<span class="ws-status-badge ${statusMeta.className}">${escapeHtml(statusMeta.label)}</span>`,
+                `<span class="ws-plan-badge ${planClass}">${escapeHtml(getPlanLabel(user.current_plan_key))}</span>`,
+                ...user.risk_flags.map(flag => `<span class="ws-risk-badge ${getRiskBadgeClass(flag)}">${escapeHtml(flag)}</span>`)
+            ].join('');
+        }
+
+        function openEditModal(userId) {
+            const user = state.users.find(item => item.id === userId);
+            if (!user) {
+                notify('未找到要编辑的用户。', 'error');
+                return;
+            }
+
+            state.editingUserId = user.id;
+            const userType = getUserTypeFromUser(user);
+            $('wsEditEmail').value = user.email || '';
+            $('wsEditNickname').value = user.nickname || '';
+            $('wsEditAvatarUrl').value = user.avatar_url || '';
+            $('wsEditUserType').value = userType;
+            $('wsEditBalance').value = user.balance ?? '';
+            $('wsEditAiBalance').value = user.ai_balance ?? '';
+            $('wsEditPlanKey').value = user.current_plan_key && user.current_plan_key !== 'none' ? user.current_plan_key : '';
+            $('wsEditSubscriptionStatus').value = user.subscription_status && user.subscription_status !== 'none' ? user.subscription_status : '';
+            $('wsEditActivationTime').value = toDateTimeLocalValue(user.activation_time);
+            $('wsEditExpiryTime').value = toDateTimeLocalValue(user.expiry_time);
+            $('wsEditSubscriptionTip').textContent = user.current_subscription_id
+                ? '当前会更新这位用户的最新订阅记录。'
+                : '当前没有订阅时，填写套餐或订阅状态后会自动创建一条新订阅。';
+            $('wsEditModal').hidden = false;
+        }
+
+        function closeEditModal() {
+            state.editingUserId = null;
+            $('wsEditModal').hidden = true;
+        }
+
+        function applyUserTypePreset(userType) {
+            const preset = getUserTypePreset(userType);
+            $('wsEditPlanKey').value = preset.planKey;
+            $('wsEditSubscriptionStatus').value = preset.status;
+            if (userType === 'free') {
+                $('wsEditActivationTime').value = '';
+                $('wsEditExpiryTime').value = '';
+            }
+            $('wsEditSubscriptionTip').textContent = userType === 'free'
+                ? 'Free 用户会把当前订阅安全标记为已过期，不会再写入空套餐字段。'
+                : `当前用户类型会同步写入 role=${preset.role}，并联动更新套餐与订阅状态。`;
+        }
+
+        function sortUsers(users, sortMode) {
+            const copy = [...users];
+            copy.sort((left, right) => {
+                if (sortMode === 'usage') return (right.month_total_tokens || 0) - (left.month_total_tokens || 0);
+                if (sortMode === 'expiry') return new Date(right.expiry_time || 0).getTime() - new Date(left.expiry_time || 0).getTime();
+                if (sortMode === 'created') return new Date(right.created_at || 0).getTime() - new Date(left.created_at || 0).getTime();
+                return new Date(right.order_time || 0).getTime() - new Date(left.order_time || 0).getTime();
+            });
+            return copy;
+        }
+
+        function applyFilters(options = {}) {
+            const { resetPage = true, preferredUserId = null } = options;
+            const keyword = $('wsSearchInput').value.trim().toLowerCase();
+            const status = $('wsStatusFilter').value;
+            const plan = $('wsPlanFilter').value;
+            const sortMode = $('wsSortMode').value;
+
+            state.filteredUsers = sortUsers(state.users.filter(user => {
+                const matchesKeyword = !keyword || [user.nickname, user.email, user.id].some(value => String(value || '').toLowerCase().includes(keyword));
+                const matchesStatus = status === 'all' || user.subscription_status === status;
+                const matchesPlan = plan === 'all' || getPlanClass(user.current_plan_key) === plan;
+                return matchesKeyword && matchesStatus && matchesPlan;
+            }), sortMode);
+
+            if (resetPage) {
+                state.currentPage = 1;
+            }
+            if (preferredUserId) {
+                state.selectedUserId = preferredUserId;
+            }
+            ensureCurrentPageInRange();
+            ensureSelectedUserVisible();
+
+            if (!state.filteredUsers.some(user => user.id === state.selectedUserId)) {
+                state.selectedUserId = null;
+            }
+
+            renderUsers();
+            renderDetail(getCurrentPageUsers().find(user => user.id === state.selectedUserId) || null);
+        }
+
+        async function fetchUsers(options = {}) {
+            const { preserveState = false, preferredUserId = null } = options;
+            const token = getAuthToken();
+            if (!token) {
+                redirectToLogin('请先登录。');
+                return;
+            }
+
+            const previousPage = state.currentPage;
+            const previousSelectedUserId = preferredUserId || state.selectedUserId;
+            setLoadingState();
+
+            try {
+                const response = await fetch('/api/getWsUsers', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'WS 用户数据加载失败。');
+                }
+
+                state.users = Array.isArray(result.users) ? result.users : [];
+                state.currentPage = preserveState ? previousPage : 1;
+                state.selectedUserId = previousSelectedUserId || null;
+                renderMetrics(result.metrics || {
+                    total_users: 0, active_subscriptions: 0, expiring_soon: 0, total_month_tokens: 0, paid_users: 0
+                });
+                applyFilters({ resetPage: !preserveState, preferredUserId: state.selectedUserId });
+            } catch (error) {
+                console.error('加载 WS 用户数据失败:', error);
+                $('wsUsersTableBody').innerHTML = `<tr><td colspan="9"><div class="ws-empty-inline">加载失败：${error.message}</div></td></tr>`;
+                $('wsResultCount').textContent = '加载失败';
+                renderDetail(null);
+                notify(error.message || '加载失败。', 'error');
+            }
+        }
+
+        function bindEvents() {
+            ['wsSearchInput', 'wsStatusFilter', 'wsPlanFilter', 'wsSortMode'].forEach(id => {
+                $(id).addEventListener('input', () => applyFilters());
+                $(id).addEventListener('change', () => applyFilters());
+            });
+
+            $('wsRefreshBtn').addEventListener('click', fetchUsers);
+            $('wsDetailEditBtn').addEventListener('click', () => {
+                const userId = $('wsDetailEditBtn').dataset.userId;
+                if (userId) {
+                    openEditModal(userId);
+                }
+            });
+            $('wsDetailCloseBtn').addEventListener('click', () => {
+                state.selectedUserId = null;
+                renderUsers();
+                renderDetail(null);
+            });
+            $('wsCloseEditModal').addEventListener('click', closeEditModal);
+            $('wsCancelEditBtn').addEventListener('click', closeEditModal);
+            $('wsEditModal').addEventListener('click', event => {
+                if (event.target === $('wsEditModal')) {
+                    closeEditModal();
+                }
+            });
+            $('wsEditUserType').addEventListener('change', event => {
+                applyUserTypePreset(event.target.value);
+            });
+            $('wsPrevPageBtn').addEventListener('click', () => {
+                if (state.currentPage <= 1) return;
+                state.currentPage -= 1;
+                ensureCurrentPageInRange();
+                ensureSelectedUserVisible();
+                renderUsers();
+                renderDetail(getCurrentPageUsers().find(user => user.id === state.selectedUserId) || null);
+            });
+            $('wsNextPageBtn').addEventListener('click', () => {
+                if (state.currentPage >= getPageCount()) return;
+                state.currentPage += 1;
+                ensureCurrentPageInRange();
+                ensureSelectedUserVisible();
+                renderUsers();
+                renderDetail(getCurrentPageUsers().find(user => user.id === state.selectedUserId) || null);
+            });
+
+            $('wsUsersTableBody').addEventListener('click', event => {
+                const editButton = event.target.closest('[data-edit-user]');
+                if (editButton) {
+                    event.stopPropagation();
+                    openEditModal(editButton.getAttribute('data-edit-user'));
+                    return;
+                }
+
+                const button = event.target.closest('[data-select-user]');
+                const row = event.target.closest('tr[data-user-id]');
+                const userId = button?.getAttribute('data-select-user') || row?.getAttribute('data-user-id');
+                if (!userId) return;
+                state.selectedUserId = userId;
+                renderUsers();
+                renderDetail(getCurrentPageUsers().find(user => user.id === userId) || null);
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.ws-detail-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+            $('wsSaveEditBtn').addEventListener('click', async () => {
+                if (!state.editingUserId) {
+                    notify('未找到要保存的用户。', 'error');
+                    return;
+                }
+
+                const currentUser = state.users.find(user => user.id === state.editingUserId);
+                if (!currentUser) {
+                    notify('用户数据已失效，请刷新后重试。', 'error');
+                    return;
+                }
+
+                const token = getAuthToken();
+                if (!token) {
+                    redirectToLogin('请先登录。');
+                    return;
+                }
+
+                const saveButton = $('wsSaveEditBtn');
+                saveButton.disabled = true;
+                saveButton.textContent = '保存中...';
+
+                try {
+                    const userType = $('wsEditUserType').value;
+                    const preset = getUserTypePreset(userType);
+                    const response = await fetch('/api/updateWsUser', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            id: state.editingUserId,
+                            email: $('wsEditEmail').value.trim(),
+                            nickname: $('wsEditNickname').value.trim(),
+                            avatar_url: $('wsEditAvatarUrl').value.trim(),
+                            role: preset.role,
+                            user_type: userType,
+                            balance: $('wsEditBalance').value.trim(),
+                            ai_balance: $('wsEditAiBalance').value.trim(),
+                            current_subscription_id: currentUser.current_subscription_id || null,
+                            current_plan_key: $('wsEditPlanKey').value.trim(),
+                            subscription_status: $('wsEditSubscriptionStatus').value,
+                            activation_time: $('wsEditActivationTime').value,
+                            expiry_time: $('wsEditExpiryTime').value
+                        })
+                    });
+
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToLogin();
+                        return;
+                    }
+
+                    const result = await response.json();
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.message || '保存失败。');
+                    }
+
+                    notify(result.message || '保存成功。', 'success');
+                    closeEditModal();
+                    await fetchUsers({ preserveState: true, preferredUserId: state.editingUserId });
+                } catch (error) {
+                    console.error('保存 WS 用户失败:', error);
+                    notify(error.message || '保存失败。', 'error');
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.textContent = '保存修改';
+                }
+            });
+        }
+
+        bindEvents();
+        fetchUsers();
+    })();
+</script>

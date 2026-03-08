@@ -10,16 +10,6 @@
             <div class="value" id="earnings-display">计算中...</div>
         </div>
     </div>
-    <div class="stat-card stat-card-tokens">
-        <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.82m5.84-2.56a6 6 0 0 0-7.38-5.84m2.56 5.84a6 6 0 0 1 7.38 5.84m-12.56 0a6 6 0 0 1-7.38-5.84m5.84 2.56a6 6 0 0 0 7.38-5.84m-5.84 2.56a6 6 0 0 0-7.38-5.84" /></svg></div>
-        <div class="info" id="master-balance-container">
-            <div class="label">Gemini 总可用 Tokens 
-                <button id="edit-master-balance-btn" title="编辑总额度">✏️</button>
-            </div>
-            <div class="value" id="master-balance-display">加载中...</div>
-            <div class="sub-value" id="estimated-usage-display"></div>
-        </div>
-    </div>
     <div class="stat-card stat-card-users">
         <div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.278 1 1 0 0 0 0-1.414zM2.879 8.121A9.337 9.337 0 0 1 7 5.845a9.38 9.38 0 0 1 2.625.372M17.12 14.122A9.337 9.337 0 0 1 14.845 17a9.38 9.38 0 0 1-2.625-.372m-10.562 2.278a9.337 9.337 0 0 1-4.12-2.278 1 1 0 0 1 0-1.414zM12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /></svg></div>
         <div class="info" id="total-users-container">
@@ -112,13 +102,14 @@
     <p>&copy; 2025 高级用户管理系统 | 版权所有</p>
 </footer>
 
-<div class="loading-container" id="loadingContainer"><div class="loading-message">加载中，请稍候...</div></div>
+<div class="loading-container" id="loadingContainer" style="display: none;"><div class="loading-message">加载中，请稍候...</div></div>
 <div id="customAlert"></div>
 
 <script>
 // 使用“立即执行函数表达式”(IIFE)包裹所有代码，创建独立作用域
 (function() {
-    const TOKENS_PER_AI_REQUEST_UsersPage = 3000;
+    const MONTHLY_PRICE_UsersPage = 49;
+    const MIN_BILLABLE_DAYS_UsersPage = 25;
     let allUsers_UsersPage = []; 
     let filteredUsers_UsersPage = []; // 过滤后的用户数据
     let createdAtSortState = 'none';
@@ -202,6 +193,8 @@
     }
 
     async function fetchUsers_UsersPage(forceRefresh = false) {
+        const loadingContainer = document.getElementById('loadingContainer');
+
         // 首先尝试从缓存加载数据
         if (!forceRefresh) {
             const cachedUsers = loadFromCache_UsersPage();
@@ -216,12 +209,12 @@
                 
                 calculateAndDisplayAdvancedStats_UsersPage(allUsers_UsersPage);
                 console.log('使用缓存数据，跳过网络请求');
+                if (loadingContainer) loadingContainer.style.display = 'none';
                 return;
             }
         }
 
         // 缓存无效或强制刷新，从服务器获取数据
-        const loadingContainer = document.getElementById('loadingContainer');
         if(loadingContainer) loadingContainer.style.display = 'flex';
         
         try {
@@ -266,62 +259,6 @@
             if(loadingContainer) loadingContainer.style.display = 'none';
         }
     }
-
-    async function fetchMasterBalance_UsersPage() {
-        const displayElement = document.getElementById('master-balance-display');
-        const usageElement = document.getElementById('estimated-usage-display');
-        if (!displayElement || !usageElement) return;
-        try {
-            const token = localStorage.getItem('authToken'); 
-            const response = await fetch('/.netlify/functions/getMasterBalance', { headers: { 'Authorization': `Bearer ${token}` } });
-            const data = await response.json();
-            if (data.success) {
-                const totalTokens = data.balance;
-                displayElement.textContent = totalTokens.toLocaleString('en-US');
-                if (TOKENS_PER_AI_REQUEST_UsersPage > 0) {
-                    const estimatedUses = Math.floor(totalTokens / TOKENS_PER_AI_REQUEST_UsersPage);
-                    usageElement.innerHTML = `预估可用: <strong style="color: var(--success-color);">${estimatedUses.toLocaleString('en-US')}</strong> 次`;
-                }
-            } else {
-                displayElement.textContent = '获取失败';
-            }
-        } catch (error) {
-            console.error('获取总Token余额失败:', error);
-            displayElement.textContent = '获取失败';
-        }
-    }
-    
-    async function updateMasterBalance_UsersPage() {
-        const displayElement = document.getElementById('master-balance-display');
-        if (!displayElement) return;
-        const currentBalanceText = displayElement.textContent.replace(/,/g, '');
-        const currentBalance = parseInt(currentBalanceText, 10) || 0;
-        const newBalanceStr = prompt("请输入新的总Token数量:", currentBalance);
-        if (newBalanceStr === null) return;
-        const newBalance = parseInt(newBalanceStr.replace(/,/g, ''), 10);
-        if (isNaN(newBalance) || newBalance < 0) {
-            showTimedAlert_UsersPage('请输入一个有效的非负整数。', 3000);
-            return;
-        }
-        try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch('/.netlify/functions/updateMasterBalance', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ newBalance })
-            });
-            const data = await response.json();
-            if (data.success) {
-                showTimedAlert_UsersPage('总Token数已更新！', 2000);
-                fetchMasterBalance_UsersPage();
-            } else {
-                throw new Error(data.message || '更新失败');
-            }
-        } catch (error) {
-            showTimedAlert_UsersPage(`更新失败: ${error.message}`, 3000);
-        }
-    }
-
 
     function displaySkeletonRows_UsersPage(rowCount = 10) {
         const tableBody = document.querySelector("#userTable tbody");
@@ -514,33 +451,33 @@
         }
     }
 
+    function getEstimatedPaidMonths_UsersPage(user) {
+        if (!user || user.user_type === 'trial' || user.user_type === 'permanent' || !user.created_at || !user.expiry_at) {
+            return 0;
+        }
+
+        const createdAt = new Date(user.created_at);
+        const expiryAt = new Date(user.expiry_at);
+        if (Number.isNaN(createdAt.getTime()) || Number.isNaN(expiryAt.getTime()) || expiryAt <= createdAt) {
+            return 0;
+        }
+
+        if (expiryAt <= new Date()) {
+            return 0;
+        }
+
+        const durationInDays = (expiryAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+        if (durationInDays < MIN_BILLABLE_DAYS_UsersPage) {
+            return 0;
+        }
+
+        return Math.max(1, Math.round(durationInDays / 30));
+    }
+
     function calculateAndDisplayEarnings_UsersPage(users) {
-        const pricing = { 
-            monthly: 49.9, 
-            quarterly: 149.7, 
-            yearly: 598.8,
-            standard: 49.9  // standard类型通常是月付用户
-        };
         let totalEarnings = 0;
         users.forEach(user => {
-            // 跳过试用用户和没有完整信息的用户
-            if (user.user_type === 'trial' || !user.created_at || !user.expiry_at) return;
-            
-            // 根据用户类型直接计算收入
-            if (user.user_type === 'standard') {
-                // standard类型用户通常是月付，按49.9计算
-                totalEarnings += pricing.standard;
-            } else if (user.user_type === 'regular') {
-                // regular类型用户根据订阅时长计算
-                const durationInMs = new Date(user.expiry_at).getTime() - new Date(user.created_at).getTime();
-                const durationInDays = durationInMs / (1000 * 60 * 60 * 24);
-                if (durationInDays > 330) totalEarnings += pricing.yearly;
-                else if (durationInDays > 85) totalEarnings += pricing.quarterly;
-                else if (durationInDays > 28) totalEarnings += pricing.monthly;
-            } else if (user.user_type === 'permanent') {
-                // 永久用户按年费计算
-                totalEarnings += pricing.yearly;
-            }
+            totalEarnings += getEstimatedPaidMonths_UsersPage(user) * MONTHLY_PRICE_UsersPage;
         });
         const earningsElement = document.getElementById('earnings-display');
         if (earningsElement) {
@@ -573,14 +510,12 @@
         displaySkeletonRows_UsersPage(10); 
 
         fetchUsers_UsersPage();
-        fetchMasterBalance_UsersPage();
         
         const searchInput = document.querySelector('.search-input');
         const searchButton = document.querySelector('#clickSearch');
         const deleteButton = document.getElementById('deleteButton');
         const refreshButton = document.getElementById('refreshButton');
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-        const editMasterBalanceBtn = document.getElementById('edit-master-balance-btn');
 
         const performSearch = () => {
             const searchTerm = searchInput.value.toLowerCase().trim();
@@ -601,7 +536,6 @@
         if(selectAllCheckbox) selectAllCheckbox.addEventListener('change', function () {
             document.querySelectorAll('.user-checkbox').forEach(checkbox => { checkbox.checked = this.checked; });
         });
-        if(editMasterBalanceBtn) editMasterBalanceBtn.addEventListener('click', updateMasterBalance_UsersPage);
 
         // --- 分页控件事件监听 ---
         const firstPageBtn = document.getElementById('first-page-btn');

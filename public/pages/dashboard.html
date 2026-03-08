@@ -9,7 +9,6 @@
 
 <section class="stats-grid">
     <div class="stat-card stat-card-earnings"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182.553-.44 1.278-.659 2.003-.659A5.25 5.25 0 0 1 15 8.25" /></svg></div><div class="info"><div class="label">预估总收入</div><div class="value" id="earnings-display">加载中...</div></div></div>
-    <div class="stat-card stat-card-tokens"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.82m5.84-2.56a6 6 0 0 0-7.38-5.84m2.56 5.84a6 6 0 0 1 7.38 5.84m-12.56 0a6 6 0 0 1-7.38-5.84m5.84 2.56a6 6 0 0 0 7.38-5.84m-5.84 2.56a6 6 0 0 0-7.38-5.84" /></svg></div><div class="info"><div class="label">Gemini 总可用 Tokens</div><div class="value" id="master-balance-display">加载中...</div><div class="sub-value" id="estimated-usage-display"></div></div></div>
     <div class="stat-card stat-card-users"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-2.278 1 1 0 0 0 0-1.414zM2.879 8.121A9.337 9.337 0 0 1 7 5.845a9.38 9.38 0 0 1 2.625.372M17.12 14.122A9.337 9.337 0 0 1 14.845 17a9.38 9.38 0 0 1-2.625-.372m-10.562 2.278a9.337 9.337 0 0 1-4.12-2.278 1 1 0 0 1 0-1.414zM12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /></svg></div><div class="info"><div class="label">总用户数</div><div class="value" id="total-users-display">加载中...</div></div></div>
     <div class="stat-card stat-card-advanced"><div class="icon-wrapper"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg></div><div class="info"><div class="label">用户分类</div><div class="advanced-stats-details"><div><strong>活跃:</strong> <span id="active-users-display" style="color: var(--success-color); font-weight: 600;">-</span></div><div><strong>试用:</strong> <span id="trial-users-display" style="color: var(--warning-color); font-weight: 600;">-</span></div><div><strong>正式:</strong> <span id="regular-users-display" style="color: var(--primary-color); font-weight: 600;">-</span></div></div></div></div>
 </section>
@@ -43,7 +42,8 @@
 <script>
 (function() {
     // --- 页面专属脚本 ---
-    const TOKENS_PER_AI_REQUEST_DASH = 3000;
+    const MONTHLY_PRICE_DASH = 49;
+    const MIN_BILLABLE_DAYS_DASH = 25;
     let allUsers_DASH = [];
     let userGrowthChartInstance_DASH = null;
     let userTypeChartInstance_DASH = null;
@@ -98,56 +98,34 @@
         }
     }
 
-    async function fetchMasterBalance_DASH() {
-        const displayElement = document.getElementById('master-balance-display');
-        const usageElement = document.getElementById('estimated-usage-display');
-        try {
-            const token = localStorage.getItem('authToken');
-            const response = await fetch('/.netlify/functions/getMasterBalance', { headers: { 'Authorization': `Bearer ${token}` } });
-            const data = await response.json();
-            if (data.success) {
-                const totalTokens = data.balance;
-                if(displayElement) displayElement.textContent = totalTokens.toLocaleString('en-US');
-                if(usageElement) {
-                    const estimatedUses = Math.floor(totalTokens / TOKENS_PER_AI_REQUEST_DASH);
-                    usageElement.innerHTML = `预估可用: <strong style="color: var(--success-color);">${estimatedUses.toLocaleString('en-US')}</strong> 次`;
-                }
-            } else {
-                if(displayElement) displayElement.textContent = '获取失败';
-            }
-        } catch (error) {
-            console.error('获取总Token余额失败:', error);
-            if(displayElement) displayElement.textContent = '获取失败';
+    // --- 数据处理与渲染函数 ---
+    function getEstimatedPaidMonths_DASH(user) {
+        if (!user || user.user_type === 'trial' || user.user_type === 'permanent' || !user.created_at || !user.expiry_at) {
+            return 0;
         }
+
+        const createdAt = new Date(user.created_at);
+        const expiryAt = new Date(user.expiry_at);
+        if (Number.isNaN(createdAt.getTime()) || Number.isNaN(expiryAt.getTime()) || expiryAt <= createdAt) {
+            return 0;
+        }
+
+        if (expiryAt <= new Date()) {
+            return 0;
+        }
+
+        const durationInDays = (expiryAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+        if (durationInDays < MIN_BILLABLE_DAYS_DASH) {
+            return 0;
+        }
+
+        return Math.max(1, Math.round(durationInDays / 30));
     }
 
-    // --- 数据处理与渲染函数 ---
     function populateStatCards_DASH(users) {
-        const pricing = { 
-            monthly: 49.9, 
-            quarterly: 149.7, 
-            yearly: 598.8,
-            standard: 49.9  // standard类型通常是月付用户
-        };
         let totalEarnings = 0;
         users.forEach(user => {
-            // 跳过试用用户和没有完整信息的用户
-            if (user.user_type === 'trial' || !user.created_at || !user.expiry_at) return;
-            
-            // 根据用户类型直接计算收入
-            if (user.user_type === 'standard') {
-                // standard类型用户通常是月付，按49.9计算
-                totalEarnings += pricing.standard;
-            } else if (user.user_type === 'regular') {
-                // regular类型用户根据订阅时长计算
-                const durationInDays = (new Date(user.expiry_at) - new Date(user.created_at)) / (1000 * 60 * 60 * 24);
-                if (durationInDays > 330) totalEarnings += pricing.yearly;
-                else if (durationInDays > 85) totalEarnings += pricing.quarterly;
-                else if (durationInDays > 28) totalEarnings += pricing.monthly;
-            } else if (user.user_type === 'permanent') {
-                // 永久用户按年费计算
-                totalEarnings += pricing.yearly;
-            }
+            totalEarnings += getEstimatedPaidMonths_DASH(user) * MONTHLY_PRICE_DASH;
         });
 
         let activeUsers = 0, trialUsers = 0, regularUsers = 0;
@@ -357,7 +335,6 @@
     }
 
     async function initializeDashboard() {
-        fetchMasterBalance_DASH();
         const users = await fetchUsers_DASH();
         if (users) {
             allUsers_DASH = users;

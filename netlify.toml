@@ -73,6 +73,16 @@
   status = 200
 
 [[redirects]]
+  from = "/email-marketing-users"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
+  from = "/ws-users"
+  to = "/shell.html"
+  status = 200
+
+[[redirects]]
   from = "/analytics"
   to = "/shell.html"
   status = 200

@@ -1,21 +1,28 @@
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
-const supabaseUrl = process.env.SUPABASE_URL;
-// 对于纯粹的登录验证，使用 anon key 是安全的
-const supabaseKey = process.env.SUPABASE_ANON_KEY; 
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Supabase 配置缺失');
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 // ⭐ 管理员邮箱白名单
 const ALLOWED_ADMIN_EMAILS = [
   '2231401652@qq.com',
   '1491367041@qq.com'
 ];
+
+function createSupabaseAuthClient() {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return {
+      client: null,
+      error: '未配置 Supabase 登录环境变量，请设置 SUPABASE_URL 和 SUPABASE_ANON_KEY。'
+    };
+  }
+
+  return {
+    client: createClient(supabaseUrl, supabaseKey),
+    error: null
+  };
+}
 
 exports.handler = async function (event, context) {
   // CORS 预检请求处理 (保持不变)
@@ -48,6 +55,18 @@ exports.handler = async function (event, context) {
         statusCode: 403,
         headers: { "Access-Control-Allow-Origin": "*" },
         body: JSON.stringify({ message: "该邮箱没有管理员权限" }),
+      };
+    }
+
+    const { client: supabase, error: configError } = createSupabaseAuthClient();
+    if (configError) {
+      return {
+        statusCode: 500,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({
+          message: configError,
+          code: 'SUPABASE_CONFIG_MISSING'
+        }),
       };
     }
 

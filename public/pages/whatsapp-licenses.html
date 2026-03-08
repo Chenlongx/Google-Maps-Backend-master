@@ -94,6 +94,16 @@
         }
     }
 
+    function redirectToLogin_WhatsAppPage(message = '认证已过期，请重新登录。') {
+        if (window.__appAuth?.redirectToLogin) {
+            window.__appAuth.redirectToLogin(message);
+            return;
+        }
+
+        localStorage.removeItem('authToken');
+        window.location.href = '/login.html';
+    }
+
     async function fetchWhatsAppLicenses() {
         document.getElementById('loadingContainer').style.display = 'flex';
         try {
@@ -101,9 +111,7 @@
             const token = localStorage.getItem('authToken'); 
 
             if (!token) {
-                showTimedAlert_WhatsAppPage('用户未登录，无法加载数据。');
-                // 可选：跳转回登录页
-                // window.location.href = 'login.html'; 
+                redirectToLogin_WhatsAppPage('请先登录。');
                 return;
             }
 
@@ -116,8 +124,8 @@
                 }
             });
 
-            if (response.status === 401) {
-                showTimedAlert_WhatsAppPage('认证失败，请重新登录。');
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin_WhatsAppPage();
                 return;
             }
             if (!response.ok) {
@@ -282,6 +290,11 @@
             
             try {
                 const token = localStorage.getItem('authToken');
+                if (!token) {
+                    redirectToLogin_WhatsAppPage('请先登录。');
+                    return;
+                }
+
                 const response = await fetch('/api/generateWhatsAppLicense', {
                     method: 'POST',
                     headers: {
@@ -290,6 +303,10 @@
                     },
                     body: JSON.stringify({ count, licenseType, expiryDays: expiryDays || null })
                 });
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin_WhatsAppPage();
+                    return;
+                }
                 const result = await response.json();
                 if (response.ok && result.success) {
                     showTimedAlert_WhatsAppPage(result.message);
@@ -317,6 +334,11 @@
         document.getElementById('loadingContainer').style.display = 'flex';
         try {
             const token = localStorage.getItem('authToken');
+            if (!token) {
+                redirectToLogin_WhatsAppPage('请先登录。');
+                return;
+            }
+
             const response = await fetch('/api/deleteWhatsAppLicense', {
                 method: 'POST',
                 headers: {
@@ -325,6 +347,10 @@
                 },
                 body: JSON.stringify({ licenseIds: licenseIdsToDelete })
             });
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin_WhatsAppPage();
+                return;
+            }
             const result = await response.json();
             if (response.ok && result.success) {
                 showTimedAlert_WhatsAppPage('激活码删除成功！');

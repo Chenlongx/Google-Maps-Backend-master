@@ -160,15 +160,6 @@
                         </svg><span class="nav-text">外贸地图拓客</span>
                     </a>
                 </li>
-                <li><a href="/licenses" class="nav-link">
-                        <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
-                        </svg>
-                        <span class="nav-text">EmailValidator激活码管理</span>
-                    </a>
-                </li>
                 <li><a href="/email-marketing-users" class="nav-link">
                         <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -176,6 +167,16 @@
                                 d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                         </svg>
                         <span class="nav-text">邮件营销用户管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/ws-users" class="nav-link">
+                        <svg style="width:20px;height:20px;" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h4.5m-6.75-9h16.5m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h12A2.25 2.25 0 0 1 20.25 6v6.75m-9.75 7.5h6m-3-3v6" />
+                        </svg>
+                        <span class="nav-text">WS营销系统用户</span>
                     </a>
                 </li>
                 <li>
@@ -247,17 +248,17 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="user-profile" id="user-profile" onclick="toggleUserMenu()">
+                    <div class="user-profile" id="user-profile">
                         <img src="https://i.pravatar.cc/36" alt="User Avatar">
                         <span class="user-name" id="user-name-display">Admin User</span>
                         <i class="fas fa-chevron-down" id="user-menu-arrow"></i>
                     </div>
                     <div class="user-menu" id="user-menu">
-                        <div class="user-menu-item" id="switch-account-btn" onclick="handleSwitchAccount()">
+                        <div class="user-menu-item" id="switch-account-btn">
                             <i class="fas fa-exchange-alt"></i>
                             <span>切换账号</span>
                         </div>
-                        <div class="user-menu-item logout" id="logout-btn" onclick="handleLogout()">
+                        <div class="user-menu-item logout" id="logout-btn">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>退出登录</span>
                         </div>
@@ -289,6 +290,30 @@
         // 页面加载时显示用户邮箱
         document.addEventListener('DOMContentLoaded', function () {
             displayUserEmail();
+            const switchAccountBtn = document.getElementById('switch-account-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const userProfile = document.getElementById('user-profile');
+
+            if (switchAccountBtn) {
+                switchAccountBtn.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    handleSwitchAccount();
+                });
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    handleLogout();
+                });
+            }
+
+            if (userProfile) {
+                userProfile.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    toggleUserMenu();
+                });
+            }
         });
 
         // 内联事件处理函数（直接处理）
@@ -339,34 +364,28 @@
             userProfile.classList.add('active');
             userMenu.classList.add('show');
             userMenuOpen = true;
-
-            // 创建遮罩层
-            setTimeout(() => {
-                const existingOverlay = document.querySelector('.user-menu-overlay');
-                if (existingOverlay) {
-                    existingOverlay.remove();
-                }
-
-                const overlay = document.createElement('div');
-                overlay.className = 'user-menu-overlay';
-                overlay.addEventListener('click', closeUserMenu);
-                document.body.appendChild(overlay);
-            }, 50);
         }
 
         function closeUserMenu() {
             const userProfile = document.getElementById('user-profile');
             const userMenu = document.getElementById('user-menu');
-            const overlay = document.querySelector('.user-menu-overlay');
 
             userProfile.classList.remove('active');
             userMenu.classList.remove('show');
             userMenuOpen = false;
-
-            if (overlay) {
-                overlay.remove();
-            }
         }
+
+        // 点击菜单外部区域时关闭菜单
+        document.addEventListener('click', function (event) {
+            if (!userMenuOpen) return;
+            const userProfile = document.getElementById('user-profile');
+            const userMenu = document.getElementById('user-menu');
+            if (!userProfile || !userMenu) return;
+
+            if (!userProfile.contains(event.target) && !userMenu.contains(event.target)) {
+                closeUserMenu();
+            }
+        });
 
 
         // 键盘事件处理（ESC键关闭菜单）

@@ -10,10 +10,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationBellBtn = document.getElementById('notification-bell-btn');
     const notificationPanel = document.getElementById('notification-panel');
     const notificationDot = document.getElementById('notification-dot');
+    const LOGIN_PATH = '/login.html';
 
     // --- 深色模式逻辑 ---
     const themeToggle = document.getElementById('theme-toggle-checkbox');
     const currentTheme = localStorage.getItem('theme');
+
+    function clearAuthSession() {
+        ['authToken', 'userInfo', 'userType', 'agentInfo'].forEach(key => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+        });
+    }
+
+    function decodeJwtPayload(token) {
+        try {
+            const payload = token.split('.')[1];
+            if (!payload) return null;
+
+            const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+            const padded = normalized.padEnd(normalized.length + (4 - normalized.length % 4) % 4, '=');
+            return JSON.parse(atob(padded));
+        } catch (error) {
+            console.warn('解析登录令牌失败:', error);
+            return null;
+        }
+    }
+
+    function isTokenExpired(token) {
+        const payload = decodeJwtPayload(token);
+        return Boolean(payload?.exp) && Date.now() >= payload.exp * 1000;
+    }
+
+    function redirectToLogin(message = '认证已过期，请重新登录。', delay = 600) {
+        clearAuthSession();
+
+        window.setTimeout(() => {
+            if (window.location.pathname !== LOGIN_PATH) {
+                window.location.assign(LOGIN_PATH);
+            }
+        }, delay);
+    }
+
+    function ensureAuthenticated(message = '认证已过期，请重新登录。') {
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+            redirectToLogin('请先登录。', 0);
+            return false;
+        }
+
+        if (isTokenExpired(token)) {
+            redirectToLogin(message, 0);
+            return false;
+        }
+
+        return true;
+    }
+
+    window.__appAuth = {
+        clearAuthSession,
+        redirectToLogin,
+        ensureAuthenticated,
+        getToken: () => localStorage.getItem('authToken')
+    };
+
+    if (!ensureAuthenticated()) {
+        return;
+    }
 
     // 初始化主题
     if (currentTheme === 'dark') {
@@ -96,10 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 前端路由逻辑 ---
+    const routeAliases = {
+        '/licenses': '/email-marketing-users'
+    };
+
     const routes = {
         '/dashboard': 'pages/dashboard.html',
         '/users': 'pages/users.html',
-        '/licenses': 'pages/licenses.html',
+        '/ws-users': 'pages/ws-users.html',
         '/analytics': 'pages/analytics.html',
         '/settings': 'pages/settings.html',
         '/addUser': 'pages/addUser.html',
@@ -107,6 +175,17 @@ document.addEventListener('DOMContentLoaded', () => {
         '/whatsapp-licenses': 'pages/whatsapp-licenses.html',
         '/activation-codes': 'pages/activation-codes.html',
         '/email-marketing-users': 'pages/email-marketing-users.html'
+    };
+
+    const normalizePath = (pathWithQuery) => {
+        const [basePath, search = ''] = pathWithQuery.split('?');
+        const aliasPath = routeAliases[basePath];
+
+        if (!aliasPath) {
+            return pathWithQuery;
+        }
+
+        return search ? `${aliasPath}?${search}` : aliasPath;
     };
 
     const executeScripts = (container) => {
@@ -125,6 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadContent = async (pathWithQuery) => {
+        if (!ensureAuthenticated()) {
+            return;
+        }
+
+        const normalizedPath = normalizePath(pathWithQuery);
+        if (normalizedPath !== pathWithQuery) {
+            history.replaceState({ path: normalizedPath }, '', normalizedPath);
+            pathWithQuery = normalizedPath;
+        }
+
         const basePath = pathWithQuery.split('?')[0];
         const contentFile = routes[basePath] || routes['/dashboard'];
 
@@ -188,9 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const navigate = (path) => {
-        if (window.location.pathname + window.location.search !== path) {
-            history.pushState({ path }, '', path);
-            loadContent(path);
+        const normalizedPath = normalizePath(path);
+
+        if (window.location.pathname + window.location.search !== normalizedPath) {
+            history.pushState({ path: normalizedPath }, '', normalizedPath);
+            loadContent(normalizedPath);
         }
     };
 
@@ -233,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 初始加载
-    const initialPath = window.location.pathname + window.location.search;
+    const initialPath = normalizePath(window.location.pathname + window.location.search);
     const initialBasePath = initialPath.split('?')[0];
 
     console.log('初始路径:', initialPath);
@@ -245,6 +336,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (routes[initialBasePath]) {
         // 如果是一个有效路由，就加载对应内容
         console.log('匹配到有效路由，加载内容:', initialBasePath);
+        if (window.location.pathname + window.location.search !== initialPath) {
+            history.replaceState({ path: initialPath }, '', initialPath);
+        }
         loadContent(initialPath);
     } else if (initialBasePath === '/' || initialBasePath === '/index.html' || initialBasePath === '') {
         // 如果是根路径，重定向到dashboard

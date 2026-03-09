@@ -1,44 +1,60 @@
-// netlify/functions/createUser.js
 const { createClient } = require('@supabase/supabase-js');
-
+const bcrypt = require('bcryptjs');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
-// // const supabase = createClient(supabaseUrl, supabaseKey);
-
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 将 timeLimit（快捷选项）转换为毫秒或天数
 function timeLimitToDate(timeLimit) {
   if (!timeLimit) return null;
   const now = new Date();
   switch (timeLimit) {
     case '1day':
-      now.setDate(now.getDate() + 1); break;
+      now.setDate(now.getDate() + 1);
+      break;
     case '1week':
-      now.setDate(now.getDate() + 7); break;
+      now.setDate(now.getDate() + 7);
+      break;
     case '1month':
-      now.setMonth(now.getMonth() + 1); break;
+      now.setMonth(now.getMonth() + 1);
+      break;
     case '2months':
-      now.setMonth(now.getMonth() + 2); break;
+      now.setMonth(now.getMonth() + 2);
+      break;
     case '3months':
-      now.setMonth(now.getMonth() + 3); break;
+      now.setMonth(now.getMonth() + 3);
+      break;
     case '1year':
-      now.setFullYear(now.getFullYear() + 1); break;
+      now.setFullYear(now.getFullYear() + 1);
+      break;
     default:
       return null;
   }
   return now;
 }
 
-// 如果数据库要求 expiry_at 非空，permanent 的处理：设置一个远期时间（比如 9999-12-31）
 function permanentExpiryDate() {
   return new Date('9999-12-31T23:59:59Z');
 }
 
+function isMissingPasswordHashColumnError(error) {
+  if (!error) return false;
+  const code = String(error.code || '');
+  const message = String(error.message || '');
+  return code === 'PGRST204' || code === '42703' || message.includes('password_hash');
+}
+
+function isPasswordNotNullConstraintError(error) {
+  if (!error) return false;
+  const code = String(error.code || '');
+  const message = String(error.message || '');
+  const details = String(error.details || '');
+  return code === '23502' && (message.includes('password') || details.includes('password'));
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ success: false, message: '只支持 POST' }) };
+    return { statusCode: 405, body: JSON.stringify({ success: false, message: 'POST only' }) };
   }
 
   try {
@@ -46,16 +62,14 @@ exports.handler = async (event) => {
 
     const account = (body.account || '').trim();
     const password = body.password || '';
-    const userType = body.userType || body.user_type || ''; // 兼容下划线或驼峰
+    const userType = body.userType || body.user_type || '';
     const timeLimit = body.timeLimit || body.time_limit || null;
-    const startDateRaw = body.startDate || body.start_date || null;
     const expiryDateRaw = body.expiryDate || body.expiry_date || null;
 
     if (!account || !password || !userType) {
-      return { statusCode: 400, body: JSON.stringify({ success: false, message: '账号、密码和用户类型不能为空' }) };
+      return { statusCode: 400, body: JSON.stringify({ success: false, message: 'account, password, userType are required' }) };
     }
 
-    // 1) 检查账号是否已存在
     const { data: exists, error: fetchErr } = await supabase
       .from('user_accounts')
       .select('id')
@@ -65,19 +79,19 @@ exports.handler = async (event) => {
 
     if (fetchErr) {
       console.error('Supabase select error:', fetchErr);
-      return { statusCode: 500, body: JSON.stringify({ success: false, message: '查询账号失败', error: fetchErr.message }) };
+      return { statusCode: 500, body: JSON.stringify({ success: false, message: 'Failed to check existing account', error: fetchErr.message }) };
     }
     if (exists) {
-      return { statusCode: 409, body: JSON.stringify({ success: false, message: '账号已存在' }) };
+      return { statusCode: 409, body: JSON.stringify({ success: false, message: 'Account already exists' }) };
     }
 
-    // 2) 计算 expiry_at（优先级：前端 expiryDate > timeLimit 算出 > userType 默认 > permanent）
     let expiryAt = null;
 
     if (expiryDateRaw) {
-      // 前端传了明确的到期时间（ISO）
-      expiryAt = new Date(expiryDateRaw);
-      if (isNaN(expiryAt.getTime())) expiryAt = null;
+      const parsed = new Date(expiryDateRaw);
+      if (!Number.isNaN(parsed.getTime())) {
+        expiryAt = parsed;
+      }
     }
 
     if (!expiryAt && timeLimit) {
@@ -85,59 +99,72 @@ exports.handler = async (event) => {
       if (fromTimeLimit) expiryAt = fromTimeLimit;
     }
 
-    // 用户类型默认逻辑
     if (!expiryAt) {
       if (userType === 'trial') {
-        // 如果是试用，默认 30 天
         const d = new Date();
         d.setDate(d.getDate() + 30);
         expiryAt = d;
       } else if (userType === 'permanent') {
-        // 永久用户 -> 远期时间（因为你的表不允许 NULL）
         expiryAt = permanentExpiryDate();
       } else if (userType === 'regular') {
-        // 正式用户但未提供任何时间 -> 默认 1 年
         const d = new Date();
         d.setFullYear(d.getFullYear() + 1);
         expiryAt = d;
       } else {
-        // 兜底：30 天
         const d = new Date();
         d.setDate(d.getDate() + 30);
         expiryAt = d;
       }
     }
 
-    // created_at: 当前时间
     const createdAt = new Date();
+    const passwordHash = await bcrypt.hash(password, 10);
 
-    // 建立插入对象（确保字段名和 DB 一致）
-    const newUser = {
-      account: account,
-      password: password,        // 注意：生产应当加密/哈希，这里保留原文按你的要求
+    const secureUser = {
+      account,
+      password_hash: passwordHash,
+      password: null,
       user_type: userType,
       created_at: createdAt.toISOString(),
       expiry_at: expiryAt.toISOString(),
       status: 'active'
     };
 
-    const { data: insertData, error: insertErr } = await supabase
+    let { data: insertData, error: insertErr } = await supabase
       .from('user_accounts')
-      .insert(newUser)
+      .insert(secureUser)
       .select('id, account');
+
+    // Backward compatibility for old schemas:
+    // - missing password_hash column
+    // - password column is NOT NULL
+    if (insertErr && (isMissingPasswordHashColumnError(insertErr) || isPasswordNotNullConstraintError(insertErr))) {
+      const legacyUser = {
+        ...secureUser,
+        password
+      };
+      if (isMissingPasswordHashColumnError(insertErr)) {
+        delete legacyUser.password_hash;
+      }
+      const fallbackInsert = await supabase
+        .from('user_accounts')
+        .insert(legacyUser)
+        .select('id, account');
+      insertErr = fallbackInsert.error;
+      insertData = fallbackInsert.data;
+    }
 
     if (insertErr) {
       console.error('Supabase insert error:', insertErr);
-      return { statusCode: 500, body: JSON.stringify({ success: false, message: '插入用户失败', error: insertErr.message }) };
+      return { statusCode: 500, body: JSON.stringify({ success: false, message: 'Failed to insert user', error: insertErr.message }) };
     }
 
     return {
       statusCode: 201,
-      body: JSON.stringify({ success: true, message: '用户添加成功', data: insertData })
+      body: JSON.stringify({ success: true, message: 'User created', data: insertData })
     };
-
   } catch (err) {
     console.error('createUser handler error:', err);
-    return { statusCode: 500, body: JSON.stringify({ success: false, message: '服务器内部错误', error: err.message }) };
+    return { statusCode: 500, body: JSON.stringify({ success: false, message: 'Internal server error', error: err.message }) };
   }
 };

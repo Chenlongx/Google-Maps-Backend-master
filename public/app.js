@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationBellBtn = document.getElementById('notification-bell-btn');
     const notificationPanel = document.getElementById('notification-panel');
     const notificationDot = document.getElementById('notification-dot');
+    const notificationList = document.getElementById('notification-list');
     const LOGIN_PATH = '/login.html';
 
     // --- 深色模式逻辑 ---
@@ -96,11 +97,183 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 通知中心逻辑 ---
+    const notificationState = {
+        items: [],
+        unreadCount: 0
+    };
+
+    function getAuthHeader() {
+        const token = window.__appAuth?.getToken?.() || localStorage.getItem('authToken');
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function formatNotificationTime(rawValue) {
+        if (!rawValue) return '--';
+        const date = new Date(rawValue);
+        if (Number.isNaN(date.getTime())) return '--';
+        return date.toLocaleString('zh-CN', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function setUnreadDot(count) {
+        notificationState.unreadCount = Number(count || 0);
+        if (!notificationDot) return;
+        notificationDot.style.display = notificationState.unreadCount > 0 ? 'block' : 'none';
+    }
+
+    function ensureNotificationReadAllButton() {
+        if (!notificationPanel) return;
+        const header = notificationPanel.querySelector('.panel-header');
+        if (!header || header.querySelector('#notification-read-all-btn')) return;
+        const readAllButton = document.createElement('button');
+        readAllButton.id = 'notification-read-all-btn';
+        readAllButton.type = 'button';
+        readAllButton.className = 'notification-read-all-btn';
+        readAllButton.textContent = '全部已读';
+        header.appendChild(readAllButton);
+    }
+
+    function renderNotificationList(items) {
+        if (!notificationList) return;
+
+        if (!Array.isArray(items) || items.length === 0) {
+            notificationList.innerHTML = '<li class="notification-empty">暂无新通知</li>';
+            return;
+        }
+
+        notificationList.innerHTML = items.map(item => {
+            const notificationId = Number(item.id || 0);
+            const itemClass = item.is_read ? 'is-read' : 'is-unread';
+            const safeTitle = escapeHtml(item.title || '系统通知');
+            const safeMessage = escapeHtml(item.message || '');
+            const safeTime = formatNotificationTime(item.created_at);
+            const hasLink = typeof item.link === 'string' && item.link.trim().length > 0;
+            const safeLink = hasLink ? escapeHtml(item.link.trim()) : '';
+
+            return `
+                <li class="notification-item ${itemClass}" data-notification-id="${notificationId}">
+                    <div class="notification-item-header">
+                        <strong>${safeTitle}</strong>
+                        <span>${safeTime}</span>
+                    </div>
+                    <p>${safeMessage}</p>
+                    <div class="notification-item-actions">
+                        ${hasLink ? `<a class="notification-link" href="${safeLink}">查看详情</a>` : '<span></span>'}
+                        <button type="button" class="notification-read-btn" data-read-id="${notificationId}" ${item.is_read ? 'disabled' : ''}>
+                            ${item.is_read ? '已读' : '标记已读'}
+                        </button>
+                    </div>
+                </li>
+            `;
+        }).join('');
+    }
+
+    async function fetchUnreadCount() {
+        try {
+            const response = await fetch('/api/notifications/unread-count', {
+                headers: {
+                    ...getAuthHeader()
+                }
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin('认证已过期，请重新登录。', 0);
+                return;
+            }
+
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || '加载未读数量失败。');
+            }
+
+            setUnreadDot(result.unread_count || 0);
+        } catch (error) {
+            console.error('加载未读数量失败:', error);
+        }
+    }
+
+    async function markNotificationRead(notificationId) {
+        try {
+            const response = await fetch('/api/notifications/read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeader()
+                },
+                body: JSON.stringify({ id: notificationId })
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin('认证已过期，请重新登录。', 0);
+                return;
+            }
+
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || '更新通知失败。');
+            }
+
+            notificationState.items = notificationState.items.map(item => (
+                Number(item.id) === Number(notificationId)
+                    ? { ...item, is_read: true, read_at: result.notification?.read_at || new Date().toISOString() }
+                    : item
+            ));
+            renderNotificationList(notificationState.items);
+            setUnreadDot(Math.max(0, notificationState.unreadCount - 1));
+        } catch (error) {
+            console.error('标记通知已读失败:', error);
+        }
+    }
+
+    async function markAllNotificationsRead() {
+        try {
+            const response = await fetch('/api/notifications/read-all', {
+                method: 'POST',
+                headers: {
+                    ...getAuthHeader()
+                }
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin('认证已过期，请重新登录。', 0);
+                return;
+            }
+
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || '全部已读失败。');
+            }
+
+            const readAt = new Date().toISOString();
+            notificationState.items = notificationState.items.map(item => ({ ...item, is_read: true, read_at: readAt }));
+            renderNotificationList(notificationState.items);
+            setUnreadDot(0);
+        } catch (error) {
+            console.error('全部通知已读失败:', error);
+        }
+    }
+
     if (notificationBellBtn) {
         notificationBellBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // 防止点击事件冒泡到 body 关闭自身
             notificationPanel.classList.toggle('show');
-            notificationDot.style.display = 'none'; // 点击后清除红点
+            if (notificationPanel.classList.contains('show')) {
+                fetchNotifications();
+            }
+            setUnreadDot(notificationState.unreadCount);
         });
     }
 
@@ -112,15 +285,66 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 模拟获取通知
-    function fetchNotifications() {
-        // 在这里，您应该发起一个API请求到后端获取真实通知
-        const mockNotifications = [ /* ... */];
-        if (mockNotifications.length > 0) {
-            notificationDot.style.display = 'block';
-            // ... 渲染通知列表 ...
-        }
+    if (notificationCenter) {
+        notificationCenter.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
     }
-    fetchNotifications(); // 页面加载时获取一次
+
+    if (notificationList) {
+        notificationList.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-read-id]');
+            if (!button) return;
+            const notificationId = Number.parseInt(button.getAttribute('data-read-id') || '', 10);
+            if (!Number.isFinite(notificationId) || notificationId <= 0) return;
+            markNotificationRead(notificationId);
+        });
+    }
+
+    if (notificationPanel) {
+        notificationPanel.addEventListener('click', (event) => {
+            const readAllButton = event.target.closest('#notification-read-all-btn');
+            if (readAllButton) {
+                markAllNotificationsRead();
+            }
+        });
+    }
+
+    async function fetchNotifications() {
+        // 在这里，您应该发起一个API请求到后端获取真实通知
+        ensureNotificationReadAllButton();
+        try {
+            const response = await fetch('/api/notifications?limit=20&offset=0', {
+                headers: {
+                    ...getAuthHeader()
+                }
+            });
+
+            if (response.status === 401 || response.status === 403) {
+                redirectToLogin('认证已过期，请重新登录。', 0);
+                return;
+            }
+
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || '加载通知失败。');
+            }
+
+            notificationState.items = Array.isArray(result.notifications) ? result.notifications : [];
+            renderNotificationList(notificationState.items);
+            setUnreadDot(result.unread_count || 0);
+            return;
+        } catch (error) {
+            console.error('加载通知失败:', error);
+            if (notificationList) {
+                notificationList.innerHTML = '<li class="notification-empty">Load failed, please retry later.</li>';
+            }
+            return;
+        }
+        
+    }
+    fetchUnreadCount();
+    window.setInterval(fetchUnreadCount, 60 * 1000);
 
 
     // --- 侧边栏伸缩逻辑 ---

@@ -1,8 +1,72 @@
 const { createClient } = require('@supabase/supabase-js');
+const bcrypt = require('bcryptjs');
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+const RESPONSE_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Content-Type': 'application/json'
+};
+
+function isMissingPasswordHashColumnError(error) {
+  if (!error) return false;
+  const code = String(error.code || '');
+  const message = String(error.message || '');
+  return code === 'PGRST204' || code === '42703' || message.includes('password_hash');
+}
+
+function isPasswordNotNullConstraintError(error) {
+  if (!error) return false;
+  const code = String(error.code || '');
+  const message = String(error.message || '');
+  const details = String(error.details || '');
+  return code === '23502' && (message.includes('password') || details.includes('password'));
+}
+
+async function verifyPasswordWithFallback(inputPassword, user) {
+  const passwordHash = typeof user.password_hash === 'string' ? user.password_hash : '';
+  const legacyPassword = typeof user.password === 'string' ? user.password : '';
+
+  if (passwordHash) {
+    const isValid = await bcrypt.compare(inputPassword, passwordHash);
+    return { ok: isValid, needsMigration: Boolean(legacyPassword), passwordHash };
+  }
+
+  if (legacyPassword) {
+    const isValid = inputPassword === legacyPassword;
+    return { ok: isValid, needsMigration: isValid, passwordHash: '' };
+  }
+
+  return { ok: false, needsMigration: false, passwordHash: '' };
+}
+
+async function migrateLegacyPasswordIfNeeded(userId, plainPassword, existingHash, shouldMigrate) {
+  if (!shouldMigrate) return;
+
+  const nextHash = existingHash || await bcrypt.hash(plainPassword, 10);
+
+  let { error } = await supabase
+    .from('user_accounts')
+    .update({
+      password_hash: nextHash,
+      password: null
+    })
+    .eq('id', userId);
+
+  if (error && isPasswordNotNullConstraintError(error)) {
+    const fallbackUpdate = await supabase
+      .from('user_accounts')
+      .update({ password_hash: nextHash })
+      .eq('id', userId);
+    error = fallbackUpdate.error;
+  }
+
+  if (error && !isMissingPasswordHashColumnError(error)) {
+    console.warn('Password migration warning:', error.message);
+  }
+}
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -10,54 +74,71 @@ exports.handler = async (event) => {
   }
 
   try {
-    const { username, password, device_id, os_type } = JSON.parse(event.body);
+    const { username, password, device_id, os_type } = JSON.parse(event.body || '{}');
 
-    console.log("接收到:", username, password, device_id, os_type);
+    if (!username || !password) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ success: false, message: 'Username and password are required.' }),
+        headers: RESPONSE_HEADERS
+      };
+    }
 
-    // 查询用户
-    let { data: user, error: fetchError } = await supabase
+    const { data: user, error: fetchError } = await supabase
       .from('user_accounts')
       .select('*')
       .eq('account', username)
       .single();
 
     if (fetchError && fetchError.code !== 'PGRST116') {
-      console.error('数据库查询错误:', fetchError);
+      console.error('Database query error:', fetchError);
       return {
         statusCode: 500,
-        body: JSON.stringify({ success: false, message: `数据库查询失败: ${fetchError.message}` }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: false, message: `Database query failed: ${fetchError.message}` }),
+        headers: RESPONSE_HEADERS
       };
     }
 
     if (!user) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ success: false, message: '用户不存在' }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: false, message: 'User not found.' }),
+        headers: RESPONSE_HEADERS
       };
     }
 
-    // 明文密码比对（生产建议用哈希）
-    if (password !== user.password) {
+    let authResult;
+    try {
+      authResult = await verifyPasswordWithFallback(password, user);
+    } catch (passwordError) {
+      console.error('Password verify error:', passwordError);
       return {
-        statusCode: 401,
-        body: JSON.stringify({ success: false, message: '密码错误' }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        statusCode: 500,
+        body: JSON.stringify({ success: false, message: 'Password verification failed.' }),
+        headers: RESPONSE_HEADERS
       };
     }
+
+    if (!authResult.ok) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ success: false, message: 'Invalid password.' }),
+        headers: RESPONSE_HEADERS
+      };
+    }
+
+    await migrateLegacyPasswordIfNeeded(user.id, password, authResult.passwordHash, authResult.needsMigration);
 
     if (!device_id) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ success: false, message: '设备码缺失' }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: false, message: 'Missing device_id.' }),
+        headers: RESPONSE_HEADERS
       };
     }
 
     const storedDeviceId = user.device_id;
 
-    // 情况 1：首次绑定
     if (!storedDeviceId) {
       const { error: updateError } = await supabase
         .from('user_accounts')
@@ -67,8 +148,8 @@ exports.handler = async (event) => {
       if (updateError) {
         return {
           statusCode: 500,
-          body: JSON.stringify({ success: false, message: `绑定设备失败: ${updateError.message}` }),
-          headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ success: false, message: `Device bind failed: ${updateError.message}` }),
+          headers: RESPONSE_HEADERS
         };
       }
 
@@ -76,7 +157,7 @@ exports.handler = async (event) => {
         statusCode: 200,
         body: JSON.stringify({
           success: true,
-          message: '首次登录成功，设备已绑定。',
+          message: 'First login successful, device bound.',
           user: {
             id: user.id,
             username: user.account,
@@ -89,25 +170,23 @@ exports.handler = async (event) => {
             daily_export_count: user.daily_export_count
           }
         }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        headers: RESPONSE_HEADERS
       };
     }
 
-    // 情况 2：已绑定设备，但设备码不一致
     if (storedDeviceId !== device_id) {
       return {
         statusCode: 403,
-        body: JSON.stringify({ success: false, message: '设备码不匹配，请联系管理员。' }),
-        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: false, message: 'Device mismatch.' }),
+        headers: RESPONSE_HEADERS
       };
     }
 
-    // 情况 3：已绑定且设备码一致
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
-        message: '登录成功。',
+        message: 'Login successful.',
         user: {
           id: user.id,
           username: user.account,
@@ -120,15 +199,14 @@ exports.handler = async (event) => {
           daily_export_count: user.daily_export_count
         }
       }),
-      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+      headers: RESPONSE_HEADERS
     };
-
   } catch (error) {
-    console.error("登录时出错:", error);
+    console.error('Login handler error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ success: false, error: error.message || '内部服务器错误' }),
-      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ success: false, error: error.message || 'Internal server error' }),
+      headers: RESPONSE_HEADERS
     };
   }
 };

@@ -321,7 +321,24 @@
     }
     .ws-refresh-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 18px rgba(29, 78, 216, 0.24); }
     .ws-content-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
-    .ws-content-grid.has-detail { grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr); }
+    .ws-content-grid.has-detail {
+        grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr);
+        align-items: stretch;
+    }
+    .ws-content-grid.has-detail .ws-table-card,
+    .ws-content-grid.has-detail .ws-detail-card {
+        height: clamp(620px, calc(100vh - 132px), 960px);
+    }
+    .ws-content-grid.has-detail .ws-table-card {
+        display: flex;
+        flex-direction: column;
+    }
+    .ws-content-grid.has-detail .ws-table-shell {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        padding-right: 4px;
+    }
     .ws-table-card, .ws-detail-card { padding: 20px; }
     .ws-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
     .ws-section-head h2 { font-size: 22px; margin-bottom: 6px; }
@@ -428,8 +445,83 @@
         border: 1px solid #d7e1ea; border-radius: 12px; background: #fff; color: #0f172a; font-size: 13px; font-weight: 600; cursor: pointer;
     }
     .ws-loading-inline, .ws-empty-inline { padding: 42px 16px; color: #64748b; text-align: center; font-size: 14px; }
+    .ws-skeleton {
+        position: relative;
+        overflow: hidden;
+        background: #e8eef5;
+        border-radius: 10px;
+        color: transparent !important;
+    }
+    .ws-skeleton::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.62) 50%, rgba(255, 255, 255, 0) 100%);
+        animation: wsSkeletonShimmer 1.35s ease-in-out infinite;
+    }
+    @keyframes wsSkeletonShimmer {
+        100% { transform: translateX(100%); }
+    }
+    .ws-skeleton-row { cursor: default !important; }
+    .ws-skeleton-row:hover { background: transparent !important; transform: none !important; }
+    .ws-skeleton-row td { pointer-events: none; }
+    .ws-skeleton-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        flex: 0 0 auto;
+    }
+    .ws-skeleton-line {
+        display: block;
+        height: 12px;
+        border-radius: 999px;
+    }
+    .ws-skeleton-line + .ws-skeleton-line { margin-top: 8px; }
+    .ws-skeleton-name { width: 140px; }
+    .ws-skeleton-email { width: 200px; }
+    .ws-skeleton-id { width: 170px; }
+    .ws-skeleton-pill {
+        display: inline-block;
+        width: 108px;
+        height: 28px;
+        border-radius: 999px;
+    }
+    .ws-skeleton-date {
+        display: inline-block;
+        width: 96px;
+        height: 12px;
+        border-radius: 999px;
+    }
+    .ws-skeleton-date-note {
+        display: inline-block;
+        width: 72px;
+        height: 10px;
+        border-radius: 999px;
+        margin-top: 6px;
+    }
+    .ws-skeleton-number {
+        display: inline-block;
+        width: 82px;
+        height: 12px;
+        border-radius: 999px;
+    }
+    .ws-skeleton-btn {
+        display: inline-block;
+        width: 74px;
+        height: 36px;
+        border-radius: 12px;
+    }
+    .ws-skeleton-metric {
+        display: inline-block;
+        width: 96px;
+        height: 34px;
+        border-radius: 12px;
+        vertical-align: middle;
+    }
     .ws-detail-card {
         position: sticky; top: 92px; min-height: 560px;
+        overflow: auto;
         background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 32%), linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
     }
     .ws-detail-card[hidden],
@@ -579,7 +671,20 @@
         justify-content: flex-end;
     }
     @media (max-width: 1440px) { .ws-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    @media (max-width: 1200px) { .ws-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ws-content-grid, .ws-content-grid.has-detail { grid-template-columns: 1fr; } .ws-detail-card { position: static; } }
+    @media (max-width: 1200px) {
+        .ws-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ws-content-grid, .ws-content-grid.has-detail { grid-template-columns: 1fr; }
+        .ws-content-grid.has-detail .ws-table-card,
+        .ws-content-grid.has-detail .ws-detail-card { height: auto; }
+        .ws-content-grid.has-detail .ws-table-shell {
+            overflow: visible;
+            padding-right: 0;
+        }
+        .ws-detail-card {
+            position: static;
+            overflow: visible;
+        }
+    }
     @media (max-width: 900px) {
         .ws-metrics, .ws-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .ws-hero { flex-direction: column; }
@@ -833,11 +938,64 @@
             return 'info';
         }
 
+        function renderTableSkeleton() {
+            const rows = Array.from({ length: state.itemsPerPage }, () => `
+                <tr class="ws-skeleton-row" aria-hidden="true">
+                    <td data-label="User">
+                        <div class="ws-user-cell">
+                            <div class="ws-skeleton ws-skeleton-avatar"></div>
+                            <div class="ws-user-meta">
+                                <span class="ws-skeleton ws-skeleton-line ws-skeleton-name"></span>
+                                <span class="ws-skeleton ws-skeleton-line ws-skeleton-email"></span>
+                                <span class="ws-skeleton ws-skeleton-line ws-skeleton-id"></span>
+                            </div>
+                        </div>
+                    </td>
+                    <td data-label="Status"><span class="ws-skeleton ws-skeleton-pill"></span></td>
+                    <td data-label="Activation">
+                        <div class="ws-date">
+                            <span class="ws-skeleton ws-skeleton-date"></span>
+                            <span class="ws-skeleton ws-skeleton-date-note"></span>
+                        </div>
+                    </td>
+                    <td data-label="Expiry">
+                        <div class="ws-date">
+                            <span class="ws-skeleton ws-skeleton-date"></span>
+                            <span class="ws-skeleton ws-skeleton-date-note"></span>
+                        </div>
+                    </td>
+                    <td data-label="Order">
+                        <div class="ws-date">
+                            <span class="ws-skeleton ws-skeleton-date"></span>
+                            <span class="ws-skeleton ws-skeleton-date-note"></span>
+                        </div>
+                    </td>
+                    <td data-label="AI Balance"><span class="ws-skeleton ws-skeleton-number"></span></td>
+                    <td data-label="Month Tokens"><span class="ws-skeleton ws-skeleton-number"></span></td>
+                    <td data-label="Balance"><span class="ws-skeleton ws-skeleton-number"></span></td>
+                    <td data-label="Action"><span class="ws-skeleton ws-skeleton-btn"></span></td>
+                </tr>
+            `).join('');
+
+            $('wsUsersTableBody').innerHTML = rows;
+        }
+
+        function setMetricsLoadingState() {
+            ['metricTotalUsers', 'metricActiveUsers', 'metricExpiringSoon', 'metricMonthTokens', 'metricPaidUsers'].forEach(id => {
+                const element = $(id);
+                if (element) {
+                    element.innerHTML = '<span class="ws-skeleton ws-skeleton-metric"></span>';
+                }
+            });
+        }
+
         function setLoadingState() {
-            $('wsUsersTableBody').innerHTML = `
-                <tr><td colspan="9"><div class="ws-loading-inline">正在同步 WS 用户、订阅、订单与 AI 使用数据...</div></td></tr>
-            `;
+            renderTableSkeleton();
+            setMetricsLoadingState();
             $('wsResultCount').textContent = '正在加载...';
+            $('wsPaginationInfo').textContent = '正在加载...';
+            $('wsPrevPageBtn').disabled = true;
+            $('wsNextPageBtn').disabled = true;
             renderDetail(null);
         }
 

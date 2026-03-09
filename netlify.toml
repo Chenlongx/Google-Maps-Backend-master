@@ -14,6 +14,26 @@
 # --- API 重定向规则 ---
 # 将所有 /api/ 开头的请求转发到对应的 Netlify Function
 [[redirects]]
+  from = "/api/notifications/unread-count"
+  to = "/.netlify/functions/notifications-unread-count"
+  status = 200
+
+[[redirects]]
+  from = "/api/notifications/read-all"
+  to = "/.netlify/functions/notifications-read-all"
+  status = 200
+
+[[redirects]]
+  from = "/api/notifications/read"
+  to = "/.netlify/functions/notifications-read"
+  status = 200
+
+[[redirects]]
+  from = "/api/notifications"
+  to = "/.netlify/functions/notifications"
+  status = 200
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200

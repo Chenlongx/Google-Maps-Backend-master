@@ -65,6 +65,7 @@ exports.handler = async (event) => {
     const userType = body.userType || body.user_type || '';
     const timeLimit = body.timeLimit || body.time_limit || null;
     const expiryDateRaw = body.expiryDate || body.expiry_date || null;
+    const trialSearchUsed = body.trial_search_used === true || String(body.trial_search_used).toLowerCase() === 'true';
 
     if (!account || !password || !userType) {
       return { statusCode: 400, body: JSON.stringify({ success: false, message: 'account, password, userType are required' }) };
@@ -127,7 +128,8 @@ exports.handler = async (event) => {
       user_type: userType,
       created_at: createdAt.toISOString(),
       expiry_at: expiryAt.toISOString(),
-      status: 'active'
+      status: 'active',
+      trial_search_used: trialSearchUsed
     };
 
     let { data: insertData, error: insertErr } = await supabase

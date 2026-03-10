@@ -53,6 +53,7 @@
                     <th>设备码</th>
                     <th>系统</th>
                     <th>类型</th>
+                    <th>试用已用</th>
                     <th id="sort-export-count" style="cursor: pointer;">
                         导出次数 <span id="sort-icon-export-count"></span>
                     </th>
@@ -282,6 +283,7 @@
                 <td class="skeleton-cell"><span></span></td>
                 <td class="skeleton-cell"><span></span></td>
                 <td class="skeleton-cell"><span></span></td>
+                <td class="skeleton-cell"><span></span></td>
             </tr>
         `;
 
@@ -365,7 +367,7 @@
         tableBody.innerHTML = '';
         
         if (currentPageUsers.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="15" style="text-align: center; padding: 40px; color: #888;">暂无用户数据</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="16" style="text-align: center; padding: 40px; color: #888;">暂无用户数据</td></tr>`;
             return;
         }
         
@@ -391,11 +393,13 @@
             } else {
                 userTypeText = '未知类型';
             }
+
+            const trialSearchUsedText = user.trial_search_used === true ? 'TRUE' : 'FALSE';
             
             // 计算全局序号（考虑分页）
             const globalIndex = startIndex + index + 1;
             
-            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${globalIndex}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${userTypeText}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
+            row.innerHTML = `<td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td><td>${globalIndex}</td><td>${user.account || 'N/A'}</td><td>${user.password || 'N/A'}</td><td>${user.device_id || '未绑定'}</td><td>${user.os_type || '未绑定'}</td><td>${userTypeText}</td><td>${trialSearchUsedText}</td><td>${user.daily_export_count || 0}</td><td>${formatDate_UsersPage(user.last_export_date) || '无记录'}</td><td>${formatDate_UsersPage(user.created_at)}</td><td>${formatDate_UsersPage(user.expiry_at)}</td><td>${statusBadge}</td><td>${aiStatusBadge}</td><td>${user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining.toLocaleString('en-US') : 'N/A'}</td><td><button class="edit-button" data-user-id="${user.id}">编辑</button></td>`;
             tableBody.appendChild(row);
         });
     }

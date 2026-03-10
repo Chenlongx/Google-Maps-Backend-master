@@ -30,12 +30,14 @@
          <h3 class="card-title">最近活动</h3>
          <ul class="activity-feed" id="activityFeed"></ul>
     </div>
-     <div class="main-card">
+     <div class="main-card expiring-users-card">
          <h3 class="card-title">即将到期用户 (7天内)</h3>
-         <table class="simple-table">
-             <thead><tr><th>账号</th><th>类型</th><th>到期日</th></tr></thead>
-             <tbody id="expiringUsersBody"></tbody>
-         </table>
+         <div class="table-scroll-shell">
+             <table class="simple-table">
+                 <thead><tr><th>账号</th><th>类型</th><th>到期日</th></tr></thead>
+                 <tbody id="expiringUsersBody"></tbody>
+             </table>
+         </div>
     </div>
 </div>
 

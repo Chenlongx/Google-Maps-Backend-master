@@ -450,47 +450,53 @@ a {
     width: 7%;
 }
 
-#userTable th:nth-child(8), /* 导出次数 */
+#userTable th:nth-child(8), /* 试用已用 */
 #userTable td:nth-child(8) {
     width: 6%;
     text-align: center;
 }
 
-#userTable th:nth-child(9), /* 最近导出 */
+#userTable th:nth-child(9), /* 导出次数 */
 #userTable td:nth-child(9) {
-    width: 9%;
-}
-
-#userTable th:nth-child(10), /* 创建时间 */
-#userTable td:nth-child(10) {
-    width: 9%;
-}
-
-#userTable th:nth-child(11), /* 到期时间 */
-#userTable td:nth-child(11) {
-    width: 9%;
-}
-
-#userTable th:nth-child(12), /* 状态 */
-#userTable td:nth-child(12) {
     width: 6%;
     text-align: center;
 }
 
-#userTable th:nth-child(13), /* AI权限 */
+#userTable th:nth-child(10), /* 最近导出 */
+#userTable td:nth-child(10) {
+    width: 9%;
+}
+
+#userTable th:nth-child(11), /* 创建时间 */
+#userTable td:nth-child(11) {
+    width: 9%;
+}
+
+#userTable th:nth-child(12), /* 到期时间 */
+#userTable td:nth-child(12) {
+    width: 9%;
+}
+
+#userTable th:nth-child(13), /* 状态 */
 #userTable td:nth-child(13) {
     width: 6%;
     text-align: center;
 }
 
-#userTable th:nth-child(14), /* AI Tokens */
+#userTable th:nth-child(14), /* AI权限 */
 #userTable td:nth-child(14) {
+    width: 6%;
+    text-align: center;
+}
+
+#userTable th:nth-child(15), /* AI Tokens */
+#userTable td:nth-child(15) {
     width: 7%;
     text-align: right;
 }
 
-#userTable th:nth-child(15), /* 操作 */
-#userTable td:nth-child(15) {
+#userTable th:nth-child(16), /* 操作 */
+#userTable td:nth-child(16) {
     width: 6%;
     text-align: center;
 }
@@ -519,6 +525,27 @@ a {
 
 #userTable tbody tr:hover {
     background-color: var(--primary-light-color);
+}
+
+body.dark-mode #userTable thead {
+    background-color: #1e293b;
+}
+
+body.dark-mode #userTable th {
+    color: #cbd5e1;
+    border-bottom-color: #334155;
+}
+
+body.dark-mode #userTable tbody tr {
+    border-bottom-color: #334155;
+}
+
+body.dark-mode #userTable tbody tr:hover {
+    background-color: rgba(59, 130, 246, 0.14);
+}
+
+body.dark-mode #userTable tbody tr:hover td {
+    background-color: transparent;
 }
 
 
@@ -755,6 +782,26 @@ input[type=checkbox]:focus {
 
 .simple-table tr:last-child td {
     border-bottom: none;
+}
+
+.expiring-users-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 420px;
+}
+
+.table-scroll-shell {
+    flex: 1;
+    min-height: 0;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.table-scroll-shell .simple-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: var(--white-color);
+    z-index: 1;
 }
 
 .status-tag {
@@ -1333,6 +1380,14 @@ body.dark-mode .skeleton-cell span {
         padding: 16px;
         border-radius: 8px;
     }
+
+    .expiring-users-card {
+        min-height: 360px;
+    }
+
+    .table-scroll-shell {
+        max-height: 260px;
+    }
     
     /* 表格控件优化 */
     .table-controls {
@@ -1436,14 +1491,15 @@ body.dark-mode .skeleton-cell span {
     #userTable td:nth-child(5)::before { content: "设备码"; }
     #userTable td:nth-child(6)::before { content: "系统"; }
     #userTable td:nth-child(7)::before { content: "类型"; }
-    #userTable td:nth-child(8)::before { content: "导出次数"; }
-    #userTable td:nth-child(9)::before { content: "最近导出"; }
-    #userTable td:nth-child(10)::before { content: "创建时间"; }
-    #userTable td:nth-child(11)::before { content: "到期时间"; }
-    #userTable td:nth-child(12)::before { content: "状态"; }
-    #userTable td:nth-child(13)::before { content: "AI权限"; }
-    #userTable td:nth-child(14)::before { content: "AI Tokens"; }
-    #userTable td:nth-child(15)::before { content: "操作"; }
+    #userTable td:nth-child(8)::before { content: "试用已用"; }
+    #userTable td:nth-child(9)::before { content: "导出次数"; }
+    #userTable td:nth-child(10)::before { content: "最近导出"; }
+    #userTable td:nth-child(11)::before { content: "创建时间"; }
+    #userTable td:nth-child(12)::before { content: "到期时间"; }
+    #userTable td:nth-child(13)::before { content: "状态"; }
+    #userTable td:nth-child(14)::before { content: "AI权限"; }
+    #userTable td:nth-child(15)::before { content: "AI Tokens"; }
+    #userTable td:nth-child(16)::before { content: "操作"; }
     
     #userTable td::before {
         font-weight: 600;
@@ -1485,7 +1541,7 @@ body.dark-mode .skeleton-cell span {
     }
     
     /* 操作按钮优化 */
-    #userTable td:nth-child(15) .edit-button {
+    #userTable td:nth-child(16) .edit-button {
         padding: 8px 16px;
         font-size: 14px;
         border-radius: 6px;
@@ -1646,7 +1702,7 @@ body.dark-mode .skeleton-cell span {
     #userTable th:nth-child(3), #userTable td:nth-child(3) {
         width: 100%;
     }
-    #userTable td:nth-child(2), #userTable th:nth-child(4), #userTable td:nth-child(4), #userTable td:nth-child(5), #userTable td:nth-child(6),#userTable td:nth-child(7), #userTable td:nth-child(8), #userTable td:nth-child(9), #userTable td:nth-child(10), #userTable td:nth-child(11), #userTable td:nth-child(12), #userTable td:nth-child(13), #userTable td:nth-child(14), #userTable td:nth-child(15){
+    #userTable td:nth-child(2), #userTable th:nth-child(4), #userTable td:nth-child(4), #userTable td:nth-child(5), #userTable td:nth-child(6),#userTable td:nth-child(7), #userTable td:nth-child(8), #userTable td:nth-child(9), #userTable td:nth-child(10), #userTable td:nth-child(11), #userTable td:nth-child(12), #userTable td:nth-child(13), #userTable td:nth-child(14), #userTable td:nth-child(15), #userTable td:nth-child(16){
         width: 100%;
     }
 }

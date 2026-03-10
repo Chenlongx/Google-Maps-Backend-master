@@ -269,6 +269,8 @@ body.dark-mode .stat-purple .em-stat-icon-wrapper {
     overflow-x: auto;
     border-radius: 8px;
     border: 1px solid var(--em-border);
+    min-height: 420px;
+    background: var(--em-card-bg);
 }
 
 .em-table {
@@ -304,6 +306,71 @@ body.dark-mode .stat-purple .em-stat-icon-wrapper {
 
 body.dark-mode .em-table tr:hover td {
     background-color: rgba(255, 255, 255, 0.02);
+}
+
+.em-table-wrapper.is-loading {
+    overflow: hidden;
+}
+
+.em-loading-row td {
+    pointer-events: none;
+}
+
+.em-skeleton,
+.em-loading-metric {
+    display: inline-block;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #edf2f7 20%, #f8fafc 50%, #edf2f7 80%);
+    background-size: 200% 100%;
+    animation: emShimmer 1.4s linear infinite;
+}
+
+.em-loading-metric {
+    width: 72px;
+    height: 28px;
+    border-radius: 10px;
+}
+
+.em-skeleton-id {
+    width: 28px;
+    height: 14px;
+}
+
+.em-skeleton-key {
+    width: 140px;
+    height: 14px;
+}
+
+.em-skeleton-pill {
+    width: 72px;
+    height: 24px;
+}
+
+.em-skeleton-date {
+    width: 84px;
+    height: 14px;
+}
+
+.em-skeleton-usage {
+    width: 64px;
+    height: 14px;
+}
+
+.em-skeleton-email {
+    width: 160px;
+    height: 14px;
+}
+
+.em-skeleton-actions {
+    width: 96px;
+    height: 30px;
+    border-radius: 8px;
+}
+
+body.dark-mode .em-skeleton,
+body.dark-mode .em-loading-metric {
+    background: linear-gradient(90deg, #334155 20%, #475569 50%, #334155 80%);
+    background-size: 200% 100%;
 }
 
 /* Badges */
@@ -425,6 +492,15 @@ body.dark-mode .em-badge-info {
     }
 }
 
+@keyframes emShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .em-header {
@@ -444,5 +520,9 @@ body.dark-mode .em-badge-info {
 
     .em-actions {
         justify-content: flex-end;
+    }
+
+    .em-table-wrapper {
+        min-height: 320px;
     }
 }

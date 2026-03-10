@@ -43,6 +43,7 @@ exports.handler = async (event) => {
                 created_at, 
                 expiry_at, 
                 status, 
+                trial_search_used,
                 is_ai_authorized, 
                 ai_tokens_remaining
             `)

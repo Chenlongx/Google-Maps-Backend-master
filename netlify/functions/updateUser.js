@@ -30,6 +30,7 @@ exports.handler = async (event) => {
             'created_at',
             'expiry_at', 
             'status',
+            'trial_search_used',
             'is_ai_authorized',       // <-- 新增
             'ai_tokens_remaining'     // <-- 新增
         ];
@@ -37,7 +38,11 @@ exports.handler = async (event) => {
 
         for (const key of allowedFields) {
             if (body[key] !== undefined) {
-                updateData[key] = body[key];
+                if ((key === 'trial_search_used' || key === 'is_ai_authorized') && typeof body[key] === 'string') {
+                    updateData[key] = body[key].toLowerCase() === 'true';
+                } else {
+                    updateData[key] = body[key];
+                }
             }
         }
 

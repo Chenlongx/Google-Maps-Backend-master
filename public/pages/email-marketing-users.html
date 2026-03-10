@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        <div class="em-table-wrapper">
+        <div class="em-table-wrapper" id="licensesTableWrapper">
             <table class="em-table" id="licensesTable">
                 <thead>
                     <tr>
@@ -235,6 +235,44 @@
             expired: { text: '已过期', className: 'em-badge-danger' }
         };
 
+        function renderStatsLoading() {
+            ['total-licenses-display', 'active-licenses-display', 'tracking-enabled-display', 'today-tracking-display']
+                .forEach(id => {
+                    const element = $(id);
+                    if (element) {
+                        element.innerHTML = '<span class="em-loading-metric"></span>';
+                    }
+                });
+        }
+
+        function renderTableLoading() {
+            const tbody = $('licensesTableBody');
+            const wrapper = $('licensesTableWrapper');
+            if (!tbody || !wrapper) return;
+
+            wrapper.classList.add('is-loading');
+            tbody.innerHTML = Array.from({ length: 6 }, () => `
+                <tr class="em-loading-row" aria-hidden="true">
+                    <td><span class="em-skeleton em-skeleton-id"></span></td>
+                    <td><span class="em-skeleton em-skeleton-key"></span></td>
+                    <td><span class="em-skeleton em-skeleton-pill"></span></td>
+                    <td><span class="em-skeleton em-skeleton-date"></span></td>
+                    <td><span class="em-skeleton em-skeleton-date"></span></td>
+                    <td><span class="em-skeleton em-skeleton-date"></span></td>
+                    <td><span class="em-skeleton em-skeleton-usage"></span></td>
+                    <td><span class="em-skeleton em-skeleton-email"></span></td>
+                    <td><span class="em-skeleton em-skeleton-actions"></span></td>
+                </tr>
+            `).join('');
+        }
+
+        function clearLoadingState() {
+            const wrapper = $('licensesTableWrapper');
+            if (wrapper) {
+                wrapper.classList.remove('is-loading');
+            }
+        }
+
         function showNotification(msg, type = 'info') {
             const d = document.createElement('div');
             d.style.cssText = `position:fixed;top:20px;right:20px;z-index:10000;padding:12px 20px;border-radius:8px;color:#fff;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.15);background:${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};animation:fadeIn .2s`;
@@ -254,7 +292,11 @@
         }
 
         async function fetchData() {
-            $('licensesTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--em-text-sub)">加载中...</td></tr>';
+            renderStatsLoading();
+            renderTableLoading();
+            $('pageInfo').textContent = '加载中...';
+            $('prevPage').disabled = true;
+            $('nextPage').disabled = true;
             try {
                 const token = localStorage.getItem('authToken');
                 if (!token) {
@@ -271,9 +313,11 @@
                 if (data.success) {
                     state.licenses = data.licenses || [];
                     updateStats(data.summary);
+                    clearLoadingState();
                     renderTable();
                 } else throw new Error(data.error);
             } catch (e) {
+                clearLoadingState();
                 showNotification(e.message, 'error');
                 $('licensesTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:#ef4444">加载失败</td></tr>';
             }

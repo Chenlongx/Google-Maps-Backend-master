@@ -248,6 +248,14 @@
             </div>
 
             <div class="form-group">
+                <label for="trialSearchUsed">试用次数已使用</label>
+                <select id="trialSearchUsed">
+                    <option value="false">FALSE</option>
+                    <option value="true">TRUE</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="createdAt">创建时间</label>
                 <input type="datetime-local" id="createdAt" />
             </div>
@@ -364,6 +372,7 @@
         document.getElementById('createdAt').value = formatDateTimeLocal(user.created_at);
         document.getElementById('expiresAt').value = formatDateTimeLocal(user.expiry_at);
         document.getElementById('deviceCode').value = user.device_id || '';
+        document.getElementById('trialSearchUsed').value = user.trial_search_used === true ? 'true' : 'false';
         document.getElementById('aiAuthorized').value = user.is_ai_authorized ? 'true' : 'false';
         document.getElementById('aiTokens').value = user.ai_tokens_remaining !== undefined ? user.ai_tokens_remaining : 0;
 
@@ -401,6 +410,7 @@
             created_at: toISOStringFromLocal(document.getElementById('createdAt').value),
             expiry_at: toISOStringFromLocal(document.getElementById('expiresAt').value),
             device_id: document.getElementById('deviceCode').value.trim(),
+            trial_search_used: document.getElementById('trialSearchUsed').value === 'true',
             is_ai_authorized: document.getElementById('aiAuthorized').value === 'true',
             ai_tokens_remaining: parseInt(document.getElementById('aiTokens').value, 10) || 0
         };

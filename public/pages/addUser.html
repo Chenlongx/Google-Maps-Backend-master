@@ -253,6 +253,14 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label for="trialSearchUsed">试用次数已使用</label>
+                <select id="trialSearchUsed">
+                    <option value="false" selected>FALSE</option>
+                    <option value="true">TRUE</option>
+                </select>
+            </div>
+
             <div id="timeLimitContainer" class="form-group" style="display:none;">
                 <label for="timeLimit">时间限制（自动计算）</label>
                 <select id="timeLimit">
@@ -363,6 +371,7 @@
             const timeLimit = document.getElementById('timeLimit').value || null;
             const startDateRaw = document.getElementById('startDate').value;
             const expiryDateRaw = document.getElementById('expiryDate').value;
+            const trialSearchUsed = document.getElementById('trialSearchUsed').value === 'true';
 
             if (!account || !password || !userType) {
                 showTimedAlert_AddUser('账号/密码/用户类型为必填项', 'error', 3000);
@@ -373,7 +382,7 @@
 
             const startDate = startDateRaw ? new Date(startDateRaw).toISOString() : null;
             const expiryDate = expiryDateRaw ? new Date(expiryDateRaw).toISOString() : null;
-            const payload = { account, password, userType, timeLimit, startDate, expiryDate };
+            const payload = { account, password, userType, timeLimit, startDate, expiryDate, trial_search_used: trialSearchUsed };
 
             try {
                 const token = localStorage.getItem('authToken') || '';

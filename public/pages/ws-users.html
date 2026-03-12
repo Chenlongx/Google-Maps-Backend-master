@@ -65,6 +65,46 @@
         </div>
     </section>
 
+    <section class="ws-config-card ws-config-launcher" id="wsTokenRateCard">
+        <div class="ws-config-head">
+            <div class="ws-config-copy">
+                <span class="ws-config-kicker">&#84;&#111;&#107;&#101;&#110; &#82;&#97;&#116;&#101;
+                    &#67;&#111;&#110;&#116;&#114;&#111;&#108;</span>
+                <h2>&#84;&#111;&#107;&#101;&#110; &#20817;&#25442;&#31574;&#30053;</h2>
+                <p>&#23558; Token &#20817;&#25442;&#37197;&#32622;&#29420;&#31435;&#21040;&#31574;&#30053;&#38754;&#26495;&#20013;&#65292;&#21487;&#22312;&#19981;&#25171;&#26029;&#24403;&#21069;&#29992;&#25143;&#26597;&#30475;&#30340;&#24773;&#20917;&#19979;&#21333;&#29420;&#32534;&#36753;&#12289;&#20445;&#23384;&#19982;&#39564;&#35777;&#12290;</p>
+            </div>
+            <div class="ws-config-badges">
+                <div class="ws-config-badge">
+                    <span>&#24403;&#21069;&#27604;&#29575;</span>
+                    <strong id="wsTokenRateCurrentValue">--</strong>
+                </div>
+                <div class="ws-config-badge">
+                    <span>&#26368;&#21518;&#26356;&#26032;</span>
+                    <strong id="wsTokenRateUpdatedAt">--</strong>
+                </div>
+                <div class="ws-config-badge">
+                    <span>&#37197;&#32622;&#26469;&#28304;</span>
+                    <strong id="wsTokenRateSource">--</strong>
+                </div>
+            </div>
+        </div>
+        <div class="ws-config-launcher-footer">
+            <div class="ws-config-preview ws-config-preview-inline">
+                <span class="ws-config-preview-label">&#24555;&#36895;&#39044;&#35272;</span>
+                <strong id="wsTokenRatePreview">1 CNY = -- Tokens</strong>
+                <small id="wsTokenRatePreviewHint">1M Tokens = -- CNY</small>
+            </div>
+            <div class="ws-config-launcher-actions">
+                <button class="ws-page-btn" id="wsTokenRateRefreshBtn"
+                    type="button">&#37325;&#26032;&#35835;&#21462;</button>
+                <button class="ws-refresh-btn" id="wsTokenRateOpenBtn"
+                    type="button">&#25171;&#24320;&#31574;&#30053;&#38754;&#26495;</button>
+            </div>
+        </div>
+    </section>
+
+    <div id="wsAiRoutingWorkspaceMount"></div>
+
     <section class="ws-content-grid" id="wsContentGrid">
         <article class="ws-table-card">
             <div class="ws-section-head">
@@ -116,7 +156,8 @@
                     </div>
                     <div class="ws-detail-header-actions">
                         <button class="ws-detail-edit-btn" id="wsDetailEditBtn" type="button">编辑用户</button>
-                        <button class="ws-detail-close-btn" id="wsDetailCloseBtn" type="button" aria-label="关闭详情">&times;</button>
+                        <button class="ws-detail-close-btn" id="wsDetailCloseBtn" type="button"
+                            aria-label="关闭详情">&times;</button>
                     </div>
                 </div>
 
@@ -133,10 +174,14 @@
                 <section class="ws-detail-block">
                     <div class="ws-block-title">订阅与订单时间</div>
                     <div class="ws-timeline">
-                        <div class="ws-timeline-item"><span class="ws-timeline-label">开通时间</span><strong id="wsDetailActivationTime">--</strong></div>
-                        <div class="ws-timeline-item"><span class="ws-timeline-label">到期时间</span><strong id="wsDetailExpiryTime">--</strong></div>
-                        <div class="ws-timeline-item"><span class="ws-timeline-label">最近订单创建时间</span><strong id="wsDetailOrderCreatedAt">--</strong></div>
-                        <div class="ws-timeline-item"><span class="ws-timeline-label">最近支付完成时间</span><strong id="wsDetailPaidOrderAt">--</strong></div>
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">开通时间</span><strong
+                                id="wsDetailActivationTime">--</strong></div>
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">到期时间</span><strong
+                                id="wsDetailExpiryTime">--</strong></div>
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">最近订单创建时间</span><strong
+                                id="wsDetailOrderCreatedAt">--</strong></div>
+                        <div class="ws-timeline-item"><span class="ws-timeline-label">最近支付完成时间</span><strong
+                                id="wsDetailPaidOrderAt">--</strong></div>
                     </div>
                     <div class="ws-inline-pills" id="wsDetailRiskFlags"></div>
                 </section>
@@ -144,10 +189,14 @@
                 <section class="ws-detail-block">
                     <div class="ws-block-title">AI 使用概览</div>
                     <div class="ws-info-grid">
-                        <div class="ws-info-item"><span>本月输入 Tokens</span><strong id="wsDetailMonthInput">--</strong></div>
-                        <div class="ws-info-item"><span>本月输出 Tokens</span><strong id="wsDetailMonthOutput">--</strong></div>
-                        <div class="ws-info-item"><span>本月总 Tokens</span><strong id="wsDetailMonthTotal">--</strong></div>
-                        <div class="ws-info-item"><span>最近 7 天 Tokens</span><strong id="wsDetailWeekTotal">--</strong></div>
+                        <div class="ws-info-item"><span>本月输入 Tokens</span><strong id="wsDetailMonthInput">--</strong>
+                        </div>
+                        <div class="ws-info-item"><span>本月输出 Tokens</span><strong id="wsDetailMonthOutput">--</strong>
+                        </div>
+                        <div class="ws-info-item"><span>本月总 Tokens</span><strong id="wsDetailMonthTotal">--</strong>
+                        </div>
+                        <div class="ws-info-item"><span>最近 7 天 Tokens</span><strong id="wsDetailWeekTotal">--</strong>
+                        </div>
                         <div class="ws-info-item"><span>常用模型</span><strong id="wsDetailTopModel">--</strong></div>
                         <div class="ws-info-item"><span>常用能力</span><strong id="wsDetailTopFeature">--</strong></div>
                     </div>
@@ -159,9 +208,11 @@
                         <div class="ws-info-item"><span>AI 余额</span><strong id="wsDetailAiBalance">--</strong></div>
                         <div class="ws-info-item"><span>现金余额</span><strong id="wsDetailBalance">--</strong></div>
                         <div class="ws-info-item"><span>订单数</span><strong id="wsDetailOrderCount">--</strong></div>
-                        <div class="ws-info-item"><span>订阅记录数</span><strong id="wsDetailSubscriptionCount">--</strong></div>
+                        <div class="ws-info-item"><span>订阅记录数</span><strong id="wsDetailSubscriptionCount">--</strong>
+                        </div>
                         <div class="ws-info-item"><span>最近订单状态</span><strong id="wsDetailOrderStatus">--</strong></div>
-                        <div class="ws-info-item"><span>最近 AI 调用</span><strong id="wsDetailLastAiUsedAt">--</strong></div>
+                        <div class="ws-info-item"><span>最近 AI 调用</span><strong id="wsDetailLastAiUsedAt">--</strong>
+                        </div>
                     </div>
                 </section>
             </div>
@@ -240,63 +291,466 @@
         </div>
     </div>
 </div>
+<div class="ws-modal-backdrop" id="wsTokenRateModal" hidden>
+    <div class="ws-modal-card ws-token-rate-modal">
+        <div class="ws-modal-header">
+            <div>
+                <h3>&#84;&#111;&#107;&#101;&#110; &#20817;&#25442;&#31574;&#30053;</h3>
+                <p>&#32534;&#36753; <span class="ws-config-mono">whatsapp.system_settings.ai_token_rate</span>
+                    &#65292;&#29992;&#20110;&#25511;&#21046;&#36164;&#37329;&#36716; token &#19982; token
+                    &#20805;&#20540;&#25442;&#31639;&#12290;</p>
+            </div>
+            <button class="ws-modal-close" id="wsCloseTokenRateModal" type="button">&times;</button>
+        </div>
+        <div class="ws-modal-body">
+            <div class="ws-token-rate-shell">
+                <div class="ws-config-grid ws-token-rate-grid">
+                    <label class="ws-edit-field">
+                        <span>&#27599; 1 CNY &#20817;&#25442; Tokens</span>
+                        <input id="wsTokenRateInput" type="number" min="1" step="1" placeholder="368000">
+                    </label>
+                    <label class="ws-edit-field">
+                        <span>&#35745;&#36153;&#22522;&#20934;</span>
+                        <input id="wsTokenRateBasis" type="text" placeholder="deepseek_1x">
+                    </label>
+                    <label class="ws-edit-field">
+                        <span>&#26159;&#21542;&#21551;&#29992;</span>
+                        <select id="wsTokenRateEnabled">
+                            <option value="true">&#21551;&#29992;</option>
+                            <option value="false">&#31105;&#29992;</option>
+                        </select>
+                    </label>
+                    <div class="ws-config-preview">
+                        <span class="ws-config-preview-label">&#39044;&#35272;</span>
+                        <strong id="wsTokenRatePreviewModal">1 CNY = -- Tokens</strong>
+                        <small id="wsTokenRatePreviewHintModal">1M Tokens = -- CNY</small>
+                    </div>
+                    <label class="ws-edit-field ws-edit-field-wide">
+                        <span>&#22791;&#27880;</span>
+                        <textarea id="wsTokenRateRemark" rows="4"
+                            placeholder="&#20363;&#22914;&#65306;2026-03 pricing baseline"></textarea>
+                    </label>
+                </div>
+                <p class="ws-modal-tip" id="wsTokenRateStatus">&#20445;&#23384;&#21518;&#65292;&#21518;&#31471;&#32531;&#23384;&#21644; Worker
+                    &#37096;&#32626;&#21487;&#33021;&#38656;&#35201;&#30701;&#26102;&#38388;&#25165;&#20250;&#20840;&#37096;&#29983;&#25928;&#12290;</p>
+            </div>
+        </div>
+        <div class="ws-modal-footer">
+            <button class="ws-page-btn" id="wsCancelTokenRateBtn" type="button">&#20851;&#38381;</button>
+            <button class="ws-page-btn" id="wsTokenRateModalRefreshBtn" type="button">&#37325;&#26032;&#35835;&#21462;</button>
+            <button class="ws-refresh-btn" id="wsTokenRateSaveBtn" type="button">&#20445;&#23384;&#35774;&#32622;</button>
+        </div>
+    </div>
+</div>
 <style>
-    .ws-page { display: flex; flex-direction: column; gap: 24px; color: #102133; }
-    .ws-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
-    .ws-metric-card, .ws-toolbar-card, .ws-table-card, .ws-detail-card {
-        background: rgba(255, 255, 255, 0.88); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 24px;
-        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08); backdrop-filter: blur(10px);
+    .ws-page {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        color: #102133;
     }
-    .ws-metric-card { position: relative; overflow: hidden; padding: 20px 20px 18px; min-height: 132px; }
+
+    .ws-metrics {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .ws-metric-card,
+    .ws-toolbar-card,
+    .ws-config-card,
+    .ws-table-card,
+    .ws-detail-card {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 12px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(10px);
+    }
+
+    .ws-metric-card {
+        position: relative;
+        overflow: hidden;
+        padding: 20px 20px 18px;
+        min-height: 132px;
+    }
+
     .ws-metric-card::before {
-        content: ""; position: absolute; inset: -30% auto auto 72%; width: 110px; height: 110px; border-radius: 50%;
-        background: currentColor; opacity: 0.08; filter: blur(3px);
+        content: "";
+        position: absolute;
+        inset: -30% auto auto 72%;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.08;
+        filter: blur(3px);
     }
-    .accent-cyan { color: #0891b2; } .accent-emerald { color: #059669; } .accent-gold { color: #d97706; }
-    .accent-indigo { color: #4f46e5; } .accent-rose { color: #e11d48; }
-    .ws-metric-label { font-size: 13px; color: #4b5563; }
-    .ws-metric-value { margin-top: 12px; font-size: 30px; font-weight: 700; color: #0f172a; }
-    .ws-metric-note { margin-top: 10px; color: #64748b; font-size: 12px; }
-    .ws-toolbar-card { padding: 18px; }
-    .ws-toolbar { display: grid; grid-template-columns: minmax(260px, 1.4fr) repeat(3, minmax(140px, 0.7fr)) auto; gap: 14px; align-items: end; }
-    .ws-search, .ws-filter { display: flex; flex-direction: column; gap: 8px; }
-    .ws-search span, .ws-filter span {
-        font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: #475569; text-transform: uppercase;
+
+    .accent-cyan {
+        color: #0891b2;
     }
-    .ws-search input, .ws-filter select {
-        width: 100%; height: 46px; padding: 0 14px; border: 1px solid #d7e1ea; border-radius: 14px; background: #f8fbff;
-        color: #102133; font-size: 14px; outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    .accent-emerald {
+        color: #059669;
     }
-    .ws-search input:focus, .ws-filter select:focus { border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14); }
+
+    .accent-gold {
+        color: #d97706;
+    }
+
+    .accent-indigo {
+        color: #4f46e5;
+    }
+
+    .accent-rose {
+        color: #e11d48;
+    }
+
+    .ws-metric-label {
+        font-size: 13px;
+        color: #4b5563;
+    }
+
+    .ws-metric-value {
+        margin-top: 12px;
+        font-size: 30px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .ws-metric-note {
+        margin-top: 10px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .ws-toolbar-card {
+        padding: 18px;
+    }
+
+    .ws-config-card {
+        padding: 22px;
+    }
+
+    .ws-config-launcher {
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 34%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(244, 248, 255, 0.92));
+    }
+
+    .ws-config-launcher::after {
+        content: "";
+        position: absolute;
+        inset: auto -36px -44px auto;
+        width: 168px;
+        height: 168px;
+        border-radius: 50%;
+        background: rgba(14, 165, 233, 0.08);
+        filter: blur(8px);
+        pointer-events: none;
+    }
+
+
+    .ws-toolbar {
+        display: grid;
+        grid-template-columns: minmax(260px, 1.4fr) repeat(3, minmax(140px, 0.7fr)) auto;
+        gap: 14px;
+        align-items: end;
+    }
+
+    .ws-search,
+    .ws-filter {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ws-search span,
+    .ws-filter span {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: #475569;
+        text-transform: uppercase;
+    }
+
+    .ws-search input,
+    .ws-filter select {
+        width: 100%;
+        height: 46px;
+        padding: 0 14px;
+        border: 1px solid #d7e1ea;
+        border-radius: 10px;
+        background: #f8fbff;
+        color: #102133;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ws-search input:focus,
+    .ws-filter select:focus {
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+    }
+
     .ws-refresh-btn {
-        height: 46px; padding: 0 18px; border: none; border-radius: 14px; background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
-        color: #f8fafc; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 46px;
+        padding: 0 18px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+        color: #f8fafc;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .ws-refresh-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 18px rgba(29, 78, 216, 0.24); }
-    .ws-content-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+
+    .ws-refresh-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(29, 78, 216, 0.24);
+    }
+
+    .ws-config-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .ws-config-copy h2 {
+        margin: 6px 0 8px;
+        font-size: 24px;
+        color: #0f172a;
+    }
+
+    .ws-config-copy p {
+        margin: 0;
+        max-width: 760px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .ws-config-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.06);
+        color: #334155;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+    }
+
+    .ws-config-mono {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 12px;
+    }
+
+    .ws-config-badges {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(132px, 1fr));
+        gap: 12px;
+        min-width: min(100%, 420px);
+    }
+
+    .ws-config-badge {
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.92));
+        border: 1px solid #e5edf5;
+    }
+
+    .ws-config-badge span,
+    .ws-config-preview-label {
+        display: block;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .ws-config-badge strong {
+        display: block;
+        margin-top: 8px;
+        color: #0f172a;
+        font-size: 14px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .ws-config-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        align-items: end;
+    }
+
+    .ws-config-preview {
+        min-height: 108px;
+        padding: 14px 16px;
+        border-radius: 10px;
+        border: 1px solid #dce7f2;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.03), rgba(59, 130, 246, 0.08));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .ws-config-preview strong {
+        color: #0f172a;
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .ws-config-preview small {
+        color: #475569;
+        font-size: 12px;
+    }
+
+    .ws-edit-field-wide {
+        grid-column: span 4;
+    }
+
+    .ws-edit-field textarea {
+        width: 100%;
+        min-height: 90px;
+        padding: 12px 14px;
+        border: 1px solid #d7e1ea;
+        border-radius: 10px;
+        background: #f8fbff;
+        color: #102133;
+        font-size: 14px;
+        outline: none;
+        resize: vertical;
+    }
+
+    .ws-edit-field textarea:focus {
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+    }
+
+    .ws-config-footer {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e6edf4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .ws-config-footer p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .ws-config-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ws-config-launcher-footer {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 12px;
+    }
+
+    .ws-config-preview-inline {
+        min-height: auto;
+        min-width: min(100%, 320px);
+        flex: 1;
+    }
+
+    .ws-config-launcher-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ws-token-rate-modal {
+        width: min(960px, 100%);
+    }
+
+    .ws-token-rate-shell {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .ws-content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
     .ws-content-grid.has-detail {
         grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr);
         align-items: stretch;
     }
+
     .ws-content-grid.has-detail .ws-table-card,
     .ws-content-grid.has-detail .ws-detail-card {
         height: 100%;
     }
+
     .ws-content-grid.has-detail .ws-table-card {
         display: flex;
         flex-direction: column;
     }
+
     .ws-content-grid.has-detail .ws-table-shell {
         flex: 1;
         min-height: 0;
         overflow: auto;
         padding-right: 4px;
     }
-    .ws-table-card, .ws-detail-card { padding: 20px; }
-    .ws-section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
-    .ws-section-head h2 { font-size: 22px; margin-bottom: 6px; }
-    .ws-section-head p { color: #64748b; font-size: 13px; }
-    .ws-table-shell { overflow-x: auto; }
+
+    .ws-table-card,
+    .ws-detail-card {
+        padding: 20px;
+    }
+
+    .ws-section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .ws-section-head h2 {
+        font-size: 22px;
+        margin-bottom: 6px;
+    }
+
+    .ws-section-head p {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+    .ws-table-shell {
+        overflow-x: auto;
+    }
+
     .ws-pagination {
         display: flex;
         justify-content: space-between;
@@ -306,14 +760,17 @@
         padding-top: 16px;
         border-top: 1px solid #e6edf4;
     }
+
     .ws-pagination-info {
         color: #64748b;
         font-size: 13px;
     }
+
     .ws-pagination-actions {
         display: flex;
         gap: 10px;
     }
+
     .ws-page-btn {
         display: inline-flex;
         align-items: center;
@@ -322,7 +779,7 @@
         height: 38px;
         padding: 0 14px;
         border: 1px solid #d7e1ea;
-        border-radius: 12px;
+        border-radius: 10px;
         background: #fff;
         color: #0f172a;
         font-size: 13px;
@@ -330,38 +787,139 @@
         cursor: pointer;
         transition: border-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
     }
+
     .ws-page-btn:hover:not(:disabled) {
         border-color: #0ea5e9;
         transform: translateY(-1px);
     }
+
     .ws-page-btn:disabled {
         opacity: 0.45;
         cursor: not-allowed;
     }
-    .ws-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1080px; }
-    .ws-table thead th {
-        position: sticky; top: 0; z-index: 1; padding: 14px 12px; background: #f2f7fb; color: #475569; font-size: 12px;
-        font-weight: 700; text-align: left; letter-spacing: 0.04em; text-transform: uppercase;
+
+    .ws-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        min-width: 1080px;
     }
-    .ws-table thead th:first-child { border-top-left-radius: 16px; } .ws-table thead th:last-child { border-top-right-radius: 16px; }
-    .ws-table tbody tr { transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease; cursor: pointer; }
-    .ws-table tbody tr:hover { background: rgba(14, 165, 233, 0.05); transform: translateY(-1px); }
-    .ws-table tbody tr.is-selected { background: rgba(14, 165, 233, 0.08); box-shadow: inset 3px 0 0 #0ea5e9; }
-    .ws-table tbody td { padding: 16px 12px; border-bottom: 1px solid #ebf1f6; vertical-align: top; }
-    .ws-user-cell { display: flex; align-items: center; gap: 12px; }
-    .ws-avatar, .ws-detail-avatar {
-        display: inline-flex; align-items: center; justify-content: center; overflow: hidden; color: #fff; font-weight: 700;
+
+    .ws-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding: 14px 12px;
+        background: #f2f7fb;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: left;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .ws-table thead th:first-child {
+        border-top-left-radius: 12px;
+    }
+
+    .ws-table thead th:last-child {
+        border-top-right-radius: 12px;
+    }
+
+    .ws-table tbody tr {
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+        cursor: pointer;
+    }
+
+    .ws-table tbody tr:hover {
+        background: rgba(14, 165, 233, 0.05);
+        transform: translateY(-1px);
+    }
+
+    .ws-table tbody tr.is-selected {
+        background: rgba(14, 165, 233, 0.08);
+        box-shadow: inset 3px 0 0 #0ea5e9;
+    }
+
+    .ws-table tbody td {
+        padding: 16px 12px;
+        border-bottom: 1px solid #ebf1f6;
+        vertical-align: top;
+    }
+
+    .ws-user-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ws-avatar,
+    .ws-detail-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        color: #fff;
+        font-weight: 700;
         background: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
     }
-    .ws-avatar { width: 42px; height: 42px; border-radius: 14px; font-size: 15px; flex: 0 0 auto; }
-    .ws-detail-avatar { width: 58px; height: 58px; border-radius: 18px; font-size: 20px; }
-    .ws-avatar img, .ws-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .ws-user-meta strong, .ws-user-meta span { display: block; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ws-user-meta strong { font-size: 14px; color: #0f172a; }
-    .ws-user-meta span { margin-top: 4px; color: #64748b; font-size: 12px; }
-    .ws-plan-badge, .ws-status-badge, .ws-risk-badge {
-        display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+
+    .ws-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        font-size: 15px;
+        flex: 0 0 auto;
     }
+
+    .ws-detail-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 10px;
+        font-size: 20px;
+    }
+
+    .ws-avatar img,
+    .ws-detail-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .ws-user-meta strong,
+    .ws-user-meta span {
+        display: block;
+        max-width: 240px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .ws-user-meta strong {
+        font-size: 14px;
+        color: #0f172a;
+    }
+
+    .ws-user-meta span {
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .ws-plan-badge,
+    .ws-status-badge,
+    .ws-risk-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
     .ws-user-type-badge {
         display: inline-flex;
         align-items: center;
@@ -371,33 +929,149 @@
         font-weight: 700;
         white-space: nowrap;
     }
-    .ws-user-type-badge.free { background: rgba(148, 163, 184, 0.16); color: #475569; }
-    .ws-user-type-badge.basic { background: rgba(100, 116, 139, 0.12); color: #475569; }
-    .ws-user-type-badge.pro { background: rgba(20, 184, 166, 0.12); color: #0f766e; }
-    .ws-user-type-badge.enterprise { background: rgba(217, 119, 6, 0.14); color: #b45309; }
-    .ws-status-badge.active { background: rgba(16, 185, 129, 0.12); color: #047857; }
-    .ws-status-badge.expired { background: rgba(239, 68, 68, 0.12); color: #b91c1c; }
-    .ws-status-badge.none { background: rgba(148, 163, 184, 0.16); color: #475569; }
-    .ws-status-badge.pending { background: rgba(245, 158, 11, 0.14); color: #b45309; }
-    .ws-plan-badge.basic { background: rgba(100, 116, 139, 0.12); color: #475569; }
-    .ws-plan-badge.pro { background: rgba(20, 184, 166, 0.12); color: #0f766e; }
-    .ws-plan-badge.enterprise { background: rgba(217, 119, 6, 0.14); color: #b45309; }
-    .ws-plan-badge.trial { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
-    .ws-plan-badge.none { background: rgba(148, 163, 184, 0.14); color: #64748b; }
-    .ws-risk-stack, .ws-inline-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-    .ws-risk-stack { margin-top: 8px; }
-    .ws-risk-badge { background: rgba(15, 23, 42, 0.06); color: #334155; }
-    .ws-risk-badge.warn { background: rgba(245, 158, 11, 0.14); color: #b45309; }
-    .ws-risk-badge.danger { background: rgba(239, 68, 68, 0.14); color: #b91c1c; }
-    .ws-risk-badge.info { background: rgba(14, 165, 233, 0.12); color: #0369a1; }
-    .ws-date { display: flex; flex-direction: column; gap: 4px; min-width: 116px; }
-    .ws-date strong { font-size: 13px; color: #0f172a; } .ws-date span { font-size: 11px; color: #64748b; }
-    .ws-mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 12px; }
-    .ws-view-btn {
-        display: inline-flex; align-items: center; justify-content: center; min-width: 74px; height: 36px; padding: 0 14px;
-        border: 1px solid #d7e1ea; border-radius: 12px; background: #fff; color: #0f172a; font-size: 13px; font-weight: 600; cursor: pointer;
+
+    .ws-user-type-badge.free {
+        background: rgba(148, 163, 184, 0.16);
+        color: #475569;
     }
-    .ws-loading-inline, .ws-empty-inline { padding: 42px 16px; color: #64748b; text-align: center; font-size: 14px; }
+
+    .ws-user-type-badge.basic {
+        background: rgba(100, 116, 139, 0.12);
+        color: #475569;
+    }
+
+    .ws-user-type-badge.pro {
+        background: rgba(20, 184, 166, 0.12);
+        color: #0f766e;
+    }
+
+    .ws-user-type-badge.enterprise {
+        background: rgba(217, 119, 6, 0.14);
+        color: #b45309;
+    }
+
+    .ws-status-badge.active {
+        background: rgba(16, 185, 129, 0.12);
+        color: #047857;
+    }
+
+    .ws-status-badge.expired {
+        background: rgba(239, 68, 68, 0.12);
+        color: #b91c1c;
+    }
+
+    .ws-status-badge.none {
+        background: rgba(148, 163, 184, 0.16);
+        color: #475569;
+    }
+
+    .ws-status-badge.pending {
+        background: rgba(245, 158, 11, 0.14);
+        color: #b45309;
+    }
+
+    .ws-plan-badge.basic {
+        background: rgba(100, 116, 139, 0.12);
+        color: #475569;
+    }
+
+    .ws-plan-badge.pro {
+        background: rgba(20, 184, 166, 0.12);
+        color: #0f766e;
+    }
+
+    .ws-plan-badge.enterprise {
+        background: rgba(217, 119, 6, 0.14);
+        color: #b45309;
+    }
+
+    .ws-plan-badge.trial {
+        background: rgba(59, 130, 246, 0.12);
+        color: #1d4ed8;
+    }
+
+    .ws-plan-badge.none {
+        background: rgba(148, 163, 184, 0.14);
+        color: #64748b;
+    }
+
+    .ws-risk-stack,
+    .ws-inline-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .ws-risk-stack {
+        margin-top: 8px;
+    }
+
+    .ws-risk-badge {
+        background: rgba(15, 23, 42, 0.06);
+        color: #334155;
+    }
+
+    .ws-risk-badge.warn {
+        background: rgba(245, 158, 11, 0.14);
+        color: #b45309;
+    }
+
+    .ws-risk-badge.danger {
+        background: rgba(239, 68, 68, 0.14);
+        color: #b91c1c;
+    }
+
+    .ws-risk-badge.info {
+        background: rgba(14, 165, 233, 0.12);
+        color: #0369a1;
+    }
+
+    .ws-date {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 116px;
+    }
+
+    .ws-date strong {
+        font-size: 13px;
+        color: #0f172a;
+    }
+
+    .ws-date span {
+        font-size: 11px;
+        color: #64748b;
+    }
+
+    .ws-mono {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 12px;
+    }
+
+    .ws-view-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 74px;
+        height: 36px;
+        padding: 0 14px;
+        border: 1px solid #d7e1ea;
+        border-radius: 10px;
+        background: #fff;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .ws-loading-inline,
+    .ws-empty-inline {
+        padding: 42px 16px;
+        color: #64748b;
+        text-align: center;
+        font-size: 14px;
+    }
+
     .ws-skeleton {
         position: relative;
         overflow: hidden;
@@ -405,6 +1079,7 @@
         border-radius: 10px;
         color: transparent !important;
     }
+
     .ws-skeleton::after {
         content: "";
         position: absolute;
@@ -413,39 +1088,69 @@
         background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.62) 50%, rgba(255, 255, 255, 0) 100%);
         animation: wsSkeletonShimmer 1.35s ease-in-out infinite;
     }
+
     @keyframes wsSkeletonShimmer {
-        100% { transform: translateX(100%); }
+        100% {
+            transform: translateX(100%);
+        }
     }
-    .ws-skeleton-row { cursor: default !important; }
-    .ws-skeleton-row:hover { background: transparent !important; transform: none !important; }
-    .ws-skeleton-row td { pointer-events: none; }
+
+    .ws-skeleton-row {
+        cursor: default !important;
+    }
+
+    .ws-skeleton-row:hover {
+        background: transparent !important;
+        transform: none !important;
+    }
+
+    .ws-skeleton-row td {
+        pointer-events: none;
+    }
+
     .ws-skeleton-avatar {
         width: 42px;
         height: 42px;
-        border-radius: 14px;
+        border-radius: 10px;
         flex: 0 0 auto;
     }
+
     .ws-skeleton-line {
         display: block;
         height: 12px;
         border-radius: 999px;
     }
-    .ws-skeleton-line + .ws-skeleton-line { margin-top: 8px; }
-    .ws-skeleton-name { width: 140px; }
-    .ws-skeleton-email { width: 200px; }
-    .ws-skeleton-id { width: 170px; }
+
+    .ws-skeleton-line+.ws-skeleton-line {
+        margin-top: 8px;
+    }
+
+    .ws-skeleton-name {
+        width: 140px;
+    }
+
+    .ws-skeleton-email {
+        width: 200px;
+    }
+
+    .ws-skeleton-id {
+        width: 170px;
+    }
+
     .ws-skeleton-pill {
         display: inline-block;
         width: 108px;
         height: 28px;
         border-radius: 999px;
     }
+
     .ws-skeleton-date {
         display: inline-block;
         width: 96px;
         height: 12px;
         border-radius: 999px;
     }
+
     .ws-skeleton-date-note {
         display: inline-block;
         width: 72px;
@@ -453,77 +1158,163 @@
         border-radius: 999px;
         margin-top: 6px;
     }
+
     .ws-skeleton-number {
         display: inline-block;
         width: 82px;
         height: 12px;
         border-radius: 999px;
     }
+
     .ws-skeleton-btn {
         display: inline-block;
         width: 74px;
         height: 36px;
-        border-radius: 12px;
+        border-radius: 8px;
     }
+
     .ws-skeleton-metric {
         display: inline-block;
         width: 96px;
         height: 34px;
-        border-radius: 12px;
+        border-radius: 8px;
         vertical-align: middle;
     }
+
     .ws-detail-card {
-        position: sticky; top: 92px; min-height: 560px;
+        position: sticky;
+        top: 92px;
+        min-height: 560px;
         overflow: auto;
         background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 32%), linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.98));
     }
+
     .ws-detail-card[hidden],
     .ws-detail[hidden] {
         display: none !important;
     }
-    .ws-detail { display: flex; flex-direction: column; gap: 16px; }
-    .ws-detail-header { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid #e6edf4; }
-    .ws-detail-header h3 { margin: 0 0 4px; font-size: 22px; } .ws-detail-header p { margin: 0; color: #64748b; font-size: 13px; word-break: break-word; }
+
+    .ws-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .ws-detail-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e6edf4;
+    }
+
+    .ws-detail-header h3 {
+        margin: 0 0 4px;
+        font-size: 22px;
+    }
+
+    .ws-detail-header p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        word-break: break-word;
+    }
+
     .ws-detail-header-actions {
         margin-left: auto;
         display: inline-flex;
         align-items: center;
         gap: 8px;
     }
+
     .ws-detail-edit-btn {
         height: 38px;
         padding: 0 16px;
         border: 1px solid #d7e1ea;
-        border-radius: 12px;
+        border-radius: 10px;
         background: #fff;
         color: #0f172a;
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
     }
+
     .ws-detail-close-btn {
         width: 38px;
         height: 38px;
         border: 1px solid #d7e1ea;
-        border-radius: 12px;
+        border-radius: 10px;
         background: #fff;
         color: #334155;
         font-size: 20px;
         line-height: 1;
         cursor: pointer;
     }
-    .ws-detail-block { padding: 16px; border: 1px solid #e8eef5; border-radius: 18px; background: rgba(255, 255, 255, 0.82); }
-    .ws-block-title {
-        margin-bottom: 14px; font-size: 13px; font-weight: 700; color: #475569; letter-spacing: 0.04em; text-transform: uppercase;
+
+    .ws-detail-block {
+        padding: 16px;
+        border: 1px solid #e8eef5;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.82);
     }
-    .ws-info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .ws-info-item, .ws-timeline-item { padding: 12px 14px; border-radius: 14px; background: #f8fbff; border: 1px solid #e5edf5; }
-    .ws-info-item span, .ws-timeline-label { display: block; color: #64748b; font-size: 12px; }
-    .ws-info-item span { margin-bottom: 8px; }
-    .ws-info-item strong { display: block; color: #0f172a; font-size: 13px; word-break: break-word; }
-    .ws-timeline { display: flex; flex-direction: column; gap: 10px; }
-    .ws-timeline-item { display: flex; justify-content: space-between; gap: 16px; }
-    .ws-inline-pills { margin-top: 14px; }
+
+    .ws-block-title {
+        margin-bottom: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .ws-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .ws-info-item,
+    .ws-timeline-item {
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: #f8fbff;
+        border: 1px solid #e5edf5;
+    }
+
+    .ws-info-item span,
+    .ws-timeline-label {
+        display: block;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .ws-info-item span {
+        margin-bottom: 8px;
+    }
+
+    .ws-info-item strong {
+        display: block;
+        color: #0f172a;
+        font-size: 13px;
+        word-break: break-word;
+    }
+
+    .ws-timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ws-timeline-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .ws-inline-pills {
+        margin-top: 14px;
+    }
+
     .ws-modal-backdrop {
         position: fixed;
         inset: 0;
@@ -534,18 +1325,21 @@
         background: rgba(15, 23, 42, 0.48);
         z-index: 1400;
     }
+
     .ws-modal-backdrop[hidden] {
         display: none !important;
     }
+
     .ws-modal-card {
         width: min(880px, 100%);
         max-height: calc(100vh - 40px);
         overflow: auto;
         background: #fff;
-        border-radius: 24px;
+        border-radius: 12px;
         border: 1px solid #e2e8f0;
         box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);
     }
+
     .ws-modal-header,
     .ws-modal-footer {
         display: flex;
@@ -554,13 +1348,16 @@
         gap: 16px;
         padding: 18px 20px;
     }
+
     .ws-modal-header {
         border-bottom: 1px solid #e8eef5;
     }
+
     .ws-modal-header h3 {
         margin: 0 0 6px;
         font-size: 20px;
     }
+
     .ws-modal-header p,
     .ws-modal-tip {
         margin: 0;
@@ -568,30 +1365,35 @@
         font-size: 13px;
         line-height: 1.6;
     }
+
     .ws-modal-close {
         width: 38px;
         height: 38px;
         border: none;
-        border-radius: 12px;
+        border-radius: 8px;
         background: #f8fafc;
         color: #0f172a;
         font-size: 24px;
         line-height: 1;
         cursor: pointer;
     }
+
     .ws-modal-body {
         padding: 20px;
     }
+
     .ws-edit-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
     }
+
     .ws-edit-field {
         display: flex;
         flex-direction: column;
         gap: 8px;
     }
+
     .ws-edit-field span {
         color: #475569;
         font-size: 12px;
@@ -599,38 +1401,45 @@
         letter-spacing: 0.04em;
         text-transform: uppercase;
     }
+
     .ws-edit-field input,
     .ws-edit-field select {
         width: 100%;
         height: 44px;
         padding: 0 14px;
         border: 1px solid #d7e1ea;
-        border-radius: 14px;
+        border-radius: 10px;
         background: #f8fbff;
         color: #102133;
         font-size: 14px;
         outline: none;
     }
+
     .ws-edit-field input:focus,
     .ws-edit-field select:focus {
         border-color: #0ea5e9;
         box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
     }
+
     .ws-modal-tip {
         margin-top: 14px;
     }
+
     .ws-modal-footer {
         border-top: 1px solid #e8eef5;
         justify-content: flex-end;
     }
+
     body.dark-mode .ws-metric-card,
     body.dark-mode .ws-toolbar-card,
+    body.dark-mode .ws-config-card,
     body.dark-mode .ws-table-card,
     body.dark-mode .ws-detail-card {
         background: rgba(15, 23, 42, 0.88);
         border-color: rgba(71, 85, 105, 0.42);
         box-shadow: 0 18px 36px rgba(2, 6, 23, 0.42);
     }
+
     body.dark-mode .ws-metric-label,
     body.dark-mode .ws-section-head p,
     body.dark-mode .ws-pagination-info,
@@ -648,8 +1457,10 @@
     body.dark-mode .ws-edit-field span {
         color: #94a3b8;
     }
+
     body.dark-mode .ws-metric-value,
     body.dark-mode .ws-section-head h2,
+    body.dark-mode .ws-config-copy h2,
     body.dark-mode .ws-user-meta strong,
     body.dark-mode .ws-date strong,
     body.dark-mode .ws-detail-header h3,
@@ -657,21 +1468,26 @@
     body.dark-mode .ws-modal-header h3 {
         color: #e2e8f0;
     }
+
     body.dark-mode .ws-metric-note {
         color: #a7b8cc;
     }
+
     body.dark-mode .ws-search input,
     body.dark-mode .ws-filter select,
     body.dark-mode .ws-edit-field input,
-    body.dark-mode .ws-edit-field select {
+    body.dark-mode .ws-edit-field select,
+    body.dark-mode .ws-edit-field textarea {
         background: rgba(15, 23, 42, 0.86);
         border-color: rgba(71, 85, 105, 0.56);
         color: #e2e8f0;
     }
+
     body.dark-mode .ws-search input::placeholder,
     body.dark-mode .ws-edit-field input::placeholder {
         color: #64748b;
     }
+
     body.dark-mode .ws-page-btn,
     body.dark-mode .ws-view-btn,
     body.dark-mode .ws-detail-edit-btn,
@@ -680,117 +1496,252 @@
         border-color: rgba(71, 85, 105, 0.56);
         color: #e2e8f0;
     }
+
     body.dark-mode .ws-page-btn:hover:not(:disabled),
     body.dark-mode .ws-view-btn:hover,
     body.dark-mode .ws-detail-edit-btn:hover,
     body.dark-mode .ws-detail-close-btn:hover {
         border-color: rgba(56, 189, 248, 0.72);
     }
+
+    body.dark-mode .ws-config-kicker {
+        background: rgba(148, 163, 184, 0.12);
+        color: #cbd5e1;
+    }
+
+    body.dark-mode .ws-config-launcher {
+        background:
+            radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 34%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+    }
+
+    body.dark-mode .ws-config-badge,
+    body.dark-mode .ws-config-preview {
+        background: rgba(15, 23, 42, 0.72);
+        border-color: rgba(71, 85, 105, 0.42);
+    }
+
+    body.dark-mode .ws-config-badge strong,
+    body.dark-mode .ws-config-preview strong {
+        color: #e2e8f0;
+    }
+
+    body.dark-mode .ws-config-preview small,
+    body.dark-mode .ws-config-footer p,
+    body.dark-mode .ws-config-copy p {
+        color: #94a3b8;
+    }
+
+    body.dark-mode .ws-config-footer {
+        border-top-color: rgba(71, 85, 105, 0.36);
+    }
+
     body.dark-mode .ws-pagination {
         border-top-color: rgba(71, 85, 105, 0.36);
     }
+
     body.dark-mode .ws-table thead th {
         background: rgba(30, 41, 59, 0.94);
         color: #cbd5e1;
     }
+
     body.dark-mode .ws-table tbody td {
         border-bottom-color: rgba(51, 65, 85, 0.7);
         color: #cbd5e1;
     }
+
     body.dark-mode .ws-table tbody tr:hover {
         background: rgba(56, 189, 248, 0.08);
     }
+
     body.dark-mode .ws-table tbody tr.is-selected {
         background: rgba(14, 165, 233, 0.14);
         box-shadow: inset 3px 0 0 #38bdf8;
     }
+
     body.dark-mode .ws-skeleton {
         background: rgba(51, 65, 85, 0.9);
     }
+
     body.dark-mode .ws-skeleton::after {
         background: linear-gradient(90deg, rgba(15, 23, 42, 0) 0%, rgba(148, 163, 184, 0.22) 50%, rgba(15, 23, 42, 0) 100%);
     }
+
     body.dark-mode .ws-detail-card {
         background:
             radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 32%),
             linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
     }
+
     body.dark-mode .ws-detail-header {
         border-bottom-color: rgba(71, 85, 105, 0.36);
     }
+
     body.dark-mode .ws-detail-header p {
         color: #94a3b8;
     }
+
     body.dark-mode .ws-detail-block {
         background: rgba(15, 23, 42, 0.72);
         border-color: rgba(71, 85, 105, 0.42);
     }
+
     body.dark-mode .ws-info-item,
     body.dark-mode .ws-timeline-item {
         background: rgba(30, 41, 59, 0.86);
         border-color: rgba(71, 85, 105, 0.46);
     }
+
     body.dark-mode .ws-risk-badge {
         background: rgba(148, 163, 184, 0.14);
         color: #cbd5e1;
     }
+
     body.dark-mode .ws-modal-card {
         background: #0f172a;
         border-color: rgba(71, 85, 105, 0.42);
         box-shadow: 0 26px 52px rgba(2, 6, 23, 0.56);
     }
+
     body.dark-mode .ws-modal-header {
         border-bottom-color: rgba(71, 85, 105, 0.36);
     }
+
     body.dark-mode .ws-modal-footer {
         border-top-color: rgba(71, 85, 105, 0.36);
     }
+
     body.dark-mode .ws-modal-close {
         background: rgba(30, 41, 59, 0.92);
         color: #e2e8f0;
     }
-    @media (max-width: 1440px) { .ws-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+    @media (max-width: 1440px) {
+        .ws-metrics {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
     @media (max-width: 1200px) {
-        .ws-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .ws-content-grid, .ws-content-grid.has-detail { grid-template-columns: 1fr; }
+        .ws-toolbar {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .ws-config-head,
+        .ws-config-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .ws-config-launcher-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .ws-config-launcher-actions {
+            justify-content: flex-start;
+        }
+
+        .ws-config-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .ws-edit-field-wide {
+            grid-column: span 2;
+        }
+
+        .ws-content-grid,
+        .ws-content-grid.has-detail {
+            grid-template-columns: 1fr;
+        }
+
         .ws-content-grid.has-detail .ws-table-card,
-        .ws-content-grid.has-detail .ws-detail-card { height: auto; }
+        .ws-content-grid.has-detail .ws-detail-card {
+            height: auto;
+        }
+
         .ws-content-grid.has-detail .ws-table-shell {
             overflow: visible;
             padding-right: 0;
         }
+
         .ws-detail-card {
             position: static;
             overflow: visible;
         }
     }
+
     @media (max-width: 900px) {
-        .ws-metrics, .ws-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+        .ws-metrics,
+        .ws-info-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .ws-config-badges {
+            grid-template-columns: 1fr;
+        }
     }
+
     @media (max-width: 768px) {
-        .ws-content-grid { gap: 16px; }
-        .ws-table-shell { overflow: visible; }
-        .ws-table, .ws-table tbody, .ws-table tr, .ws-table td { display: block; width: 100%; }
-        .ws-table { min-width: 0; }
-        .ws-table thead { display: none; }
-        .ws-table tbody { display: grid; gap: 14px; }
+        .ws-config-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .ws-edit-field-wide {
+            grid-column: span 1;
+        }
+
+        .ws-content-grid {
+            gap: 16px;
+        }
+
+        .ws-table-shell {
+            overflow: visible;
+        }
+
+        .ws-table,
+        .ws-table tbody,
+        .ws-table tr,
+        .ws-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .ws-table {
+            min-width: 0;
+        }
+
+        .ws-table thead {
+            display: none;
+        }
+
+        .ws-table tbody {
+            display: grid;
+            gap: 14px;
+        }
+
         .ws-table tbody tr {
             background: #fff;
             border: 1px solid #dbe7f0;
-            border-radius: 18px;
+            border-radius: 12px;
             padding: 14px;
             box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
         }
+
         .ws-table tbody tr.is-selected {
             box-shadow: inset 3px 0 0 #0ea5e9, 0 12px 26px rgba(14, 165, 233, 0.12);
         }
+
         .ws-table tbody td {
             border-bottom: none;
             padding: 10px 0;
         }
-        .ws-table tbody td + td {
+
+        .ws-table tbody td+td {
             border-top: 1px solid #eef4f8;
         }
+
         .ws-table tbody td::before {
             content: attr(data-label);
             display: block;
@@ -801,88 +1752,128 @@
             letter-spacing: 0.04em;
             text-transform: uppercase;
         }
+
         .ws-table tbody td[data-label="用户"]::before,
         .ws-table tbody td[data-label="操作"]::before {
             display: none;
         }
-        .ws-user-meta strong, .ws-user-meta span {
+
+        .ws-user-meta strong,
+        .ws-user-meta span {
             max-width: none;
             white-space: normal;
             overflow: visible;
             text-overflow: initial;
             word-break: break-word;
         }
+
         .ws-date {
             min-width: 0;
         }
+
         .ws-view-btn {
             width: 100%;
             min-width: 0;
             height: 40px;
         }
+
         .ws-detail-card {
             min-height: auto;
         }
+
         .ws-edit-grid {
             grid-template-columns: 1fr;
         }
+
         .ws-pagination {
             flex-direction: column;
             align-items: stretch;
         }
+
         .ws-pagination-actions {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
+
         .ws-page-btn {
             width: 100%;
             min-width: 0;
         }
+
         body.dark-mode .ws-table tbody tr {
             background: rgba(15, 23, 42, 0.92);
             border-color: rgba(71, 85, 105, 0.52);
             box-shadow: 0 12px 26px rgba(2, 6, 23, 0.36);
         }
-        body.dark-mode .ws-table tbody td + td {
+
+        body.dark-mode .ws-table tbody td+td {
             border-top-color: rgba(71, 85, 105, 0.32);
         }
+
         body.dark-mode .ws-table tbody td::before {
             color: #94a3b8;
         }
     }
+
     @media (max-width: 640px) {
-        .ws-page { gap: 18px; } .ws-toolbar-card, .ws-table-card, .ws-detail-card { padding: 16px; border-radius: 18px; }
-        .ws-metrics, .ws-info-grid, .ws-toolbar { grid-template-columns: 1fr; } .ws-timeline-item { flex-direction: column; }
+        .ws-page {
+            gap: 18px;
+        }
+
+        .ws-toolbar-card,
+        .ws-table-card,
+        .ws-detail-card {
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .ws-metrics,
+        .ws-info-grid,
+        .ws-toolbar {
+            grid-template-columns: 1fr;
+        }
+
+        .ws-timeline-item {
+            flex-direction: column;
+        }
+
         .ws-section-head {
             flex-direction: column;
             align-items: flex-start;
             gap: 8px;
         }
+
         .ws-detail-header {
             align-items: flex-start;
             flex-wrap: wrap;
         }
+
         .ws-detail-header-actions {
             width: 100%;
             margin-left: 0;
         }
+
         .ws-detail-edit-btn {
             width: auto;
             flex: 1;
         }
+
         .ws-detail-close-btn {
             flex: 0 0 38px;
         }
+
         .ws-user-cell {
             align-items: flex-start;
         }
+
         .ws-modal-header,
         .ws-modal-footer,
         .ws-modal-body {
             padding: 16px;
         }
+
         .ws-modal-card {
-            border-radius: 18px;
+            border-radius: 12px;
         }
     }
 </style>
@@ -894,7 +1885,11 @@
             selectedUserId: null,
             currentPage: 1,
             itemsPerPage: 10,
-            editingUserId: null
+            editingUserId: null,
+            tokenRateConfig: null,
+            aiRoutingConfig: null,
+            selectedProviderKey: '',
+            selectedRouteId: ''
         };
         const $ = id => document.getElementById(id);
         const isPageMounted = () => Boolean($('wsUsersTableBody'));
@@ -926,7 +1921,7 @@
             toast.textContent = message;
             toast.style.cssText = `
                 position: fixed; top: 22px; right: 22px; z-index: 12000; max-width: 360px; padding: 12px 16px;
-                border-radius: 14px; background: ${type === 'error' ? '#dc2626' : type === 'success' ? '#059669' : '#0f172a'};
+                border-radius: 10px; background: ${type === 'error' ? '#dc2626' : type === 'success' ? '#059669' : '#0f172a'};
                 color: #fff; box-shadow: 0 18px 30px rgba(15, 23, 42, 0.22); font-size: 13px;
             `;
             document.body.appendChild(toast);
@@ -944,6 +1939,14 @@
 
         function formatNumber(value) { return numberFormatter.format(Number(value || 0)); }
         function formatCurrency(value) { return currencyFormatter.format(Number(value || 0)); }
+        function formatCompactDecimal(value, digits = 6) {
+            const parsed = Number(value);
+            if (!Number.isFinite(parsed)) return '--';
+            return parsed.toLocaleString('zh-CN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: digits
+            });
+        }
         function formatDateTime(value) {
             if (!value) return '--';
             const date = new Date(value);
@@ -958,6 +1961,417 @@
             const offset = date.getTimezoneOffset();
             const normalized = new Date(date.getTime() - offset * 60 * 1000);
             return normalized.toISOString().slice(0, 16);
+        }
+
+        function parseTokenRateRecord(record) {
+            const rawValue = record && Object.prototype.hasOwnProperty.call(record, 'value_json') ? record.value_json : record;
+            let value = rawValue;
+            if (typeof value === 'string') {
+                try {
+                    value = JSON.parse(value);
+                } catch (_) {
+                    value = {};
+                }
+            }
+            const tokensPerCny = Math.max(1, Math.floor(Number(value?.tokens_per_cny || 368000)));
+            const enabled = value?.enabled !== false;
+            const basis = String(value?.basis || 'deepseek_1x').trim() || 'deepseek_1x';
+            return {
+                key: record?.key || 'ai_token_rate',
+                tokens_per_cny: tokensPerCny,
+                enabled,
+                basis,
+                remark: String(record?.remark || ''),
+                updated_at: record?.updated_at || null
+            };
+        }
+
+        function updateTokenRatePreview() {
+            if (!isPageMounted()) return;
+            const tokensPerCny = Math.max(1, Math.floor(Number($('wsTokenRateInput')?.value || 0) || 0));
+            const previewText = tokensPerCny
+                ? `1 CNY = ${formatNumber(tokensPerCny)} Tokens`
+                : '1 CNY = -- Tokens';
+            const perMillion = tokensPerCny ? 1000000 / tokensPerCny : 0;
+            const previewHint = tokensPerCny
+                ? `1M Tokens \u2248 ${formatCompactDecimal(perMillion, 4)} CNY`
+                : '1M Tokens = -- CNY';
+
+            if ($('wsTokenRatePreview')) $('wsTokenRatePreview').textContent = previewText;
+            if ($('wsTokenRatePreviewHint')) $('wsTokenRatePreviewHint').textContent = previewHint;
+            if ($('wsTokenRatePreviewModal')) $('wsTokenRatePreviewModal').textContent = previewText;
+            if ($('wsTokenRatePreviewHintModal')) $('wsTokenRatePreviewHintModal').textContent = previewHint;
+        }
+
+        function renderTokenRate(config) {
+            if (!isPageMounted()) return;
+            const normalized = parseTokenRateRecord(config || state.tokenRateConfig || {});
+            state.tokenRateConfig = normalized;
+            $('wsTokenRateInput').value = normalized.tokens_per_cny;
+            $('wsTokenRateBasis').value = normalized.basis;
+            $('wsTokenRateEnabled').value = normalized.enabled ? 'true' : 'false';
+            $('wsTokenRateRemark').value = normalized.remark;
+            $('wsTokenRateCurrentValue').textContent = `${formatNumber(normalized.tokens_per_cny)} / CNY`;
+            $('wsTokenRateUpdatedAt').textContent = formatDateTime(normalized.updated_at);
+            $('wsTokenRateSource').textContent = normalized.key || 'ai_token_rate';
+            $('wsTokenRateStatus').textContent = normalized.enabled
+                ? '\u5f53\u524d\u914d\u7f6e\u5df2\u542f\u7528\u3002\u4fee\u6539\u540e\u4f1a\u5199\u5165 whatsapp.system_settings\uff0c\u4f9b Worker \u4f18\u5148\u8bfb\u53d6\u3002'
+                : '\u5f53\u524d\u914d\u7f6e\u5df2\u7981\u7528\u3002\u540e\u7aef\u53ef\u80fd\u56de\u9000\u5230\u5176\u4ed6\u9ed8\u8ba4\u914d\u7f6e\u3002';
+            updateTokenRatePreview();
+        }
+
+        function formatAiMeta(meta) {
+            try {
+                return JSON.stringify(meta || {}, null, 2);
+            } catch (_) {
+                return '{}';
+            }
+        }
+
+        function parseAiMetaInput(value) {
+            const raw = String(value || '').trim();
+            if (!raw) return {};
+            try {
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+            } catch (_) {
+                throw new Error('\u8bf7\u8f93\u5165\u6709\u6548\u7684 JSON \u683c\u5f0f');
+            }
+        }
+
+        function normalizeAiProvider(item) {
+            const meta = item && typeof item.meta_json === 'string'
+                ? (() => { try { return JSON.parse(item.meta_json); } catch (_) { return {}; } })()
+                : (item?.meta_json && typeof item.meta_json === 'object' ? item.meta_json : {});
+            return {
+                provider_key: String(item?.provider_key || '').trim(),
+                label: String(item?.label || '').trim(),
+                base_url: String(item?.base_url || '').trim(),
+                api_path: String(item?.api_path || '/chat/completions').trim() || '/chat/completions',
+                auth_type: String(item?.auth_type || 'bearer').trim() || 'bearer',
+                secret_key_ref: String(item?.secret_key_ref || '').trim(),
+                request_format: String(item?.request_format || 'openai_compatible').trim() || 'openai_compatible',
+                enabled: item?.enabled !== false,
+                is_relay: item?.is_relay === true,
+                priority: Number.isFinite(Number(item?.priority)) ? Math.floor(Number(item.priority)) : 100,
+                meta_json: meta,
+                updated_at: item?.updated_at || null
+            };
+        }
+
+        function normalizeAiRoute(item) {
+            const meta = item && typeof item.meta_json === 'string'
+                ? (() => { try { return JSON.parse(item.meta_json); } catch (_) { return {}; } })()
+                : (item?.meta_json && typeof item.meta_json === 'object' ? item.meta_json : {});
+            return {
+                model_id: String(item?.model_id || '').trim(),
+                display_name: String(item?.display_name || '').trim(),
+                description: String(item?.description || '').trim(),
+                provider_key: String(item?.provider_key || '').trim(),
+                upstream_model: String(item?.upstream_model || '').trim(),
+                price_multiplier: Number.isFinite(Number(item?.price_multiplier)) ? Number(item.price_multiplier) : 1,
+                enabled: item?.enabled !== false,
+                is_visible: item?.is_visible !== false,
+                is_default: item?.is_default === true,
+                supports_chat: item?.supports_chat !== false,
+                supports_translate: item?.supports_translate === true,
+                supports_warmup: item?.supports_warmup === true,
+                supports_voice: item?.supports_voice === true,
+                icon_type: String(item?.icon_type || '').trim(),
+                color_class: String(item?.color_class || '').trim(),
+                bg_class: String(item?.bg_class || '').trim(),
+                sort_order: Number.isFinite(Number(item?.sort_order)) ? Math.floor(Number(item.sort_order)) : 100,
+                meta_json: meta,
+                updated_at: item?.updated_at || null
+            };
+        }
+
+        function getAiRoutingState() {
+            if (!state.aiRoutingConfig) {
+                state.aiRoutingConfig = {
+                    providers: [],
+                    routes: [],
+                    secret_keys: []
+                };
+            }
+            return state.aiRoutingConfig;
+        }
+
+        function createEmptyAiProvider() {
+            return normalizeAiProvider({});
+        }
+
+        function createEmptyAiRoute() {
+            return normalizeAiRoute({});
+        }
+
+        function fillAiProviderSecretOptions(selectedValue = '') {
+            const routing = getAiRoutingState();
+            const select = $('wsAiProviderSecretRef');
+            const datalist = $('wsAiSecretKeys');
+            if (!select || !datalist) return;
+            const options = routing.secret_keys || [];
+            select.innerHTML = `<option value="">${'\u4e0d\u4f7f\u7528 secret'}</option>` + options.map(item =>
+                `<option value="${escapeHtml(item.key)}">${escapeHtml(item.key)}</option>`
+            ).join('');
+            select.value = selectedValue || '';
+            datalist.innerHTML = options.map(item =>
+                `<option value="${escapeHtml(item.key)}"></option>`
+            ).join('');
+        }
+
+        function renderAiProviderList() {
+            if (!isPageMounted()) return;
+            const routing = getAiRoutingState();
+            const list = $('wsAiProviderList');
+            const providers = routing.providers || [];
+            if (!providers.length) {
+                list.innerHTML = `<div class="ws-ai-empty">${'\u6682\u65e0 Provider\uff0c\u53ef\u4ee5\u5148\u65b0\u5efa\u4e00\u6761\u8fde\u63a5\u7b56\u7565\u3002'}</div>`;
+                return;
+            }
+            list.innerHTML = providers.map(provider => {
+                const active = provider.provider_key === state.selectedProviderKey ? ' active' : '';
+                const relayTag = provider.is_relay
+                    ? `<span class="ws-ai-chip warn">${'\u4e2d\u8f6c'}</span>`
+                    : `<span class="ws-ai-chip">${'\u5b98\u65b9'}</span>`;
+                const enabledTag = provider.enabled
+                    ? `<span class="ws-ai-chip good">${'\u542f\u7528\u4e2d'}</span>`
+                    : `<span class="ws-ai-chip">${'\u5df2\u7981\u7528'}</span>`;
+                return `
+                    <button class="ws-ai-list-item${active}" type="button" data-ai-provider="${escapeHtml(provider.provider_key)}">
+                        <div class="ws-ai-list-copy">
+                            <strong>${escapeHtml(provider.label || provider.provider_key || '--')}</strong>
+                            <span class="ws-config-mono">${escapeHtml(provider.provider_key || '--')}</span>
+                            <small>${escapeHtml(provider.base_url || '--')}</small>
+                        </div>
+                        <div class="ws-ai-list-meta">
+                            ${relayTag}
+                            ${enabledTag}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderAiProviderForm(provider) {
+            const record = provider ? normalizeAiProvider(provider) : createEmptyAiProvider();
+            $('wsAiProviderFormTitle').textContent = record.provider_key
+                ? `${record.provider_key} Provider`
+                : '\u65b0\u5efa Provider';
+            $('wsAiProviderKey').value = record.provider_key;
+            $('wsAiProviderLabel').value = record.label;
+            $('wsAiProviderBaseUrl').value = record.base_url;
+            $('wsAiProviderApiPath').value = record.api_path;
+            $('wsAiProviderAuthType').value = record.auth_type;
+            $('wsAiProviderRequestFormat').value = record.request_format;
+            $('wsAiProviderPriority').value = record.priority;
+            $('wsAiProviderEnabled').value = record.enabled ? 'true' : 'false';
+            $('wsAiProviderRelay').value = record.is_relay ? 'true' : 'false';
+            $('wsAiProviderMeta').value = formatAiMeta(record.meta_json);
+            fillAiProviderSecretOptions(record.secret_key_ref);
+        }
+
+        function renderAiRouteList() {
+            if (!isPageMounted()) return;
+            const routing = getAiRoutingState();
+            const list = $('wsAiRouteList');
+            const routes = routing.routes || [];
+            if (!routes.length) {
+                list.innerHTML = `<div class="ws-ai-empty">${'\u6682\u65e0 Route\uff0c\u8bf7\u65b0\u5efa\u4e00\u6761\u6a21\u578b\u8def\u7531\u3002'}</div>`;
+                return;
+            }
+            list.innerHTML = routes.map(route => {
+                const active = route.model_id === state.selectedRouteId ? ' active' : '';
+                const defaultTag = route.is_default
+                    ? `<span class="ws-ai-chip good">${'\u9ed8\u8ba4'}</span>`
+                    : '';
+                const visibleTag = route.is_visible
+                    ? `<span class="ws-ai-chip">${'\u5c55\u793a'}</span>`
+                    : `<span class="ws-ai-chip">${'\u9690\u85cf'}</span>`;
+                return `
+                    <button class="ws-ai-list-item${active}" type="button" data-ai-route="${escapeHtml(route.model_id)}">
+                        <div class="ws-ai-list-copy">
+                            <strong>${escapeHtml(route.display_name || route.model_id || '--')}</strong>
+                            <span class="ws-config-mono">${escapeHtml(route.model_id || '--')}</span>
+                            <small>${escapeHtml(route.provider_key || '--')} · ${escapeHtml(route.upstream_model || '--')}</small>
+                        </div>
+                        <div class="ws-ai-list-meta">
+                            ${defaultTag}
+                            ${visibleTag}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function fillAiRouteProviderOptions(selectedValue = '') {
+            const routing = getAiRoutingState();
+            const select = $('wsAiRouteProviderKey');
+            const providers = routing.providers || [];
+            select.innerHTML = providers.map(item =>
+                `<option value="${escapeHtml(item.provider_key)}">${escapeHtml(item.label || item.provider_key)}</option>`
+            ).join('');
+            if (selectedValue && providers.some(item => item.provider_key === selectedValue)) {
+                select.value = selectedValue;
+                return;
+            }
+            if (providers.length) {
+                select.value = providers[0].provider_key;
+            }
+        }
+
+        function renderAiRouteForm(route) {
+            const record = route ? normalizeAiRoute(route) : createEmptyAiRoute();
+            $('wsAiRouteFormTitle').textContent = record.model_id
+                ? `${record.model_id} Route`
+                : '\u65b0\u5efa Route';
+            $('wsAiRouteModelId').value = record.model_id;
+            $('wsAiRouteDisplayName').value = record.display_name;
+            $('wsAiRouteDescription').value = record.description;
+            $('wsAiRouteUpstreamModel').value = record.upstream_model;
+            $('wsAiRoutePriceMultiplier').value = record.price_multiplier;
+            $('wsAiRouteSortOrder').value = record.sort_order;
+            $('wsAiRouteIconType').value = record.icon_type;
+            $('wsAiRouteColorClass').value = record.color_class;
+            $('wsAiRouteBgClass').value = record.bg_class;
+            $('wsAiRouteEnabled').value = record.enabled ? 'true' : 'false';
+            $('wsAiRouteVisible').value = record.is_visible ? 'true' : 'false';
+            $('wsAiRouteDefault').value = record.is_default ? 'true' : 'false';
+            $('wsAiRouteSupportsChat').value = record.supports_chat ? 'true' : 'false';
+            $('wsAiRouteSupportsTranslate').value = record.supports_translate ? 'true' : 'false';
+            $('wsAiRouteSupportsWarmup').value = record.supports_warmup ? 'true' : 'false';
+            $('wsAiRouteSupportsVoice').value = record.supports_voice ? 'true' : 'false';
+            $('wsAiRouteMeta').value = formatAiMeta(record.meta_json);
+            fillAiRouteProviderOptions(record.provider_key);
+        }
+
+        function renderAiRoutingSummary() {
+            if (!isPageMounted()) return;
+            const routing = getAiRoutingState();
+            const providers = routing.providers || [];
+            const routes = routing.routes || [];
+            const secrets = routing.secret_keys || [];
+            const defaultRoute = routes.find(item => item.is_default) || routes[0] || null;
+            $('wsAiProviderCount').textContent = formatNumber(providers.length);
+            $('wsAiRouteCount').textContent = formatNumber(routes.length);
+            $('wsAiSecretCount').textContent = formatNumber(secrets.length);
+            $('wsAiRoutingPreview').textContent = defaultRoute
+                ? `${defaultRoute.display_name || defaultRoute.model_id} \u2192 ${defaultRoute.provider_key || '--'}`
+                : '\u6682\u672a\u914d\u7f6e\u6a21\u578b\u8def\u7531';
+            $('wsAiRoutingPreviewHint').textContent = defaultRoute
+                ? `${defaultRoute.upstream_model || '--'} · x${formatCompactDecimal(defaultRoute.price_multiplier || 1, 2)}`
+                : '\u53ef\u5728\u5de5\u4f5c\u53f0\u4e2d\u65b0\u5efa provider \u548c route';
+        }
+
+        function renderAiRoutingWorkspace() {
+            if (!isPageMounted()) return;
+            const routing = getAiRoutingState();
+            const providers = routing.providers || [];
+            const routes = routing.routes || [];
+            if (!state.selectedProviderKey && providers.length) {
+                state.selectedProviderKey = providers[0].provider_key;
+            }
+            if (!state.selectedRouteId && routes.length) {
+                state.selectedRouteId = routes[0].model_id;
+            }
+            if (state.selectedProviderKey && !providers.some(item => item.provider_key === state.selectedProviderKey)) {
+                state.selectedProviderKey = providers[0]?.provider_key || '';
+            }
+            if (state.selectedRouteId && !routes.some(item => item.model_id === state.selectedRouteId)) {
+                state.selectedRouteId = routes[0]?.model_id || '';
+            }
+            renderAiRoutingSummary();
+            renderAiProviderList();
+            renderAiRouteList();
+            renderAiProviderForm(providers.find(item => item.provider_key === state.selectedProviderKey) || null);
+            renderAiRouteForm(routes.find(item => item.model_id === state.selectedRouteId) || null);
+            fillAiProviderSecretOptions($('wsAiProviderSecretRef').value);
+            $('wsAiSecretKey').value = '';
+            $('wsAiSecretValue').value = '';
+        }
+
+        async function fetchTokenRate(options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                redirectToLogin('\u8bf7\u5148\u767b\u5f55\u3002');
+                return;
+            }
+
+            const { silent = false } = options;
+            if (!silent && $('wsTokenRateStatus')) {
+                $('wsTokenRateStatus').textContent = '\u6b63\u5728\u8bfb\u53d6 Token \u7b56\u7565...';
+            }
+
+            try {
+                const response = await fetch('/api/getWsTokenRate', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!isPageMounted()) return;
+
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Token rate load failed');
+                }
+
+                renderTokenRate(result.data || null);
+            } catch (error) {
+                console.error('Load token rate failed:', error);
+                if (!isPageMounted()) return;
+                $('wsTokenRateStatus').textContent = `\u8bfb\u53d6 Token \u7b56\u7565\u5931\u8d25\uff1a${error.message || 'unknown error'}`;
+                notify(error.message || '\u8bfb\u53d6 Token \u7b56\u7565\u5931\u8d25\u3002', 'error');
+            }
+        }
+
+        async function fetchAiRoutingConfig(options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                redirectToLogin('\u8bf7\u5148\u767b\u5f55\u3002');
+                return;
+            }
+
+            const { silent = false } = options;
+            if (!silent && $('wsAiRoutingStatus')) {
+                $('wsAiRoutingStatus').textContent = '\u6b63\u5728\u8bfb\u53d6 AI \u8def\u7531\u914d\u7f6e...';
+            }
+
+            try {
+                const response = await fetch('/api/getWsAiRoutingConfig', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!isPageMounted()) return;
+
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'AI routing config load failed');
+                }
+
+                const data = result.data || {};
+                state.aiRoutingConfig = {
+                    providers: Array.isArray(data.providers) ? data.providers.map(normalizeAiProvider) : [],
+                    routes: Array.isArray(data.routes) ? data.routes.map(normalizeAiRoute) : [],
+                    secret_keys: Array.isArray(data.secret_keys) ? data.secret_keys : []
+                };
+
+                renderAiRoutingWorkspace();
+                if ($('wsAiRoutingStatus')) {
+                    $('wsAiRoutingStatus').textContent = '\u5df2\u8bfb\u53d6\u5f53\u524d AI \u8def\u7531\u4e0e Secret \u914d\u7f6e\u3002';
+                }
+            } catch (error) {
+                console.error('Load AI routing config failed:', error);
+                if (!isPageMounted()) return;
+                $('wsAiRoutingStatus').textContent = `\u8bfb\u53d6 AI \u8def\u7531\u5931\u8d25\uff1a${error.message || 'unknown error'}`;
+                notify(error.message || '\u8bfb\u53d6 AI \u8def\u7531\u5931\u8d25\u3002', 'error');
+            }
         }
 
         function getAvatarMarkup(user) {
@@ -1261,6 +2675,23 @@
             $('wsEditModal').hidden = true;
         }
 
+        function openTokenRateModal() {
+            $('wsTokenRateModal').hidden = false;
+        }
+
+        function closeTokenRateModal() {
+            $('wsTokenRateModal').hidden = true;
+        }
+
+        function openAiRoutingModal() {
+            $('wsAiRoutingModal').hidden = false;
+            fetchAiRoutingConfig({ silent: true });
+        }
+
+        function closeAiRoutingModal() {
+            $('wsAiRoutingModal').hidden = true;
+        }
+
         function applyUserTypePreset(userType) {
             const preset = getUserTypePreset(userType);
             $('wsEditPlanKey').value = preset.planKey;
@@ -1362,6 +2793,261 @@
             }
         }
 
+        async function saveTokenRate() {
+            const token = getAuthToken();
+            if (!token) {
+                redirectToLogin('\u8bf7\u5148\u767b\u5f55\u3002');
+                return;
+            }
+
+            const saveButton = $('wsTokenRateSaveBtn');
+            const tokensPerCny = Math.floor(Number($('wsTokenRateInput').value || 0));
+            const basis = String($('wsTokenRateBasis').value || '').trim() || 'deepseek_1x';
+            const enabled = $('wsTokenRateEnabled').value === 'true';
+            const remark = $('wsTokenRateRemark').value.trim();
+
+            if (!Number.isFinite(tokensPerCny) || tokensPerCny <= 0) {
+                notify('\u8bf7\u8f93\u5165\u5927\u4e8e 0 \u7684 Token \u5151\u6362\u6bd4\u4f8b\u3002', 'error');
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = '\u4fdd\u5b58\u4e2d...';
+            $('wsTokenRateStatus').textContent = '\u6b63\u5728\u5199\u5165 Token \u7b56\u7565...';
+
+            try {
+                const response = await fetch('/api/updateWsTokenRate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        tokens_per_cny: tokensPerCny,
+                        basis,
+                        enabled,
+                        remark
+                    })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Token rate update failed');
+                }
+
+                renderTokenRate(result.data || null);
+                $('wsTokenRateStatus').textContent = '\u4fdd\u5b58\u6210\u529f\u3002\u82e5\u540e\u7aef\u5b58\u5728\u77ed\u7f13\u5b58\uff0c\u8bf7\u7a0d\u7b49\u7247\u523b\u518d\u5237\u65b0\u9a8c\u8bc1\u3002';
+                notify('\u5df2\u4fdd\u5b58 Token \u7b56\u7565\u3002', 'success');
+            } catch (error) {
+                console.error('Save token rate failed:', error);
+                $('wsTokenRateStatus').textContent = `\u4fdd\u5b58 Token \u7b56\u7565\u5931\u8d25\uff1a${error.message || 'unknown error'}`;
+                notify(error.message || '\u4fdd\u5b58 Token \u7b56\u7565\u5931\u8d25\u3002', 'error');
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = '\u4fdd\u5b58\u8bbe\u7f6e';
+            }
+        }
+
+        async function saveAiProvider() {
+            const token = getAuthToken();
+            if (!token) {
+                redirectToLogin('\u8bf7\u5148\u767b\u5f55\u3002');
+                return;
+            }
+
+            const saveButton = $('wsAiSaveProviderBtn');
+            const providerKey = String($('wsAiProviderKey').value || '').trim();
+            const label = String($('wsAiProviderLabel').value || '').trim();
+            const baseUrl = String($('wsAiProviderBaseUrl').value || '').trim();
+
+            if (!providerKey || !label || !baseUrl) {
+                notify('\u8bf7\u5148\u586b\u5199 provider_key\u3001\u663e\u793a\u540d\u79f0 \u4e0e Base URL\u3002', 'error');
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = '\u4fdd\u5b58\u4e2d...';
+            $('wsAiRoutingStatus').textContent = '\u6b63\u5728\u5199\u5165 Provider...';
+
+            try {
+                const response = await fetch('/api/updateWsAiProvider', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        provider_key: providerKey,
+                        label,
+                        base_url: baseUrl,
+                        api_path: String($('wsAiProviderApiPath').value || '').trim() || '/chat/completions',
+                        auth_type: String($('wsAiProviderAuthType').value || '').trim() || 'bearer',
+                        secret_key_ref: String($('wsAiProviderSecretRef').value || '').trim(),
+                        request_format: String($('wsAiProviderRequestFormat').value || '').trim() || 'openai_compatible',
+                        enabled: $('wsAiProviderEnabled').value === 'true',
+                        is_relay: $('wsAiProviderRelay').value === 'true',
+                        priority: Number($('wsAiProviderPriority').value || 100),
+                        meta_json: parseAiMetaInput($('wsAiProviderMeta').value)
+                    })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'AI provider save failed');
+                }
+
+                state.selectedProviderKey = providerKey;
+                $('wsAiRoutingStatus').textContent = '\u5df2\u4fdd\u5b58 Provider\uff0c\u6b63\u5728\u540c\u6b65\u6700\u65b0\u8def\u7531\u89c6\u56fe...';
+                notify('\u5df2\u4fdd\u5b58 Provider \u914d\u7f6e\u3002', 'success');
+                await fetchAiRoutingConfig({ silent: true });
+            } catch (error) {
+                console.error('Save AI provider failed:', error);
+                $('wsAiRoutingStatus').textContent = `\u4fdd\u5b58 Provider \u5931\u8d25\uff1a${error.message || 'unknown error'}`;
+                notify(error.message || '\u4fdd\u5b58 Provider \u5931\u8d25\u3002', 'error');
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = '\u4fdd\u5b58 Provider';
+            }
+        }
+
+        async function saveAiRoute() {
+            const token = getAuthToken();
+            if (!token) {
+                redirectToLogin('\u8bf7\u5148\u767b\u5f55\u3002');
+                return;
+            }
+
+            const saveButton = $('wsAiSaveRouteBtn');
+            const modelId = String($('wsAiRouteModelId').value || '').trim();
+            const displayName = String($('wsAiRouteDisplayName').value || '').trim();
+            const providerKey = String($('wsAiRouteProviderKey').value || '').trim();
+            const upstreamModel = String($('wsAiRouteUpstreamModel').value || '').trim();
+
+            if (!modelId || !displayName || !providerKey || !upstreamModel) {
+                notify('\u8bf7\u5148\u586b\u5199 model_id\u3001\u663e\u793a\u540d\u79f0\u3001provider_key \u4e0e upstream_model\u3002', 'error');
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = '\u4fdd\u5b58\u4e2d...';
+            $('wsAiRoutingStatus').textContent = '\u6b63\u5728\u5199\u5165 Model Route...';
+
+            try {
+                const response = await fetch('/api/updateWsAiModelRoute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        model_id: modelId,
+                        display_name: displayName,
+                        description: String($('wsAiRouteDescription').value || '').trim(),
+                        provider_key: providerKey,
+                        upstream_model: upstreamModel,
+                        price_multiplier: Number($('wsAiRoutePriceMultiplier').value || 1),
+                        enabled: $('wsAiRouteEnabled').value === 'true',
+                        is_visible: $('wsAiRouteVisible').value === 'true',
+                        is_default: $('wsAiRouteDefault').value === 'true',
+                        supports_chat: $('wsAiRouteSupportsChat').value === 'true',
+                        supports_translate: $('wsAiRouteSupportsTranslate').value === 'true',
+                        supports_warmup: $('wsAiRouteSupportsWarmup').value === 'true',
+                        supports_voice: $('wsAiRouteSupportsVoice').value === 'true',
+                        icon_type: String($('wsAiRouteIconType').value || '').trim(),
+                        color_class: String($('wsAiRouteColorClass').value || '').trim(),
+                        bg_class: String($('wsAiRouteBgClass').value || '').trim(),
+                        sort_order: Number($('wsAiRouteSortOrder').value || 100),
+                        meta_json: parseAiMetaInput($('wsAiRouteMeta').value)
+                    })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'AI route save failed');
+                }
+
+                state.selectedRouteId = modelId;
+                $('wsAiRoutingStatus').textContent = '\u5df2\u4fdd\u5b58 Route\uff0c\u6b63\u5728\u540c\u6b65\u6700\u65b0\u8def\u7531\u89c6\u56fe...';
+                notify('\u5df2\u4fdd\u5b58 Model Route\u3002', 'success');
+                await fetchAiRoutingConfig({ silent: true });
+            } catch (error) {
+                console.error('Save AI route failed:', error);
+                $('wsAiRoutingStatus').textContent = `\u4fdd\u5b58 Route \u5931\u8d25\uff1a${error.message || 'unknown error'}`;
+                notify(error.message || '\u4fdd\u5b58 Route \u5931\u8d25\u3002', 'error');
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = '\u4fdd\u5b58 Route';
+            }
+        }
+
+        async function saveAiSecret() {
+            const token = getAuthToken();
+            if (!token) {
+                redirectToLogin('\u8bf7\u5148\u767b\u5f55\u3002');
+                return;
+            }
+
+            const saveButton = $('wsAiSaveSecretBtn');
+            const key = String($('wsAiSecretKey').value || '').trim();
+            const value = String($('wsAiSecretValue').value || '');
+
+            if (!key) {
+                notify('\u8bf7\u5148\u8f93\u5165 secret key\u3002', 'error');
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.textContent = '\u4fdd\u5b58\u4e2d...';
+            $('wsAiRoutingStatus').textContent = '\u6b63\u5728\u5199\u5165 Secret...';
+
+            try {
+                const response = await fetch('/api/updateWsAiSecret', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ key, value })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    redirectToLogin();
+                    return;
+                }
+
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'AI secret save failed');
+                }
+
+                $('wsAiRoutingStatus').textContent = '\u5df2\u5199\u5165 Secret\uff0c\u6b63\u5728\u5237\u65b0\u5f15\u7528\u5217\u8868...';
+                notify('\u5df2\u4fdd\u5b58 Secret\u3002', 'success');
+                await fetchAiRoutingConfig({ silent: true });
+            } catch (error) {
+                console.error('Save AI secret failed:', error);
+                $('wsAiRoutingStatus').textContent = `\u4fdd\u5b58 Secret \u5931\u8d25\uff1a${error.message || 'unknown error'}`;
+                notify(error.message || '\u4fdd\u5b58 Secret \u5931\u8d25\u3002', 'error');
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = '\u4fdd\u5b58 Secret';
+            }
+        }
+
         function bindEvents() {
             ['wsSearchInput', 'wsStatusFilter', 'wsPlanFilter', 'wsSortMode'].forEach(id => {
                 $(id).addEventListener('input', () => applyFilters());
@@ -1369,6 +3055,29 @@
             });
 
             $('wsRefreshBtn').addEventListener('click', fetchUsers);
+            $('wsTokenRateRefreshBtn').addEventListener('click', () => fetchTokenRate());
+            $('wsTokenRateOpenBtn').addEventListener('click', openTokenRateModal);
+            $('wsTokenRateModalRefreshBtn').addEventListener('click', () => fetchTokenRate());
+            $('wsTokenRateSaveBtn').addEventListener('click', saveTokenRate);
+            $('wsTokenRateInput').addEventListener('input', updateTokenRatePreview);
+            $('wsAiRoutingRefreshBtn').addEventListener('click', () => fetchAiRoutingConfig());
+            $('wsAiRoutingOpenBtn').addEventListener('click', openAiRoutingModal);
+            $('wsAiRoutingModalRefreshBtn').addEventListener('click', () => fetchAiRoutingConfig());
+            $('wsCloseAiRoutingModal').addEventListener('click', closeAiRoutingModal);
+            $('wsCancelAiRoutingBtn').addEventListener('click', closeAiRoutingModal);
+            $('wsAiNewProviderBtn').addEventListener('click', () => {
+                state.selectedProviderKey = '';
+                renderAiProviderList();
+                renderAiProviderForm(null);
+            });
+            $('wsAiNewRouteBtn').addEventListener('click', () => {
+                state.selectedRouteId = '';
+                renderAiRouteList();
+                renderAiRouteForm(null);
+            });
+            $('wsAiSaveProviderBtn').addEventListener('click', saveAiProvider);
+            $('wsAiSaveRouteBtn').addEventListener('click', saveAiRoute);
+            $('wsAiSaveSecretBtn').addEventListener('click', saveAiSecret);
             $('wsDetailEditBtn').addEventListener('click', () => {
                 const userId = $('wsDetailEditBtn').dataset.userId;
                 if (userId) {
@@ -1382,9 +3091,21 @@
             });
             $('wsCloseEditModal').addEventListener('click', closeEditModal);
             $('wsCancelEditBtn').addEventListener('click', closeEditModal);
+            $('wsCloseTokenRateModal').addEventListener('click', closeTokenRateModal);
+            $('wsCancelTokenRateBtn').addEventListener('click', closeTokenRateModal);
             $('wsEditModal').addEventListener('click', event => {
                 if (event.target === $('wsEditModal')) {
                     closeEditModal();
+                }
+            });
+            $('wsTokenRateModal').addEventListener('click', event => {
+                if (event.target === $('wsTokenRateModal')) {
+                    closeTokenRateModal();
+                }
+            });
+            $('wsAiRoutingModal').addEventListener('click', event => {
+                if (event.target === $('wsAiRoutingModal')) {
+                    closeAiRoutingModal();
                 }
             });
             $('wsEditUserType').addEventListener('change', event => {
@@ -1425,6 +3146,22 @@
                 if (window.innerWidth <= 768) {
                     document.querySelector('.ws-detail-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
+            });
+            $('wsAiProviderList').addEventListener('click', event => {
+                const button = event.target.closest('[data-ai-provider]');
+                if (!button) return;
+                state.selectedProviderKey = button.getAttribute('data-ai-provider') || '';
+                renderAiProviderList();
+                const routing = getAiRoutingState();
+                renderAiProviderForm((routing.providers || []).find(item => item.provider_key === state.selectedProviderKey) || null);
+            });
+            $('wsAiRouteList').addEventListener('click', event => {
+                const button = event.target.closest('[data-ai-route]');
+                if (!button) return;
+                state.selectedRouteId = button.getAttribute('data-ai-route') || '';
+                renderAiRouteList();
+                const routing = getAiRoutingState();
+                renderAiRouteForm((routing.routes || []).find(item => item.model_id === state.selectedRouteId) || null);
             });
             $('wsSaveEditBtn').addEventListener('click', async () => {
                 if (!state.editingUserId) {
@@ -1497,7 +3234,66 @@
             });
         }
 
-        bindEvents();
-        fetchUsers();
+        function ensureAiRoutingWorkspaceLoaded() {
+            if (window.mountWsAiRoutingWorkspace) {
+                return Promise.resolve();
+            }
+
+            return new Promise((resolve, reject) => {
+                const existing = document.querySelector('script[data-ws-ai-routing-workspace="1"]');
+                if (existing) {
+                    existing.addEventListener('load', () => resolve(), { once: true });
+                    existing.addEventListener('error', () => reject(new Error('Failed to load AI routing workspace')), { once: true });
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = '/assets/ws-ai-routing-workspace.js';
+                script.async = false;
+                script.dataset.wsAiRoutingWorkspace = '1';
+                script.addEventListener('load', () => resolve(), { once: true });
+                script.addEventListener('error', () => reject(new Error('Failed to load AI routing workspace')), { once: true });
+                document.head.appendChild(script);
+            });
+        }
+
+        function ensureAiRoutingWorkspaceStyleLoaded() {
+            const existing = document.querySelector('link[data-ws-ai-routing-style="1"]');
+            if (existing) {
+                return Promise.resolve();
+            }
+
+            return new Promise((resolve, reject) => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = '/assets/ws-ai-routing-workspace.css';
+                link.dataset.wsAiRoutingStyle = '1';
+                link.addEventListener('load', () => resolve(), { once: true });
+                link.addEventListener('error', () => reject(new Error('Failed to load AI routing workspace styles')), { once: true });
+                document.head.appendChild(link);
+            });
+        }
+
+        async function initPage() {
+            try {
+                await Promise.all([
+                    ensureAiRoutingWorkspaceStyleLoaded(),
+                    ensureAiRoutingWorkspaceLoaded()
+                ]);
+                if (window.mountWsAiRoutingWorkspace) {
+                    window.mountWsAiRoutingWorkspace('wsAiRoutingWorkspaceMount');
+                }
+
+                bindEvents();
+                fetchTokenRate({ silent: true });
+                fetchAiRoutingConfig({ silent: true });
+                fetchUsers();
+            } catch (error) {
+                console.error('Init ws-users page failed:', error);
+                notify(error.message || '页面初始化失败。', 'error');
+            }
+        }
+
+        initPage();
     })();
 </script>

@@ -228,6 +228,7 @@
     (function () {
         const state = { licenses: [], currentPage: 1, itemsPerPage: 12, editingLicenseId: null };
         const $ = id => document.getElementById(id);
+        const isPageMounted = () => Boolean($('licensesTableBody'));
         const statusMap = {
             available: { text: '未激活', className: 'em-badge-neutral' },
             active: { text: '有效', className: 'em-badge-success' },
@@ -292,6 +293,7 @@
         }
 
         async function fetchData() {
+            if (!isPageMounted()) return;
             renderStatsLoading();
             renderTableLoading();
             $('pageInfo').textContent = '加载中...';
@@ -305,11 +307,13 @@
                 }
 
                 const res = await fetch('/api/get-email-tracking-usage', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!isPageMounted()) return;
                 if (res.status === 401 || res.status === 403) {
                     redirectToLogin_EmailMarketing();
                     return;
                 }
                 const data = await res.json();
+                if (!isPageMounted()) return;
                 if (data.success) {
                     state.licenses = data.licenses || [];
                     updateStats(data.summary);
@@ -319,6 +323,7 @@
             } catch (e) {
                 clearLoadingState();
                 showNotification(e.message, 'error');
+                if (!isPageMounted()) return;
                 $('licensesTableBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:#ef4444">加载失败</td></tr>';
             }
         }

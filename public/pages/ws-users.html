@@ -1,17 +1,4 @@
 <div class="ws-page">
-    <section class="ws-hero">
-        <div class="ws-hero-copy">
-            <span class="ws-kicker">WS Marketing Ops</span>
-            <h1 class="ws-title">WS营销系统用户</h1>
-            <p class="ws-subtitle">聚合查看用户资料、开通时间、到期时间、订单时间与 AI 使用情况。</p>
-        </div>
-        <div class="ws-hero-meta">
-            <div class="ws-hero-chip">显示开通时间</div>
-            <div class="ws-hero-chip">显示到期时间</div>
-            <div class="ws-hero-chip">显示订单时间</div>
-        </div>
-    </section>
-
     <section class="ws-metrics">
         <article class="ws-metric-card accent-cyan">
             <div class="ws-metric-label">总用户数</div>
@@ -255,40 +242,6 @@
 </div>
 <style>
     .ws-page { display: flex; flex-direction: column; gap: 24px; color: #102133; }
-    .ws-hero {
-        position: relative; overflow: hidden; display: flex; justify-content: space-between; gap: 24px; padding: 28px;
-        border-radius: 28px;
-        background:
-            radial-gradient(circle at top left, rgba(52, 211, 153, 0.18), transparent 34%),
-            radial-gradient(circle at top right, rgba(14, 165, 233, 0.20), transparent 38%),
-            linear-gradient(135deg, #0f172a 0%, #13263f 48%, #14314f 100%);
-        color: #f8fbff;
-        box-shadow: 0 24px 44px rgba(6, 23, 40, 0.26);
-    }
-    .ws-hero::after {
-        content: ""; position: absolute; inset: auto -100px -110px auto; width: 280px; height: 280px; border-radius: 50%;
-        background: rgba(148, 163, 184, 0.10); filter: blur(8px);
-    }
-    .ws-hero-copy, .ws-hero-meta { position: relative; z-index: 1; }
-    .ws-kicker {
-        display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 999px;
-        background: rgba(255, 255, 255, 0.12); color: #c6f6ff; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
-    }
-    .ws-title { margin-top: 14px; font-size: 34px; line-height: 1.1; }
-    .ws-subtitle { margin-top: 12px; max-width: 620px; color: rgba(240, 247, 255, 0.82); font-size: 15px; line-height: 1.7; }
-    .ws-hero-meta {
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: flex-start;
-        justify-content: flex-end;
-        gap: 12px;
-        max-width: none;
-        margin-left: auto;
-    }
-    .ws-hero-chip {
-        padding: 10px 14px; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 16px; background: rgba(15, 23, 42, 0.26);
-        color: #ecfeff; backdrop-filter: blur(10px); font-size: 13px; white-space: nowrap;
-    }
     .ws-metrics { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
     .ws-metric-card, .ws-toolbar-card, .ws-table-card, .ws-detail-card {
         background: rgba(255, 255, 255, 0.88); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 24px;
@@ -327,7 +280,7 @@
     }
     .ws-content-grid.has-detail .ws-table-card,
     .ws-content-grid.has-detail .ws-detail-card {
-        height: clamp(620px, calc(100vh - 132px), 960px);
+        height: 100%;
     }
     .ws-content-grid.has-detail .ws-table-card {
         display: flex;
@@ -813,8 +766,6 @@
     }
     @media (max-width: 900px) {
         .ws-metrics, .ws-info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .ws-hero { flex-direction: column; }
-        .ws-hero-meta { justify-content: flex-start; max-width: none; }
     }
     @media (max-width: 768px) {
         .ws-content-grid { gap: 16px; }
@@ -900,8 +851,8 @@
         }
     }
     @media (max-width: 640px) {
-        .ws-page { gap: 18px; } .ws-hero, .ws-toolbar-card, .ws-table-card, .ws-detail-card { padding: 16px; border-radius: 18px; }
-        .ws-title { font-size: 28px; } .ws-metrics, .ws-info-grid, .ws-toolbar { grid-template-columns: 1fr; } .ws-timeline-item { flex-direction: column; }
+        .ws-page { gap: 18px; } .ws-toolbar-card, .ws-table-card, .ws-detail-card { padding: 16px; border-radius: 18px; }
+        .ws-metrics, .ws-info-grid, .ws-toolbar { grid-template-columns: 1fr; } .ws-timeline-item { flex-direction: column; }
         .ws-section-head {
             flex-direction: column;
             align-items: flex-start;
@@ -946,6 +897,7 @@
             editingUserId: null
         };
         const $ = id => document.getElementById(id);
+        const isPageMounted = () => Boolean($('wsUsersTableBody'));
         const numberFormatter = new Intl.NumberFormat('zh-CN');
         const currencyFormatter = new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY', minimumFractionDigits: 2 });
         const statusConfig = {
@@ -1127,6 +1079,7 @@
         }
 
         function setLoadingState() {
+            if (!isPageMounted()) return;
             renderTableSkeleton();
             setMetricsLoadingState();
             $('wsResultCount').textContent = '正在加载...';
@@ -1137,6 +1090,7 @@
         }
 
         function renderMetrics(metrics) {
+            if (!isPageMounted()) return;
             $('metricTotalUsers').textContent = formatNumber(metrics.total_users);
             $('metricActiveUsers').textContent = formatNumber(metrics.active_subscriptions);
             $('metricExpiringSoon').textContent = formatNumber(metrics.expiring_soon);
@@ -1175,6 +1129,7 @@
         }
 
         function renderPagination() {
+            if (!isPageMounted()) return;
             const totalUsers = state.filteredUsers.length;
             const totalPages = getPageCount();
             const start = totalUsers ? ((state.currentPage - 1) * state.itemsPerPage) + 1 : 0;
@@ -1189,6 +1144,7 @@
         }
 
         function renderUsers() {
+            if (!isPageMounted()) return;
             const tbody = $('wsUsersTableBody');
             const users = getCurrentPageUsers();
             $('wsResultCount').textContent = `共 ${formatNumber(state.filteredUsers.length)} 位用户，每页 ${state.itemsPerPage} 位`;
@@ -1235,6 +1191,7 @@
         }
 
         function renderDetail(user) {
+            if (!isPageMounted()) return;
             $('wsDetailCard').hidden = !user;
             $('wsDetailContent').hidden = !user;
             $('wsContentGrid').classList.toggle('has-detail', Boolean(user));
@@ -1375,6 +1332,7 @@
                 const response = await fetch('/api/getWsUsers', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (!isPageMounted()) return;
 
                 if (response.status === 401 || response.status === 403) {
                     redirectToLogin();
@@ -1385,6 +1343,7 @@
                 if (!response.ok || !result.success) {
                     throw new Error(result.message || 'WS 用户数据加载失败。');
                 }
+                if (!isPageMounted()) return;
 
                 state.users = Array.isArray(result.users) ? result.users : [];
                 state.currentPage = preserveState ? previousPage : 1;
@@ -1395,6 +1354,7 @@
                 applyFilters({ resetPage: !preserveState, preferredUserId: state.selectedUserId });
             } catch (error) {
                 console.error('加载 WS 用户数据失败:', error);
+                if (!isPageMounted()) return;
                 $('wsUsersTableBody').innerHTML = `<tr><td colspan="9"><div class="ws-empty-inline">加载失败：${error.message}</div></td></tr>`;
                 $('wsResultCount').textContent = '加载失败';
                 renderDetail(null);
